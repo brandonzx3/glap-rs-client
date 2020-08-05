@@ -38,6 +38,14 @@ function type_ushort_deserialize(buf: Uint8Array, index: Box<number>): number {
     return view[0];
 }
 
+function type_float_pair_serialize(out: number[], pair: [number, number]) {
+    type_float_serialize(out, pair[0])
+    type_float_serialize(out, pair[1]);
+}
+function type_float_pair_deserialize(buf: Uint8Array, index: Box<number>): [number, number] {
+    return [type_float_deserialize(buf, index), type_float_deserialize(buf, index)];
+}
+
 class ToServerMsg_Handshake {
 	static readonly id = 0;
 	client: string; session: string|null;
@@ -78,17 +86,41 @@ class ToClientMsg_HandshakeAccepted {
 		return new Uint8Array(out);
 	}
 }
+class ToClientMsg_AddCelestialObject {
+	static readonly id = 1;
+	name: string; display_name: string; radius: number; id: number; position: [number, number];
+	constructor(name: string, display_name: string, radius: number, id: number, position: [number, number],) {
+		this.name = name; this.display_name = display_name; this.radius = radius; this.id = id; this.position = position;
+	}
+	serialize(): Uint8Array
+		{let out = [1];
+		type_string_serialize(out, this.name);
+		type_string_serialize(out, this.display_name);
+		type_float_serialize(out, this.radius);
+		type_ushort_serialize(out, this.id);
+		type_float_pair_serialize(out, this.position);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 	switch (index.v += 1) {
 		case 0: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_HandshakeAccepted(id);
+		}; break;		case 1: {
+			let name: string; let display_name: string; let radius: number; let id: number; let position: [number, number];
+			name = type_string_deserialize(buf, index);
+			display_name = type_string_deserialize(buf, index);
+			radius = type_float_deserialize(buf, index);
+			id = type_ushort_deserialize(buf, index);
+			position = type_float_pair_deserialize(buf, index);
+			return new ToClientMsg_AddCelestialObject(name, display_name, radius, id, position);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject
 };
 
