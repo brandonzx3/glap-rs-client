@@ -51,6 +51,15 @@ function type_float_pair_deserialize(buf: Uint8Array, index: Box<number>): [numb
 }
 
 
+export enum PartKind {
+	Core, Cargo, LandingThruster, Hub
+}
+function enum_PartKind_serialize(buf: number[], val: PartKind) { buf.push(val as number); }function enum_PartKind_deserialize(buf: Uint8Array, index: Box<number>): PartKind {
+	const me = buf[index.v++];
+	if (me < 4) return me as PartKind;
+	else throw new Error('Bad PartKind deserialize');
+}
+
 class ToServerMsg_Handshake {
 	static readonly id = 0;
 	client: string; session: string|null;
@@ -107,6 +116,46 @@ class ToClientMsg_AddCelestialObject {
 		return new Uint8Array(out);
 	}
 }
+class ToClientMsg_AddPart {
+	static readonly id = 2;
+	id: number; kind: PartKind;
+	constructor(id: number, kind: PartKind,) {
+		this.id = id; this.kind = kind;
+	}
+	serialize(): Uint8Array
+		{let out = [2];
+		type_ushort_serialize(out, this.id);
+		enum_PartKind_serialize(out, this.kind);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_MovePart {
+	static readonly id = 3;
+	id: number; x: number; y: number; radians: number;
+	constructor(id: number, x: number, y: number, radians: number,) {
+		this.id = id; this.x = x; this.y = y; this.radians = radians;
+	}
+	serialize(): Uint8Array
+		{let out = [3];
+		type_ushort_serialize(out, this.id);
+		type_float_serialize(out, this.x);
+		type_float_serialize(out, this.y);
+		type_float_serialize(out, this.radians);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_RemovePart {
+	static readonly id = 4;
+	id: number;
+	constructor(id: number,) {
+		this.id = id;
+	}
+	serialize(): Uint8Array
+		{let out = [4];
+		type_ushort_serialize(out, this.id);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -121,11 +170,27 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			id = type_ushort_deserialize(buf, index);
 			position = type_float_pair_deserialize(buf, index);
 			return new ToClientMsg_AddCelestialObject(name, display_name, radius, id, position);
+		}; break;		case 2: {
+			let id: number; let kind: PartKind;
+			id = type_ushort_deserialize(buf, index);
+			kind = enum_PartKind_deserialize(buf, index);
+			return new ToClientMsg_AddPart(id, kind);
+		}; break;		case 3: {
+			let id: number; let x: number; let y: number; let radians: number;
+			id = type_ushort_deserialize(buf, index);
+			x = type_float_deserialize(buf, index);
+			y = type_float_deserialize(buf, index);
+			radians = type_float_deserialize(buf, index);
+			return new ToClientMsg_MovePart(id, x, y, radians);
+		}; break;		case 4: {
+			let id: number;
+			id = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_RemovePart(id);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, RemovePart: ToClientMsg_RemovePart
 };
 
