@@ -13,7 +13,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":1000,"h":1000},
 			"sourceSize": {"w":1000,"h":1000}
 		},
-		"core.png":
+		"Core.png":
 		{
 			"frame": {"x":1000,"y":0,"w":150,"h":145},
 			"rotated": false,
