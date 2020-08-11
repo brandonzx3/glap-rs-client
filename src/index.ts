@@ -19,7 +19,7 @@ function resize() {
 resize();
 
 let spritesheet: PIXI.Spritesheet;
-(async () => {
+new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
         image.src = "/spritesheet.png";
@@ -31,8 +31,8 @@ let spritesheet: PIXI.Spritesheet;
     const dat = await dat_promise;
     const texture = PIXI.Texture.from(image);
     spritesheet = new PIXI.Spritesheet(texture, dat);
-    console.log(spritesheet);
-})().then(() => {
+    spritesheet.parse(resolve);
+}).then(() => {
 
     //ws%3A%2F%2Flocalhost%3A8081 for localhost 8081
     const socket = new WebSocket(decodeURIComponent(window.location.hash.slice(1)));
@@ -40,18 +40,16 @@ let spritesheet: PIXI.Spritesheet;
     socket.onopen = () => {
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
     };
-    socket.onmessage = (e) => {
-        console.log(new Uint8Array(e.data));
+    function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
-        console.log(message);
         if (message instanceof ToClientMsg.HandshakeAccepted) {
-            alert("Accepted");
-            //socket.onmessage = on_message;
-        }// else throw new Error();
+            console.log("Handshake Accepted");
+            socket.removeEventListener("message", handshake_ing);
+            socket.addEventListener("message", on_message);
+        } else throw new Error();
     }
+    socket.addEventListener("message", handshake_ing);
     socket.onerror = err => { throw err; };
-
-
 
     function on_message(e: MessageEvent) {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
