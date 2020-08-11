@@ -14,6 +14,7 @@ function resize() {
     pixi.view.width = window.innerWidth;
     pixi.view.height = window.innerHeight;
     pixi.renderer.resize(window.innerWidth, window.innerHeight);
+    pixi.stage.position.set(pixi.view.width / 2, pixi.view.height / 2);
     scale_up = Math.max(window_size * (0.035545023696682464), 30);
     scaling.scale.set(scale_up, scale_up);
 }
@@ -43,10 +44,14 @@ new Promise(async (resolve, reject) => {
     socket.onopen = () => {
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
     };
+    let my_id: number = null;
+    let my_core_id: number = null;
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
         if (message instanceof ToClientMsg.HandshakeAccepted) {
             console.log("Handshake Accepted");
+            console.log(message);
+            my_id = message.id; my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
             socket.addEventListener("message", on_message);
         } else throw new Error();
@@ -73,8 +78,10 @@ new Promise(async (resolve, reject) => {
         else if (msg instanceof ToClientMsg.AddPart) {
             const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
+            part.position.set(0,0);
             world.addChild(part);
             parts.set(msg.id, part);
+            if (msg.id === my_core_id) my_core = part;
         }
         else if (msg instanceof ToClientMsg.MovePart) {
             const part = parts.get(msg.id);
@@ -85,10 +92,12 @@ new Promise(async (resolve, reject) => {
 
     function render() {
         if (rendering) {
-            //if (my_core != null) { world.position.set(-my_core.position.x, -my_core.position.y); }
+            if (my_core != null) { world.position.set(-my_core.position.x, -my_core.position.y); }
             pixi.render();
             requestAnimationFrame(render);
         }
     }
     requestAnimationFrame(render);
+
+    (window as any)["yeet"] = { pixi }
 });
