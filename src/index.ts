@@ -83,11 +83,16 @@ new Promise(async (resolve, reject) => {
             world.addChild(part);
             parts.set(msg.id, part);
             if (msg.id === my_core_id) my_core = part;
-        }
-        else if (msg instanceof ToClientMsg.MovePart) {
+        } else if (msg instanceof ToClientMsg.MovePart) {
             const part = parts.get(msg.id);
             part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.rotation = Math.atan2(msg.rotation_i, msg.rotation_n);
+        } else if (msg instanceof ToClientMsg.RemovePart) {
+            const part = parts.get(msg.id);
+            if (part !== null) {
+                parts.delete(msg.id);
+                world.removeChild(part);
+            }
         }
     }
 
@@ -100,5 +105,5 @@ new Promise(async (resolve, reject) => {
     }
     requestAnimationFrame(render);
 
-    (window as any)["dev"] = { pixi, my_core: () => { return my_core } }
+    (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects }
 });
