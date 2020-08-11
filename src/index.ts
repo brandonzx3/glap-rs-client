@@ -19,6 +19,7 @@ function resize() {
     scaling.scale.set(scale_up, scale_up);
 }
 resize();
+window.addEventListener("resize", resize);
 
 let rendering = true;
 
@@ -70,7 +71,7 @@ new Promise(async (resolve, reject) => {
             const celestial_object = new PIXI.Sprite(spritesheet.textures[msg.name + ".png"]);
             celestial_object.width = msg.radius * 2;
             celestial_object.height = msg.radius * 2;
-            celestial_object.position.set(msg.position[0], msg.position[1]);
+            celestial_object.position.set(msg.position[0] - msg.radius, msg.position[1] - msg.radius);
             world.addChild(celestial_object);
             celestial_objects.set(msg.id, celestial_object);
         }
@@ -85,7 +86,7 @@ new Promise(async (resolve, reject) => {
         }
         else if (msg instanceof ToClientMsg.MovePart) {
             const part = parts.get(msg.id);
-            part.position.set(msg.x, msg.y);
+            part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.rotation = Math.atan2(msg.rotation_i, msg.rotation_n);
         }
     }
@@ -99,5 +100,5 @@ new Promise(async (resolve, reject) => {
     }
     requestAnimationFrame(render);
 
-    (window as any)["yeet"] = { pixi }
+    (window as any)["dev"] = { pixi, my_core: () => { return my_core } }
 });
