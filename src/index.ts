@@ -41,6 +41,7 @@ let spritesheet: PIXI.Spritesheet;
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
     };
     socket.onmessage = (e) => {
+        console.log(new Uint8Array(e.data));
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
         console.log(message);
         if (message instanceof ToClientMsg.HandshakeAccepted) {
