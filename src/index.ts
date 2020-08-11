@@ -38,14 +38,15 @@ let spritesheet: PIXI.Spritesheet;
     const socket = new WebSocket(decodeURIComponent(window.location.hash.slice(1)));
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
-    socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
+        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
     };
     socket.onmessage = (e) => {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
+        console.log(message);
         if (message instanceof ToClientMsg.HandshakeAccepted) {
             alert("Accepted");
-            socket.onmessage = on_message;
-        } else throw new Error();
+            //socket.onmessage = on_message;
+        }// else throw new Error();
     }
     socket.onerror = err => { throw err; };
 

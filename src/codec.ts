@@ -90,13 +90,14 @@ export const ToServerMsg = {
 
 class ToClientMsg_HandshakeAccepted {
 	static readonly id = 0;
-	id: number;
-	constructor(id: number,) {
-		this.id = id;
+	id: number; core_id: number;
+	constructor(id: number, core_id: number,) {
+		this.id = id; this.core_id = core_id;
 	}
 	serialize(): Uint8Array
 		{let out = [0];
 		type_ushort_serialize(out, this.id);
+		type_ushort_serialize(out, this.core_id);
 		return new Uint8Array(out);
 	}
 }
@@ -131,16 +132,17 @@ class ToClientMsg_AddPart {
 }
 class ToClientMsg_MovePart {
 	static readonly id = 3;
-	id: number; x: number; y: number; radians: number;
-	constructor(id: number, x: number, y: number, radians: number,) {
-		this.id = id; this.x = x; this.y = y; this.radians = radians;
+	id: number; x: number; y: number; rotation_n: number; rotation_i: number;
+	constructor(id: number, x: number, y: number, rotation_n: number, rotation_i: number,) {
+		this.id = id; this.x = x; this.y = y; this.rotation_n = rotation_n; this.rotation_i = rotation_i;
 	}
 	serialize(): Uint8Array
 		{let out = [3];
 		type_ushort_serialize(out, this.id);
 		type_float_serialize(out, this.x);
 		type_float_serialize(out, this.y);
-		type_float_serialize(out, this.radians);
+		type_float_serialize(out, this.rotation_n);
+		type_float_serialize(out, this.rotation_i);
 		return new Uint8Array(out);
 	}
 }
@@ -159,9 +161,10 @@ class ToClientMsg_RemovePart {
 function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
-			let id: number;
+			let id: number; let core_id: number;
 			id = type_ushort_deserialize(buf, index);
-			return new ToClientMsg_HandshakeAccepted(id);
+			core_id = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_HandshakeAccepted(id, core_id);
 		}; break;		case 1: {
 			let name: string; let display_name: string; let radius: number; let id: number; let position: [number, number];
 			name = type_string_deserialize(buf, index);
@@ -176,12 +179,13 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			kind = enum_PartKind_deserialize(buf, index);
 			return new ToClientMsg_AddPart(id, kind);
 		}; break;		case 3: {
-			let id: number; let x: number; let y: number; let radians: number;
+			let id: number; let x: number; let y: number; let rotation_n: number; let rotation_i: number;
 			id = type_ushort_deserialize(buf, index);
 			x = type_float_deserialize(buf, index);
 			y = type_float_deserialize(buf, index);
-			radians = type_float_deserialize(buf, index);
-			return new ToClientMsg_MovePart(id, x, y, radians);
+			rotation_n = type_float_deserialize(buf, index);
+			rotation_i = type_float_deserialize(buf, index);
+			return new ToClientMsg_MovePart(id, x, y, rotation_n, rotation_i);
 		}; break;		case 4: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
