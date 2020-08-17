@@ -80,12 +80,14 @@ new Promise(async (resolve, reject) => {
             const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
             part.position.set(0,0);
+            part.pivot.set(0.5,0.5);
             world.addChild(part);
             parts.set(msg.id, part);
             if (msg.id === my_core_id) my_core = part;
         } else if (msg instanceof ToClientMsg.MovePart) {
             const part = parts.get(msg.id);
-            part.position.set(msg.x - 0.5, msg.y - 0.5);
+            //part.position.set(msg.x - 0.5, msg.y - 0.5);
+            part.position.set(msg.x, msg.y);
             part.rotation = Math.atan2(msg.rotation_i, msg.rotation_n);
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = parts.get(msg.id);
