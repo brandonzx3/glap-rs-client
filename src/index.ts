@@ -44,6 +44,8 @@ new Promise(async (resolve, reject) => {
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
+        window.addEventListener("keydown", key_down);
+        window.addEventListener("keyup", key_up);
     };
     let my_id: number = null;
     let my_core_id: number = null;
@@ -107,5 +109,100 @@ new Promise(async (resolve, reject) => {
     }
     requestAnimationFrame(render);
 
+    const keys_down: Set<number> = new Set();
+    const my_thrusters = new ToServerMsg.SetThrusters(false, false, false, false);
+    function key_down(e: KeyboardEvent) {
+        if (keys_down.has(e.keyCode)) return;
+        keys_down.add(e.keyCode);
+        switch (e.keyCode) {
+            case 87: //w
+                my_thrusters.forward = true;
+                socket.send(my_thrusters.serialize());
+                break;
+            case 83: //s
+                my_thrusters.backward = true;
+                socket.send(my_thrusters.serialize());
+                break;
+            case 65: //a
+                my_thrusters.counter_cloockwise = true;
+                socket.send(my_thrusters.serialize());
+                break;
+            case 68: //d
+                my_thrusters.clockwise = true;
+                socket.send(my_thrusters.serialize());
+                break;
+        };
+    }
+    function key_up(e: KeyboardEvent) {
+        if (keys_down.delete(e.keyCode)) {
+            switch (e.keyCode) {
+                case 87: //w
+                    my_thrusters.backward = false;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                    case 83: //s
+                    my_thrusters.backward = false;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 65: //a
+                    my_thrusters.counter_cloockwise = false;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 68: //d
+                    my_thrusters.clockwise = false;
+                    socket.send(my_thrusters.serialize());
+                    break;
+            }
+        }
+    }
+
     (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects }
 });
+
+enum HorizontalThrustMode { Clockwise, CounterClockwise, Either }
+enum VerticalThrustMode { Forwards, Backwards }
+
+class CompactThrustMode {
+    private _dat: number;
+    constructor(dat: number) { this._dat = dat; }
+    get horizontal(): HorizontalThrustMode {
+        switch (this._dat & 0b00000011) {
+            case 1: return HorizontalThrustMode.Clockwise;
+            case 0: return HorizontalThrustMode.CounterClockwise;
+            case 2: return HorizontalThrustMode.Either;
+        }
+    }
+    set horizontal(horizontal: HorizontalThrustMode) {
+        let representation;
+        switch (horizontal) {
+            case HorizontalThrustMode.Clockwise: representation = 1; break;
+            case HorizontalThrustMode.CounterClockwise: representation = 0; break;
+            case HorizontalThrustMode.Either: representation = 2; break;
+        };
+        this._dat = (this._dat & 0b11111100) | representation;
+    }
+    get vertical(): VerticalThrustMode {
+        switch (this._dat & 0b00001100) {
+            case 1: VerticalThrustMode.Forwards;
+            case 0: VerticalThrustMode.Backwards;
+            default: throw new Error();
+        }
+    }
+    set vertical(vertical: VerticalThrustMode) {
+        let representation;
+        switch (vertical) {
+            case VerticalThrustMode.Forwards: representation = 4; break;
+            case VerticalThrustMode.Backwards: representation = 0; break;
+        }
+        this._dat = (this._dat & 0b11110011) | representation;
+    }
+
+    static compose(horizontal: HorizontalThrustMode, vertical: VerticalThrustMode): CompactThrustMode {
+        let thrust = new CompactThrustMode(0);
+        thrust.horizontal = horizontal;
+        thrust.vertical = vertical;
+        return thrust;
+    }
+
+    get dat(): number { return this.dat; }
+}

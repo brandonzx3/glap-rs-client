@@ -52,6 +52,11 @@ function type_float_pair_deserialize(buf: Uint8Array, index: Box<number>): [numb
     return [type_float_deserialize(buf, index), type_float_deserialize(buf, index)];
 }
 
+function type_ubyte_serialize(out: number[], ubyte: number) { out.push(ubyte); }
+function type_ubyte_deserialize(buf: Uint8Array, index: Box<number>): number { return buf[index.v++]; }
+
+function type_boolean_serialize(out: number[], bool: boolean) { out.push(bool ? 1 : 0); }
+function type_boolean_deserialize(buf: Uint8Array, index: Box<number>): boolean { return buf[index.v++] > 0; }
 
 export enum PartKind {
 	Core, Cargo, LandingThruster, Hub
@@ -75,6 +80,21 @@ class ToServerMsg_Handshake {
 		return new Uint8Array(out);
 	}
 }
+class ToServerMsg_SetThrusters {
+	static readonly id = 1;
+	forward: boolean; backward: boolean; clockwise: boolean; counter_cloockwise: boolean;
+	constructor(forward: boolean, backward: boolean, clockwise: boolean, counter_cloockwise: boolean,) {
+		this.forward = forward; this.backward = backward; this.clockwise = clockwise; this.counter_cloockwise = counter_cloockwise;
+	}
+	serialize(): Uint8Array
+		{let out = [1];
+		type_boolean_serialize(out, this.forward);
+		type_boolean_serialize(out, this.backward);
+		type_boolean_serialize(out, this.clockwise);
+		type_boolean_serialize(out, this.counter_cloockwise);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -82,12 +102,19 @@ function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 			client = type_string_deserialize(buf, index);
 			if (buf[index.v++] > 0) {session = type_string_deserialize(buf, index);} else {session = null;}
 			return new ToServerMsg_Handshake(client, session);
+		}; break;		case 1: {
+			let forward: boolean; let backward: boolean; let clockwise: boolean; let counter_cloockwise: boolean;
+			forward = type_boolean_deserialize(buf, index);
+			backward = type_boolean_deserialize(buf, index);
+			clockwise = type_boolean_deserialize(buf, index);
+			counter_cloockwise = type_boolean_deserialize(buf, index);
+			return new ToServerMsg_SetThrusters(forward, backward, clockwise, counter_cloockwise);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToServerMsg = {
 	deserialize: deserialize_ToServerMsg,
-	Handshake: ToServerMsg_Handshake
+	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters
 };
 
 class ToClientMsg_HandshakeAccepted {
