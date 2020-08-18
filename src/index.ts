@@ -124,7 +124,7 @@ new Promise(async (resolve, reject) => {
                 socket.send(my_thrusters.serialize());
                 break;
             case 65: //a
-                my_thrusters.counter_cloockwise = true;
+                my_thrusters.counter_clockwise = true;
                 socket.send(my_thrusters.serialize());
                 break;
             case 68: //d
@@ -145,7 +145,7 @@ new Promise(async (resolve, reject) => {
                     socket.send(my_thrusters.serialize());
                     break;
                 case 65: //a
-                    my_thrusters.counter_cloockwise = false;
+                    my_thrusters.counter_clockwise = false;
                     socket.send(my_thrusters.serialize());
                     break;
                 case 68: //d

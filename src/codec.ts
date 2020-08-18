@@ -82,16 +82,16 @@ class ToServerMsg_Handshake {
 }
 class ToServerMsg_SetThrusters {
 	static readonly id = 1;
-	forward: boolean; backward: boolean; clockwise: boolean; counter_cloockwise: boolean;
-	constructor(forward: boolean, backward: boolean, clockwise: boolean, counter_cloockwise: boolean,) {
-		this.forward = forward; this.backward = backward; this.clockwise = clockwise; this.counter_cloockwise = counter_cloockwise;
+	forward: boolean; backward: boolean; clockwise: boolean; counter_clockwise: boolean;
+	constructor(forward: boolean, backward: boolean, clockwise: boolean, counter_clockwise: boolean,) {
+		this.forward = forward; this.backward = backward; this.clockwise = clockwise; this.counter_clockwise = counter_clockwise;
 	}
 	serialize(): Uint8Array
 		{let out = [1];
 		type_boolean_serialize(out, this.forward);
 		type_boolean_serialize(out, this.backward);
 		type_boolean_serialize(out, this.clockwise);
-		type_boolean_serialize(out, this.counter_cloockwise);
+		type_boolean_serialize(out, this.counter_clockwise);
 		return new Uint8Array(out);
 	}
 }
@@ -103,12 +103,12 @@ function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 			if (buf[index.v++] > 0) {session = type_string_deserialize(buf, index);} else {session = null;}
 			return new ToServerMsg_Handshake(client, session);
 		}; break;		case 1: {
-			let forward: boolean; let backward: boolean; let clockwise: boolean; let counter_cloockwise: boolean;
+			let forward: boolean; let backward: boolean; let clockwise: boolean; let counter_clockwise: boolean;
 			forward = type_boolean_deserialize(buf, index);
 			backward = type_boolean_deserialize(buf, index);
 			clockwise = type_boolean_deserialize(buf, index);
-			counter_cloockwise = type_boolean_deserialize(buf, index);
-			return new ToServerMsg_SetThrusters(forward, backward, clockwise, counter_cloockwise);
+			counter_clockwise = type_boolean_deserialize(buf, index);
+			return new ToServerMsg_SetThrusters(forward, backward, clockwise, counter_clockwise);
 		}; break;		default: throw new Error();
 	}
 }
