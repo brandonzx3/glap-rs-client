@@ -214,7 +214,7 @@ class ToClientMsg_AddPlayer {
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_UpdatePlayer {
+class ToClientMsg_UpdatePlayerMeta {
 	static readonly id = 7;
 	id: number; thrust_forward: boolean; thrust_backward: boolean; thrust_clockwise: boolean; thrust_counter_clockwise: boolean;
 	constructor(id: number, thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean,) {
@@ -292,7 +292,7 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			thrust_backward = type_boolean_deserialize(buf, index);
 			thrust_clockwise = type_boolean_deserialize(buf, index);
 			thrust_counter_clockwise = type_boolean_deserialize(buf, index);
-			return new ToClientMsg_UpdatePlayer(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise);
+			return new ToClientMsg_UpdatePlayerMeta(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise);
 		}; break;		case 8: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
@@ -302,6 +302,6 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayer: ToClientMsg_UpdatePlayer, RemovePlayer: ToClientMsg_RemovePlayer
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer
 };
 

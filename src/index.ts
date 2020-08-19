@@ -98,6 +98,10 @@ new Promise(async (resolve, reject) => {
                 world.removeChild(part);
             }
         }
+
+        else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
+            console.log(msg);
+        }
     }
 
     function render() {
