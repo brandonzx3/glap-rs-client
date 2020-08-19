@@ -175,14 +175,69 @@ class ToClientMsg_MovePart {
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_RemovePart {
+class ToClientMsg_UpdatePartMeta {
 	static readonly id = 4;
+	id: number; owning_player: number|null; thrust_mode: number;
+	constructor(id: number, owning_player: number|null, thrust_mode: number,) {
+		this.id = id; this.owning_player = owning_player; this.thrust_mode = thrust_mode;
+	}
+	serialize(): Uint8Array
+		{let out = [4];
+		type_ushort_serialize(out, this.id);
+		if (this.owning_player === null) out.push(0); else {out.push(1); type_ushort_serialize(out, this.owning_player);};
+		type_ubyte_serialize(out, this.thrust_mode);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_RemovePart {
+	static readonly id = 5;
 	id: number;
 	constructor(id: number,) {
 		this.id = id;
 	}
 	serialize(): Uint8Array
-		{let out = [4];
+		{let out = [5];
+		type_ushort_serialize(out, this.id);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_AddPlayer {
+	static readonly id = 6;
+	id: number; name: string;
+	constructor(id: number, name: string,) {
+		this.id = id; this.name = name;
+	}
+	serialize(): Uint8Array
+		{let out = [6];
+		type_ushort_serialize(out, this.id);
+		type_string_serialize(out, this.name);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_UpdatePlayer {
+	static readonly id = 7;
+	id: number; thrust_forward: boolean; thrust_backward: boolean; thrust_clockwise: boolean; thrust_counter_clockwise: boolean;
+	constructor(id: number, thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean,) {
+		this.id = id; this.thrust_forward = thrust_forward; this.thrust_backward = thrust_backward; this.thrust_clockwise = thrust_clockwise; this.thrust_counter_clockwise = thrust_counter_clockwise;
+	}
+	serialize(): Uint8Array
+		{let out = [7];
+		type_ushort_serialize(out, this.id);
+		type_boolean_serialize(out, this.thrust_forward);
+		type_boolean_serialize(out, this.thrust_backward);
+		type_boolean_serialize(out, this.thrust_clockwise);
+		type_boolean_serialize(out, this.thrust_counter_clockwise);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_RemovePlayer {
+	static readonly id = 8;
+	id: number;
+	constructor(id: number,) {
+		this.id = id;
+	}
+	serialize(): Uint8Array
+		{let out = [8];
 		type_ushort_serialize(out, this.id);
 		return new Uint8Array(out);
 	}
@@ -216,14 +271,37 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			rotation_i = type_float_deserialize(buf, index);
 			return new ToClientMsg_MovePart(id, x, y, rotation_n, rotation_i);
 		}; break;		case 4: {
+			let id: number; let owning_player: number|null; let thrust_mode: number;
+			id = type_ushort_deserialize(buf, index);
+			if (buf[index.v++] > 0) {owning_player = type_ushort_deserialize(buf, index);} else {owning_player = null;}
+			thrust_mode = type_ubyte_deserialize(buf, index);
+			return new ToClientMsg_UpdatePartMeta(id, owning_player, thrust_mode);
+		}; break;		case 5: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePart(id);
+		}; break;		case 6: {
+			let id: number; let name: string;
+			id = type_ushort_deserialize(buf, index);
+			name = type_string_deserialize(buf, index);
+			return new ToClientMsg_AddPlayer(id, name);
+		}; break;		case 7: {
+			let id: number; let thrust_forward: boolean; let thrust_backward: boolean; let thrust_clockwise: boolean; let thrust_counter_clockwise: boolean;
+			id = type_ushort_deserialize(buf, index);
+			thrust_forward = type_boolean_deserialize(buf, index);
+			thrust_backward = type_boolean_deserialize(buf, index);
+			thrust_clockwise = type_boolean_deserialize(buf, index);
+			thrust_counter_clockwise = type_boolean_deserialize(buf, index);
+			return new ToClientMsg_UpdatePlayer(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise);
+		}; break;		case 8: {
+			let id: number;
+			id = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_RemovePlayer(id);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, RemovePart: ToClientMsg_RemovePart
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayer: ToClientMsg_UpdatePlayer, RemovePlayer: ToClientMsg_RemovePlayer
 };
 
