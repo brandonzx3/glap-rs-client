@@ -97,6 +97,8 @@ new Promise(async (resolve, reject) => {
                 parts.delete(msg.id);
                 world.removeChild(part);
             }
+        } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
+            console.log(msg);
         }
 
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
