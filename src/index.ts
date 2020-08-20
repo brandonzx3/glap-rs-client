@@ -1,13 +1,17 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
 
-const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: false, transparent: false, backgroundColor: 0 });
+const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 document.body.appendChild(pixi.view);
 
 const scaling = new PIXI.Container();
 const world = new PIXI.Container();
-scaling.addChild(world);
 pixi.stage.addChild(scaling);
+const background = PIXI.TilingSprite.from("/starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
+background.tileScale.set(0.1);
+background.position.set(-50);
+scaling.addChild(background);
+scaling.addChild(world);
 let scale_up;
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
@@ -108,7 +112,11 @@ new Promise(async (resolve, reject) => {
 
     function render() {
         if (rendering) {
-            if (my_core != null) { world.position.set(-my_core.position.x, -my_core.position.y); }
+            if (my_core != null) {
+                world.position.set(-my_core.position.x, -my_core.position.y);
+                //background.position.set(my_core.position.x - 50, my_core.position.y - 50);
+                background.tilePosition.set(-my_core.position.x / 100, -my_core.position.y / 100);
+            }
             pixi.render();
             requestAnimationFrame(render);
         }
