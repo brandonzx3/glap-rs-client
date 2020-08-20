@@ -82,7 +82,7 @@ new Promise(async (resolve, reject) => {
             const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
             part.position.set(0,0);
-            part.pivot.set(0.5,0.5);
+            part.pivot.set(1,1);
             world.addChild(part);
             parts.set(msg.id, part);
             if (msg.id === my_core_id) my_core = part;
@@ -90,6 +90,7 @@ new Promise(async (resolve, reject) => {
             const part = parts.get(msg.id);
             //part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.position.set(msg.x, msg.y);
+            console.log([msg.rotation_i, msg.rotation_n]);
             part.rotation = Math.atan2(msg.rotation_i, msg.rotation_n);
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = parts.get(msg.id);
@@ -141,10 +142,10 @@ new Promise(async (resolve, reject) => {
         if (keys_down.delete(e.keyCode)) {
             switch (e.keyCode) {
                 case 87: //w
-                    my_thrusters.backward = false;
+                    my_thrusters.forward = false;
                     socket.send(my_thrusters.serialize());
                     break;
-                    case 83: //s
+                case 83: //s
                     my_thrusters.backward = false;
                     socket.send(my_thrusters.serialize());
                     break;
