@@ -4,6 +4,20 @@ import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
 const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: false, transparent: false, backgroundColor: 0 });
 document.body.appendChild(pixi.view);
 
+const red_rectangle = new PIXI.Graphics();
+red_rectangle.beginFill(0xFF0000);
+red_rectangle.drawRect(0,0,200,200);
+red_rectangle.endFill();
+red_rectangle.position.set(0,0);
+pixi.stage.addChild(red_rectangle);
+const blue_rectangle = new PIXI.Graphics();
+blue_rectangle.beginFill(0x0000FF);
+blue_rectangle.drawRect(0,0,200,200);
+blue_rectangle.endFill();
+blue_rectangle.position.set(0,0);
+blue_rectangle.pivot.set(100,100);
+pixi.stage.addChild(blue_rectangle);
+
 const scaling = new PIXI.Container();
 const world = new PIXI.Container();
 scaling.addChild(world);
@@ -82,7 +96,7 @@ new Promise(async (resolve, reject) => {
             const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
             part.position.set(0,0);
-            part.pivot.set(1,1);
+            part.pivot.set(100,100);
             world.addChild(part);
             parts.set(msg.id, part);
             if (msg.id === my_core_id) my_core = part;
@@ -90,7 +104,6 @@ new Promise(async (resolve, reject) => {
             const part = parts.get(msg.id);
             //part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.position.set(msg.x, msg.y);
-            console.log([msg.rotation_i, msg.rotation_n]);
             part.rotation = Math.atan2(msg.rotation_i, msg.rotation_n);
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = parts.get(msg.id);
