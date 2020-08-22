@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="80"
+   inkscape:export-xdpi="80"
+   inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets/Cargo.png"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="Cargo.svg"
+   viewBox="0 0 180 173.99999"
+   height="174"
+   width="180"
+   id="svg917"
+   version="1.1">
+  <metadata
+     id="metadata923">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs921">
+    <clipPath
+       id="clipPath967"
+       clipPathUnits="userSpaceOnUse">
+      <rect
+         style="display:inline;fill:#383536;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000"
+         id="rect969"
+         width="32.615299"
+         height="7.6897864"
+         x="23.953241"
+         y="11.402097" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     inkscape:current-layer="g925"
+     inkscape:window-maximized="0"
+     inkscape:window-y="0"
+     inkscape:window-x="0"
+     inkscape:cy="98.681053"
+     inkscape:cx="96.88908"
+     inkscape:zoom="2.609375"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     id="namedview919"
+     inkscape:window-height="982"
+     inkscape:window-width="1827"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <g
+     transform="translate(30.855568,73.903615)"
+     id="g925"
+     inkscape:label="Image"
+     inkscape:groupmode="layer">
+    <rect
+       transform="scale(-1)"
+       ry="14.891394"
+       y="-100.09638"
+       x="-76.80368"
+       height="48.249752"
+       width="35.332497"
+       id="rect973"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000" />
+    <image
+       sodipodi:absref="/home/christian7573/Documents/glap/glap-io-client/static/cargo.png"
+       xlink:href="../../glap-io-client/static/cargo.png"
+       width="80"
+       height="80"
+       preserveAspectRatio="none"
+       id="image927"
+       style="display:none" />
+    <rect
+       transform="scale(-1)"
+       y="-75.401627"
+       x="-93.520134"
+       height="16.526491"
+       width="70.095116"
+       id="rect944"
+       style="display:inline;fill:#383536;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000" />
+    <path
+       d="M 107.578,24.493155 V -14.258676 -15.5893 h -0.0378 A 48.439653,34.952578 0 0 0 59.138234,-49.211719 48.439653,34.952578 0 0 0 10.732029,-15.5893 h -0.03359 v 1.330624 38.751831 z"
+       style="display:inline;fill:#4c484a;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000"
+       id="path937" />
+    <rect
+       transform="scale(-1)"
+       ry="16.017679"
+       y="-62.104713"
+       x="-107.83817"
+       height="73.040611"
+       width="97.387489"
+       id="rect929"
+       style="fill:#6e6a6a;fill-opacity:1;stroke-width:11.9622;stop-color:#000000" />
+    <rect
+       transform="scale(-1)"
+       y="-56.923466"
+       x="-70.584938"
+       height="12.088959"
+       width="19.07369"
+       id="rect933"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:11.9622;stop-color:#000000" />
+    <path
+       sodipodi:nodetypes="ccccccccccc"
+       id="path935"
+       d="M 71.390871,40.536209 H 52.317179 L 52.048536,28.984539 C 52.310983,24.954885 64.169371,22.805736 64.674782,16.089649 64.352838,12.00925 64.43396,9.2356606 59.570554,9.6422036 54.335882,9.9133656 52.254061,12.628117 50.973962,16.895578 H 32.706201 c 3.790221,-12.6400786 8.274941,-24.6628253 24.715206,-26.0584223 13.739379,0.895226 27.452426,8.26189002 27.401639,22.0287703 -0.356425,9.301236 -4.295478,16.429262 -13.025256,17.556808 -0.0099,6.323997 0.0063,6.286043 -0.406919,10.113475 z"
+       style="fill:#f2f2f2;stroke:none;stroke-width:0.999998px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <g
+       style="stroke-width:0.465301"
+       transform="matrix(-2.1491482,0,0,-2.1491482,144.9992,99.90643)"
+       clip-path="url(#clipPath967)"
+       id="g965">
+      <path
+         id="rect946"
+         style="fill:#fefe00;fill-opacity:1;stroke:none;stroke-width:6.74291;stop-color:#000000"
+         transform="matrix(1,0,-0.73192108,0.68138941,0,0)"
+         d="m 47.59668,15.695857 h 6.517856 v 10.11799 H 47.59668 Z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         d="m 48.217755,10.694991 h 6.517856 l -7.40557,6.894291 h -6.517856 z"
+         style="fill:#fefe00;fill-opacity:1;stroke:none;stroke-width:5.56602;stop-color:#000000"
+         id="path949" />
+      <path
+         id="path951"
+         style="fill:#fefe00;fill-opacity:1;stroke:none;stroke-width:5.56602;stop-color:#000000"
+         d="m 60.23857,10.694991 h 6.517856 l -7.40557,6.894291 H 52.833 Z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         d="m 24.529677,10.694991 h 6.517856 l -7.40557,6.894291 h -6.517856 z"
+         style="fill:#fefe00;fill-opacity:1;stroke:none;stroke-width:5.56602;stop-color:#000000"
+         id="path953" />
+    </g>
+  </g>
+</svg>

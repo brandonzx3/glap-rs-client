@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"image": "spritesheet.png",
-		"size": {"w":1181,"h":1000},
+		"size": {"w":1181,"h":1145},
 		"scale": "1"
 	},
 	"frames": {
@@ -21,9 +21,17 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":181,"h":725},
 			"sourceSize": {"w":181,"h":725}
 		},
-		"Core.png":
+		"Cargo.png":
 		{
 			"frame": {"x":1000,"y":725,"w":150,"h":145},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
+			"sourceSize": {"w":150,"h":145}
+		},
+		"Core.png":
+		{
+			"frame": {"x":0,"y":1000,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
