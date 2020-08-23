@@ -86,7 +86,8 @@ new Promise(async (resolve, reject) => {
             const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
             part.position.set(0,0);
-            part.pivot.set(100,100);
+            //part.pivot.set(100,100);
+            if (msg.kind === PartKind.Core) part.anchor.set(0.5, 0.5); else part.anchor.set(0.5, 1);
             world.addChild(part);
             parts.set(msg.id, part);
             if (msg.id === my_core_id) my_core = part;
