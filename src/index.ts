@@ -95,7 +95,7 @@ new Promise(async (resolve, reject) => {
             const part = parts.get(msg.id);
             //part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.position.set(msg.x, msg.y);
-            part.rotation = Math.atan2(msg.rotation_i, msg.rotation_n);
+            part.rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = parts.get(msg.id);
             if (part !== null) {
