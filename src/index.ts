@@ -67,8 +67,9 @@ new Promise(async (resolve, reject) => {
     socket.onerror = err => { throw err; };
 
     let my_core: PIXI.Sprite = null;
-    const parts = new Map<number, PIXI.Sprite>();
+    const parts = new Map<number, PartMeta>();
     const celestial_objects = new Map<number, PIXI.Sprite>();
+    const players = new Map<number, PlayerMeta>();
 
     function on_message(e: MessageEvent) {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
@@ -89,10 +90,11 @@ new Promise(async (resolve, reject) => {
             //part.pivot.set(100,100);
             if (msg.kind === PartKind.Core) part.anchor.set(0.5, 0.5); else part.anchor.set(0.5, 1);
             world.addChild(part);
-            parts.set(msg.id, part);
+            const meta = new PartMeta(msg.id, msg.kind, part);
+            parts.set(msg.id, meta);
             if (msg.id === my_core_id) my_core = part;
         } else if (msg instanceof ToClientMsg.MovePart) {
-            const part = parts.get(msg.id);
+            const part = parts.get(msg.id).sprite;
             //part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.position.set(msg.x, msg.y);
             part.rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
@@ -100,14 +102,34 @@ new Promise(async (resolve, reject) => {
             const part = parts.get(msg.id);
             if (part !== null) {
                 parts.delete(msg.id);
-                world.removeChild(part);
+                world.removeChild(part.sprite);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
-            console.log(msg);
+            const meta = parts.get(msg.id);
+            if (meta.owning_player !== null) meta.owning_player.parts.delete(meta);
+            if (msg.owning_player !== null) {
+                meta.owning_player = players.get(msg.owning_player);
+                meta.owning_player.parts.add(meta);
+                if (meta.kind === PartKind.Core) meta.owning_player.core = this;
+            } else meta.owning_player = null;
+            meta.thrust_mode.dat = msg.thrust_mode;
         }
 
+        else if (msg instanceof ToClientMsg.AddPlayer) {
+            players.set(msg.id, new PlayerMeta(msg.id, msg.name));
+        }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
-            console.log(msg);
+            const meta = players.get(msg.id);
+
+            meta.thrust_forward = msg.thrust_forward;
+            meta.thrust_backward = msg.thrust_backward;
+            meta.thrust_clockwise = msg.thrust_clockwise;
+            meta.thrust_counter_clockwise = msg.thrust_counter_clockwise;
+            meta.update_thruster_sprites();
+            
+        }
+        else if (msg instanceof ToClientMsg.RemovePlayer) {
+            players.delete(msg.id);
         }
     }
 
@@ -171,17 +193,17 @@ new Promise(async (resolve, reject) => {
         }
     }
 
-    (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects }
+    (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects, spritesheet }
 });
 
 enum HorizontalThrustMode { Clockwise, CounterClockwise, Either }
 enum VerticalThrustMode { Forwards, Backwards }
 
 class CompactThrustMode {
-    private _dat: number;
-    constructor(dat: number) { this._dat = dat; }
+    dat: number;
+    constructor(dat: number) { this.dat = dat; }
     get horizontal(): HorizontalThrustMode {
-        switch (this._dat & 0b00000011) {
+        switch (this.dat & 0b00000011) {
             case 1: return HorizontalThrustMode.Clockwise;
             case 0: return HorizontalThrustMode.CounterClockwise;
             case 2: return HorizontalThrustMode.Either;
@@ -194,10 +216,10 @@ class CompactThrustMode {
             case HorizontalThrustMode.CounterClockwise: representation = 0; break;
             case HorizontalThrustMode.Either: representation = 2; break;
         };
-        this._dat = (this._dat & 0b11111100) | representation;
+        this.dat = (this.dat & 0b11111100) | representation;
     }
     get vertical(): VerticalThrustMode {
-        switch (this._dat & 0b00001100) {
+        switch (this.dat & 0b00001100) {
             case 1: VerticalThrustMode.Forwards;
             case 0: VerticalThrustMode.Backwards;
             default: throw new Error();
@@ -209,7 +231,7 @@ class CompactThrustMode {
             case VerticalThrustMode.Forwards: representation = 4; break;
             case VerticalThrustMode.Backwards: representation = 0; break;
         }
-        this._dat = (this._dat & 0b11110011) | representation;
+        this.dat = (this.dat & 0b11110011) | representation;
     }
 
     static compose(horizontal: HorizontalThrustMode, vertical: VerticalThrustMode): CompactThrustMode {
@@ -218,6 +240,80 @@ class CompactThrustMode {
         thrust.vertical = vertical;
         return thrust;
     }
+}
 
-    get dat(): number { return this.dat; }
+class PlayerMeta {
+    id: number;
+    name: string;
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
+    thrust_forward = false;
+    thrust_backward = false;
+    thrust_clockwise = false;
+    thrust_counter_clockwise = false;
+    parts = new Set<PartMeta>();
+    core: PartMeta;
+
+    update_thruster_sprites() {
+        for (const part of this.parts) {
+            part.update_thruster_sprites(this.thrust_forward, this.thrust_backward, this.thrust_clockwise, this.thrust_counter_clockwise);
+        }
+    }
+}
+class PartMeta {
+    id: number;
+    sprite: PIXI.Sprite;
+    kind: PartKind;
+    constructor(id: number, kind: PartKind, sprite: PIXI.Sprite) {
+        this.id = id; this.sprite = sprite;
+        this.kind = kind;
+    }
+    thrust_sprites: PIXI.Sprite[] = []; //Potentially could be better
+    owning_player: PlayerMeta = null;
+    thrust_mode = new CompactThrustMode(0);
+
+    update_thruster_sprites(thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean) {
+        for (const sprite of this.thrust_sprites) this.sprite.removeChild(sprite)        
+        switch (this.kind) {
+            case PartKind.Core: {
+                this.thrust_sprites = [];
+                if (thrust_forward || thrust_clockwise) {
+                    //Height = width * 4.00552486
+                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
+                    sprite.width = 0.2; sprite.height = 0.8;
+                    sprite.x = -0.5; sprite.y = -0.5;
+                    this.sprite.addChild(sprite);
+                    this.thrust_sprites.push(sprite);
+                }
+                if (thrust_forward || thrust_counter_clockwise) {
+                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
+                    sprite.width = 0.1; sprite.height = 0.4;
+                    sprite.x = 0.4; sprite.y = -0.5;
+                    this.sprite.addChild(sprite);
+                    this.thrust_sprites.push(sprite);
+                }
+                if (thrust_forward || thrust_counter_clockwise) {
+                    //Height = width * 4.00552486
+                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
+                    sprite.width = 0.1; sprite.height = 0.4;
+                    sprite.x = -0.5; sprite.y = 0.5;
+                    sprite.scale.y = -1;
+                    this.sprite.addChild(sprite);
+                    this.thrust_sprites.push(sprite);
+                }
+                if (thrust_backward || thrust_clockwise) {
+                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
+                    sprite.width = 0.1; sprite.height = 0.4;
+                    sprite.x = 0.4; sprite.y = 0.5;
+                    sprite.scale.y = -1;
+                    this.sprite.addChild(sprite);
+                    this.thrust_sprites.push(sprite);
+                }
+            }; break;
+
+            default: { this.thrust_sprites = []; break; }
+        }
+    }
 }
