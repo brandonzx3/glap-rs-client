@@ -66,7 +66,7 @@ new Promise(async (resolve, reject) => {
     socket.addEventListener("message", handshake_ing);
     socket.onerror = err => { throw err; };
 
-    let my_core: PIXI.Sprite = null;
+    let my_core: PartMeta = null;
     const parts = new Map<number, PartMeta>();
     const celestial_objects = new Map<number, PIXI.Sprite>();
     const players = new Map<number, PlayerMeta>();
@@ -86,15 +86,16 @@ new Promise(async (resolve, reject) => {
         else if (msg instanceof ToClientMsg.AddPart) {
             const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
-            part.position.set(0,0);
-            //part.pivot.set(100,100);
             if (msg.kind === PartKind.Core) part.anchor.set(0.5, 0.5); else part.anchor.set(0.5, 1);
             world.addChild(part);
-            const meta = new PartMeta(msg.id, msg.kind, part);
+            const container = new PIXI.Container();
+            container.addChild(part);
+            world.addChild(container);
+            const meta = new PartMeta(msg.id, msg.kind, container);
             parts.set(msg.id, meta);
-            if (msg.id === my_core_id) my_core = part;
+            if (msg.id === my_core_id) my_core = meta;
         } else if (msg instanceof ToClientMsg.MovePart) {
-            const part = parts.get(msg.id).sprite;
+            const part = parts.get(msg.id).container;
             //part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.position.set(msg.x, msg.y);
             part.rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
@@ -102,7 +103,7 @@ new Promise(async (resolve, reject) => {
             const part = parts.get(msg.id);
             if (part !== null) {
                 parts.delete(msg.id);
-                world.removeChild(part.sprite);
+                world.removeChild(part.container);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
             const meta = parts.get(msg.id);
@@ -136,9 +137,8 @@ new Promise(async (resolve, reject) => {
     function render() {
         if (rendering) {
             if (my_core != null) {
-                world.position.set(-my_core.position.x, -my_core.position.y);
-                //background.position.set(my_core.position.x - 50, my_core.position.y - 50);
-                background.tilePosition.set(-my_core.position.x / 100, -my_core.position.y / 100);
+                world.position.set(-my_core.container.position.x, -my_core.container.position.y);
+                background.tilePosition.set(-my_core.container.position.x / 50, -my_core.container.position.y / 50);
             }
             pixi.render();
             requestAnimationFrame(render);
@@ -264,10 +264,10 @@ class PlayerMeta {
 }
 class PartMeta {
     id: number;
-    sprite: PIXI.Sprite;
+    container: PIXI.Container;
     kind: PartKind;
-    constructor(id: number, kind: PartKind, sprite: PIXI.Sprite) {
-        this.id = id; this.sprite = sprite;
+    constructor(id: number, kind: PartKind, container: PIXI.Container) {
+        this.id = id; this.container = container;
         this.kind = kind;
     }
     thrust_sprites: PIXI.Sprite[] = []; //Potentially could be better
@@ -275,7 +275,7 @@ class PartMeta {
     thrust_mode = new CompactThrustMode(0);
 
     update_thruster_sprites(thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean) {
-        for (const sprite of this.thrust_sprites) this.sprite.removeChild(sprite)        
+        for (const sprite of this.thrust_sprites) this.container.removeChild(sprite)        
         switch (this.kind) {
             case PartKind.Core: {
                 this.thrust_sprites = [];
@@ -283,32 +283,30 @@ class PartMeta {
                     //Height = width * 4.00552486
                     const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
                     sprite.width = 0.2; sprite.height = 0.8;
-                    sprite.x = -0.5; sprite.y = -0.5;
-                    this.sprite.addChild(sprite);
+                    sprite.x = -0.5; sprite.y = 0.5;
+                    this.container.addChild(sprite);
                     this.thrust_sprites.push(sprite);
                 }
                 if (thrust_forward || thrust_counter_clockwise) {
                     const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.1; sprite.height = 0.4;
-                    sprite.x = 0.4; sprite.y = -0.5;
-                    this.sprite.addChild(sprite);
+                    sprite.width = 0.2; sprite.height = 0.8;
+                    sprite.x = 0.3; sprite.y = 0.5;
+                    this.container.addChild(sprite);
                     this.thrust_sprites.push(sprite);
                 }
-                if (thrust_forward || thrust_counter_clockwise) {
+                if (thrust_backward || thrust_counter_clockwise) {
                     //Height = width * 4.00552486
                     const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.1; sprite.height = 0.4;
-                    sprite.x = -0.5; sprite.y = 0.5;
-                    sprite.scale.y = -1;
-                    this.sprite.addChild(sprite);
+                    sprite.width = 0.2; sprite.height = -0.8;
+                    sprite.x = -0.5; sprite.y = -0.5;
+                    this.container.addChild(sprite);
                     this.thrust_sprites.push(sprite);
                 }
                 if (thrust_backward || thrust_clockwise) {
                     const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.1; sprite.height = 0.4;
-                    sprite.x = 0.4; sprite.y = 0.5;
-                    sprite.scale.y = -1;
-                    this.sprite.addChild(sprite);
+                    sprite.width = 0.2; sprite.height = -0.8;
+                    sprite.x = 0.3; sprite.y = -0.5;
+                    this.container.addChild(sprite);
                     this.thrust_sprites.push(sprite);
                 }
             }; break;
