@@ -36,6 +36,14 @@
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
+		},
+		"moon.png":
+		{
+			"frame": {"x":1000,"y":870,"w":75,"h":75},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":75,"h":75},
+			"sourceSize": {"w":75,"h":75}
 		}
 	}
 }
