@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
+import { Starguide } from './gui';
 
 const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 document.body.appendChild(pixi.view);
@@ -68,7 +69,7 @@ new Promise(async (resolve, reject) => {
 
     let my_core: PartMeta = null;
     const parts = new Map<number, PartMeta>();
-    const celestial_objects = new Map<number, PIXI.Sprite>();
+    const celestial_objects = new Map<number, CelestialObjectMeta>();
     const players = new Map<number, PlayerMeta>();
 
     function on_message(e: MessageEvent) {
@@ -80,7 +81,7 @@ new Promise(async (resolve, reject) => {
             celestial_object.height = msg.radius * 2;
             celestial_object.position.set(msg.position[0] - msg.radius, msg.position[1] - msg.radius);
             world.addChild(celestial_object);
-            celestial_objects.set(msg.id, celestial_object);
+            celestial_objects.set(msg.id, new CelestialObjectMeta(msg.id, msg.display_name, celestial_object));
         }
 
         else if (msg instanceof ToClientMsg.AddPart) {
@@ -134,11 +135,13 @@ new Promise(async (resolve, reject) => {
         }
     }
 
+    let starguide: Starguide = null, starguide_visible = false;
     function render() {
         if (rendering) {
             if (my_core != null) {
                 world.position.set(-my_core.container.position.x, -my_core.container.position.y);
                 background.tilePosition.set(-my_core.container.position.x / 50, -my_core.container.position.y / 50);
+                if (starguide_visible) starguide.update(my_core.container.position.x, my_core.container.position.y);
             }
             pixi.render();
             requestAnimationFrame(render);
@@ -168,6 +171,15 @@ new Promise(async (resolve, reject) => {
                 my_thrusters.clockwise = true;
                 socket.send(my_thrusters.serialize());
                 break;
+            case 77: //m
+                if (starguide == null) starguide = new Starguide(celestial_objects);
+                starguide_visible = !starguide_visible;
+                if (starguide_visible) {
+                    starguide.stuff.scale.set(Math.min(window.innerWidth, window.innerHeight) * 0.45);
+                    starguide.stuff.position.set(window.innerWidth / 2, window.innerHeight / 2);
+                    pixi.stage.addChild(starguide.stuff);
+                } else pixi.stage.removeChild(starguide.stuff);
+
         };
     }
     function key_up(e: KeyboardEvent) {
@@ -313,5 +325,13 @@ class PartMeta {
 
             default: { this.thrust_sprites = []; break; }
         }
+    }
+}
+export class CelestialObjectMeta {
+    id: number;
+    display_name: string;
+    sprite: PIXI.Sprite;
+    constructor(id: number, display_name: string, sprite: PIXI.Sprite) {
+        this.id = id; this.display_name = display_name; this.sprite = sprite;
     }
 }
