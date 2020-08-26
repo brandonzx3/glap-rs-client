@@ -18,7 +18,7 @@ function resize() {
     pixi.view.width = window.innerWidth;
     pixi.view.height = window.innerHeight;
     pixi.renderer.resize(window.innerWidth, window.innerHeight);
-    pixi.stage.position.set(pixi.view.width / 2, pixi.view.height / 2);
+    scaling.position.set(pixi.view.width / 2, pixi.view.height / 2);
     scale_up = Math.max(window_size * (0.035545023696682464), 30);
     scaling.scale.set(scale_up, scale_up);
 }
