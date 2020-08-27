@@ -242,6 +242,18 @@ class ToClientMsg_RemovePlayer {
 		return new Uint8Array(out);
 	}
 }
+class ToClientMsg_PostSimulationTick {
+	static readonly id = 9;
+	your_fuel: number;
+	constructor(your_fuel: number,) {
+		this.your_fuel = your_fuel;
+	}
+	serialize(): Uint8Array
+		{let out = [9];
+		type_ushort_serialize(out, this.your_fuel);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -297,11 +309,15 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePlayer(id);
+		}; break;		case 9: {
+			let your_fuel: number;
+			your_fuel = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_PostSimulationTick(your_fuel);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick
 };
 

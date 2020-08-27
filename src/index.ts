@@ -13,14 +13,15 @@ background.tileScale.set(0.1);
 background.position.set(-50);
 scaling.addChild(background);
 scaling.addChild(world);
-let scale_up;
+let raw_scale_up, zoom = 1, scale_up;
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
     pixi.view.width = window.innerWidth;
     pixi.view.height = window.innerHeight;
     pixi.renderer.resize(window.innerWidth, window.innerHeight);
     scaling.position.set(pixi.view.width / 2, pixi.view.height / 2);
-    scale_up = Math.max(window_size * (0.035545023696682464), 30);
+    raw_scale_up = Math.max(window_size * (0.035545023696682464), 30);
+    scale_up = raw_scale_up * zoom;
     scaling.scale.set(scale_up, scale_up);
 }
 resize();
@@ -133,6 +134,9 @@ new Promise(async (resolve, reject) => {
         else if (msg instanceof ToClientMsg.RemovePlayer) {
             players.delete(msg.id);
         }
+        else if (msg instanceof ToClientMsg.PostSimulationTick) {
+	    console.log(msg.your_fuel);
+	}
     }
 
     let starguide: Starguide = null, starguide_visible = false;
@@ -204,6 +208,13 @@ new Promise(async (resolve, reject) => {
             }
         }
     }
+
+    pixi.view.addEventListener("wheel", event => {
+        zoom -= event.deltaY * 0.01;
+        if (zoom > 1) zoom = 1;
+        else if (zoom < 0.5) zoom = 0.5;
+        resize();
+    });
 
     (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects, spritesheet }
 });
