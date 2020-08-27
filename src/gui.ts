@@ -40,7 +40,7 @@ export class MainHud {
         
         const background = new PIXI.Sprite(get_spritesheet().textures["fuel_gague.png"]);
         background.width = 1; background.height = 1;
-        
+
         this.container.addChild(background);
 
         const fuel_background = new PIXI.Graphics();
@@ -58,7 +58,7 @@ export class MainHud {
 
         this.fuel_text = new PIXI.Text("Fuel: 0/0", text_style);
         this.fuel_text.position.set(0.048566785594363, 0.261918570054953);
-        this.fuel_text.height = 0.204358823718318;
+        this.fuel_text.width = 0.078612775037128; this.fuel_text.height = 0.204358823718318;
         this.container.addChild(this.fuel_text);
     }
 

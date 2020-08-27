@@ -28,7 +28,7 @@ function resize() {
     scaling.scale.set(scale_up, scale_up);
 
     const main_hud_width = window.innerWidth * 0.44326579427083335;
-    const main_hud_height = main_hud_width * 0.077749597249793;
+    const main_hud_height = main_hud_width * 0.117749597249793;
     main_hud.container.position.set((window.innerWidth - main_hud_width) / 2, window.innerHeight - main_hud_height);
     main_hud.container.scale.x = main_hud_width; main_hud.container.height = main_hud_height;
 }
@@ -147,7 +147,7 @@ new Promise(async (resolve, reject) => {
             players.delete(msg.id);
         }
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
-	    console.log(msg.your_fuel);
+	    //console.log(msg.your_fuel);
 	}
     }
 
