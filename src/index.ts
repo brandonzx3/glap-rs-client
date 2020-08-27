@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
-import { Starguide } from './gui';
+import { Starguide, MainHud } from './gui';
 
 const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 document.body.appendChild(pixi.view);
@@ -13,6 +13,9 @@ background.tileScale.set(0.1);
 background.position.set(-50);
 scaling.addChild(background);
 scaling.addChild(world);
+
+let main_hud: MainHud;
+
 let raw_scale_up, zoom = 1, scale_up;
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
@@ -23,13 +26,17 @@ function resize() {
     raw_scale_up = Math.max(window_size * (0.035545023696682464), 30);
     scale_up = raw_scale_up * zoom;
     scaling.scale.set(scale_up, scale_up);
+
+    const main_hud_width = window.innerWidth * 0.44326579427083335;
+    const main_hud_height = main_hud_width * 0.077749597249793;
+    main_hud.container.position.set((window.innerWidth - main_hud_width) / 2, window.innerHeight - main_hud_height);
+    main_hud.container.scale.x = main_hud_width; main_hud.container.height = main_hud_height;
 }
-resize();
-window.addEventListener("resize", resize);
 
 let rendering = true;
 
 let spritesheet: PIXI.Spritesheet;
+export function get_spritesheet() { return spritesheet; }
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
@@ -44,6 +51,11 @@ new Promise(async (resolve, reject) => {
     spritesheet = new PIXI.Spritesheet(texture, dat);
     spritesheet.parse(resolve);
 }).then(() => {
+    main_hud = new MainHud();
+    pixi.stage.addChild(main_hud.container);
+
+    resize();
+    window.addEventListener("resize", resize);
 
     //ws%3A%2F%2Flocalhost%3A8081 for localhost 8081
     const socket = new WebSocket(decodeURIComponent(window.location.hash.slice(1)));

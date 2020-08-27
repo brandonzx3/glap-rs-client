@@ -10,8 +10,8 @@
    version="1.1"
    id="svg917"
    width="680.85626"
-   height="52.936302"
-   viewBox="0 0 680.85626 52.936299"
+   height="52.936298"
+   viewBox="0 0 680.85626 52.936295"
    sodipodi:docname="fuel_gague.svg"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\fuel_gague.png"
@@ -65,6 +65,19 @@
          x="12.660985"
          y="11.43872" />
     </clipPath>
+    <filter
+       height="1.0007877"
+       y="-0.00039386589"
+       width="1.0000197"
+       x="-9.8398341e-06"
+       id="filter1976"
+       style="color-interpolation-filters:sRGB"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur1978"
+         stdDeviation="0.0019986171"
+         inkscape:collect="always" />
+    </filter>
   </defs>
   <sodipodi:namedview
      inkscape:snap-global="false"
@@ -81,9 +94,9 @@
      id="namedview919"
      showgrid="false"
      inkscape:document-rotation="0"
-     inkscape:zoom="0.92255338"
-     inkscape:cx="488.76672"
-     inkscape:cy="-83.916362"
+     inkscape:zoom="1.8451068"
+     inkscape:cx="327.89554"
+     inkscape:cy="87.23858"
      inkscape:window-x="-8"
      inkscape:window-y="42"
      inkscape:window-maximized="1"
@@ -587,13 +600,14 @@
     <rect
        rx="7.3175898"
        ry="5.4126892"
-       y="68.132103"
-       x="-17.941179"
+       y="29.10997"
+       x="-31.49053"
        height="81.808388"
        width="637.93408"
        id="rect56"
        style="fill:#6e6a6a;fill-opacity:1;stroke:#cccccc;stroke-width:2.59418;stroke-opacity:1;stop-color:#000000" />
     <g
+       style="display:inline"
        inkscape:label="mockup-stuff"
        id="g1966">
       <g
@@ -604,7 +618,7 @@
            height="12.178462"
            width="487.4758"
            id="rect301"
-           style="fill:#00aad4;fill-opacity:1;stroke:none;stroke-width:1.55315;stroke-opacity:1;stop-color:#000000" />
+           style="fill:#00aad4;fill-opacity:1;stroke:none;stroke-width:1.55315;stroke-opacity:1;filter:url(#filter1976);stop-color:#000000" />
         <rect
            style="fill:#55ddff;fill-opacity:1;stroke:none;stroke-width:1.55315;stroke-opacity:1;stop-color:#000000"
            id="rect303"
