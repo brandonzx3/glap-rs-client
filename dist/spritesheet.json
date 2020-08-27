@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"image": "spritesheet.png",
-		"size": {"w":1181,"h":1145},
+		"size": {"w":1681,"h":1000},
 		"scale": "1"
 	},
 	"frames": {
@@ -21,9 +21,17 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":181,"h":725},
 			"sourceSize": {"w":181,"h":725}
 		},
+		"moon.png":
+		{
+			"frame": {"x":1181,"y":0,"w":500,"h":500},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":500,"h":500},
+			"sourceSize": {"w":500,"h":500}
+		},
 		"Cargo.png":
 		{
-			"frame": {"x":1000,"y":725,"w":150,"h":145},
+			"frame": {"x":1181,"y":500,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
@@ -31,19 +39,11 @@
 		},
 		"Core.png":
 		{
-			"frame": {"x":0,"y":1000,"w":150,"h":145},
+			"frame": {"x":1331,"y":500,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
-		},
-		"moon.png":
-		{
-			"frame": {"x":1000,"y":870,"w":75,"h":75},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {"x":0,"y":0,"w":75,"h":75},
-			"sourceSize": {"w":75,"h":75}
 		}
 	}
 }

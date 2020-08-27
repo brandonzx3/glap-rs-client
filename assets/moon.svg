@@ -8,13 +8,16 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="moon.png.2020_08_26_08_16_10.0.svg"
-   viewBox="0 0 42 42"
-   height="42"
-   width="42"
+   inkscape:export-ydpi="1142.8572"
+   inkscape:export-xdpi="1142.8572"
+   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\moon.png"
+   version="1.1"
    id="svg917"
-   version="1.1">
+   width="42"
+   height="42"
+   viewBox="0 0 42 42"
+   sodipodi:docname="moon.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
   <metadata
      id="metadata923">
     <rdf:RDF>
@@ -29,101 +32,101 @@
   <defs
      id="defs921">
     <inkscape:path-effect
-       only_selected="false"
-       apply_with_weight="true"
-       apply_no_weight="true"
-       helper_size="0"
-       steps="2"
-       weight="33.333333"
-       lpeversion="1"
-       is_visible="true"
+       effect="bspline"
        id="path-effect847"
-       effect="bspline" />
-    <inkscape:path-effect
-       only_selected="false"
-       apply_with_weight="true"
-       apply_no_weight="true"
-       helper_size="0"
-       steps="2"
-       weight="33.333333"
-       lpeversion="1"
        is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
        id="path-effect843"
-       effect="bspline" />
-    <inkscape:path-effect
-       only_selected="false"
-       apply_with_weight="true"
-       apply_no_weight="true"
-       helper_size="0"
-       steps="2"
-       weight="33.333333"
-       lpeversion="1"
        is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
        id="path-effect839"
-       effect="bspline" />
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
   </defs>
   <sodipodi:namedview
-     inkscape:current-layer="g925"
-     inkscape:window-maximized="1"
-     inkscape:window-y="0"
-     inkscape:window-x="0"
-     inkscape:cy="26.329169"
-     inkscape:cx="14.115386"
-     inkscape:zoom="14.057956"
-     inkscape:document-rotation="0"
-     showgrid="false"
-     id="namedview919"
-     inkscape:window-height="952"
-     inkscape:window-width="1827"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0"
-     guidetolerance="10"
-     gridtolerance="10"
-     objecttolerance="10"
-     borderopacity="1"
+     pagecolor="#ffffff"
      bordercolor="#666666"
-     pagecolor="#ffffff" />
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1002"
+     id="namedview919"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:zoom="14.057956"
+     inkscape:cx="14.115386"
+     inkscape:cy="26.329169"
+     inkscape:window-x="-8"
+     inkscape:window-y="42"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g925" />
   <g
-     id="g925"
+     inkscape:groupmode="layer"
      inkscape:label="Image"
-     inkscape:groupmode="layer">
+     id="g925">
     <ellipse
-       ry="21"
-       rx="21.055336"
-       cy="21"
-       cx="21.055336"
+       style="fill:#8f9095;fill-opacity:1;stroke-width:11.9622;stop-color:#000000"
        id="path929"
-       style="fill:#8f9095;fill-opacity:1;stroke-width:11.9622;stop-color:#000000" />
+       cx="21.055336"
+       cy="21"
+       rx="21.055336"
+       ry="21" />
     <ellipse
-       ry="5.395257"
-       rx="4.897233"
-       cy="25.53755"
-       cx="10.043478"
+       style="fill:#2c2f34;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
        id="path931"
-       style="fill:#2c2f34;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000" />
+       cx="10.043478"
+       cy="25.53755"
+       rx="4.897233"
+       ry="5.395257" />
     <ellipse
-       style="fill:#2c2f34;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
-       id="ellipse933"
-       cx="28.470354"
-       cy="28.27668"
+       ry="7.193676"
        rx="6.778656"
-       ry="7.193676" />
-    <ellipse
-       ry="4.12253"
-       rx="3.6798418"
-       cy="13.363636"
-       cx="30.130434"
-       id="ellipse935"
+       cy="28.27668"
+       cx="28.470354"
+       id="ellipse933"
        style="fill:#2c2f34;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000" />
     <ellipse
        style="fill:#2c2f34;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
-       id="ellipse937"
-       cx="18.067192"
-       cy="11.841897"
+       id="ellipse935"
+       cx="30.130434"
+       cy="13.363636"
+       rx="3.6798418"
+       ry="4.12253" />
+    <ellipse
+       ry="2.6007907"
        rx="2.5731225"
-       ry="2.6007907" />
+       cy="11.841897"
+       cx="18.067192"
+       id="ellipse937"
+       style="fill:#2c2f34;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000" />
     <image
-       sodipodi:absref="/home/christian7573/Documents/glap/glap-io-client/static/moon.png"
+       sodipodi:absref="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\moon.png"
        xlink:href="moon.png"
        width="42"
        height="42"
@@ -131,8 +134,8 @@
        style="display:none;fill:#000000;fill-opacity:0;image-rendering:optimizeSpeed"
        id="image927" />
     <path
-       id="path849"
+       style="fill:none;stroke:#96979c;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 9.2028225,13.872349 7.8244052,14.499014 6.5991455,14.39457"
-       style="fill:none;stroke:#96979c;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       id="path849" />
   </g>
 </svg>
