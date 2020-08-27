@@ -81,6 +81,7 @@ new Promise(async (resolve, reject) => {
     socket.onerror = err => { throw err; };
 
     let my_core: PartMeta = null;
+    let max_fuel = 1;
     const parts = new Map<number, PartMeta>();
     const celestial_objects = new Map<number, CelestialObjectMeta>();
     const players = new Map<number, PlayerMeta>();
@@ -143,12 +144,15 @@ new Promise(async (resolve, reject) => {
             meta.update_thruster_sprites();
             
         }
+        else if (msg instanceof ToClientMsg.UpdateMyMeta) {
+            max_fuel = msg.max_fuel;
+        }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
             players.delete(msg.id);
         }
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
-	    //console.log(msg.your_fuel);
-	}
+            main_hud.set_fuel(msg.your_fuel, max_fuel);
+        }
     }
 
     let starguide: Starguide = null, starguide_visible = false;

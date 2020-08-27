@@ -39,7 +39,7 @@ function type_ushort_serialize(out: number[], ushort: number) {
 }
 function type_ushort_deserialize(buf: Uint8Array, index: Box<number>): number {
     const arr = new Uint8Array([buf[index.v+1], buf[index.v]]);
-    const view = new Uint16Array(arr);
+    const view = new Uint16Array(arr.buffer);
     index.v += 2;
     return view[0];
 }
@@ -254,6 +254,18 @@ class ToClientMsg_PostSimulationTick {
 		return new Uint8Array(out);
 	}
 }
+class ToClientMsg_UpdateMyMeta {
+	static readonly id = 10;
+	max_fuel: number;
+	constructor(max_fuel: number,) {
+		this.max_fuel = max_fuel;
+	}
+	serialize(): Uint8Array
+		{let out = [10];
+		type_ushort_serialize(out, this.max_fuel);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -313,11 +325,15 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			let your_fuel: number;
 			your_fuel = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_PostSimulationTick(your_fuel);
+		}; break;		case 10: {
+			let max_fuel: number;
+			max_fuel = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_UpdateMyMeta(max_fuel);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta
 };
 
