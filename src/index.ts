@@ -13,10 +13,13 @@ background.tileScale.set(0.1);
 background.position.set(-50);
 scaling.addChild(background);
 scaling.addChild(world);
+scaling.interactive = true;
 
 let main_hud: MainHud;
+let my_core: PartMeta = null;
+let screen_to_player_space: (x: number, y: number) => [number, number];
 
-let raw_scale_up, zoom = 1, scale_up;
+let raw_scale_up, zoom = 1, scale_up: number;
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
     pixi.view.width = window.innerWidth;
@@ -26,6 +29,9 @@ function resize() {
     raw_scale_up = Math.max(window_size * (0.035545023696682464), 30);
     scale_up = raw_scale_up * zoom;
     scaling.scale.set(scale_up, scale_up);
+
+    const half_win_width = window.innerWidth / 2, half_win_height = window.innerHeight / 2;
+    screen_to_player_space = (x, y) => [((x - half_win_width) / scale_up), ((y - half_win_height) / scale_up)];
 
     const main_hud_width = window.innerWidth * 0.44326579427083335;
     const main_hud_height = main_hud_width * 0.117749597249793;
@@ -62,8 +68,6 @@ new Promise(async (resolve, reject) => {
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
-        window.addEventListener("keydown", key_down);
-        window.addEventListener("keyup", key_up);
     };
     let my_id: number = null;
     let my_core_id: number = null;
@@ -75,12 +79,16 @@ new Promise(async (resolve, reject) => {
             my_id = message.id; my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
             socket.addEventListener("message", on_message);
+            window.addEventListener("keydown", key_down);
+            window.addEventListener("keyup", key_up);
+            scaling.on("mousedown", world_mouse_down);
+            scaling.on("mousemove", world_mouse_move);
+            scaling.on("mouseup", world_mouse_up);
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
     socket.onerror = err => { throw err; };
-
-    let my_core: PartMeta = null;
+    
     let max_fuel = 1;
     const parts = new Map<number, PartMeta>();
     const celestial_objects = new Map<number, CelestialObjectMeta>();
@@ -233,6 +241,26 @@ new Promise(async (resolve, reject) => {
     });
 
     (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects, spritesheet }
+
+    let am_grabbing = false;
+    function world_mouse_down(event: PIXI.InteractionEvent) {
+        const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
+        console.log(scaled);
+        socket.send(new ToServerMsg.CommitGrab(scaled[0], scaled[1]).serialize());
+        am_grabbing = true;
+    }
+    function world_mouse_move(event: PIXI.InteractionEvent) {
+        if (am_grabbing) {
+            const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
+            socket.send(new ToServerMsg.MoveGrab(scaled[0], scaled[1]).serialize());
+        }
+    }
+    function world_mouse_up(event: PIXI.InteractionEvent) {
+        if (am_grabbing) {
+            am_grabbing = false;
+            socket.send(new ToServerMsg.ReleaseGrab().serialize());
+        }
+    }
 });
 
 enum HorizontalThrustMode { Clockwise, CounterClockwise, Either }

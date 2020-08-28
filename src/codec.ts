@@ -95,6 +95,43 @@ class ToServerMsg_SetThrusters {
 		return new Uint8Array(out);
 	}
 }
+class ToServerMsg_CommitGrab {
+	static readonly id = 2;
+	x: number; y: number;
+	constructor(x: number, y: number,) {
+		this.x = x; this.y = y;
+	}
+	serialize(): Uint8Array
+		{let out = [2];
+		type_float_serialize(out, this.x);
+		type_float_serialize(out, this.y);
+		return new Uint8Array(out);
+	}
+}
+class ToServerMsg_MoveGrab {
+	static readonly id = 3;
+	x: number; y: number;
+	constructor(x: number, y: number,) {
+		this.x = x; this.y = y;
+	}
+	serialize(): Uint8Array
+		{let out = [3];
+		type_float_serialize(out, this.x);
+		type_float_serialize(out, this.y);
+		return new Uint8Array(out);
+	}
+}
+class ToServerMsg_ReleaseGrab {
+	static readonly id = 4;
+	
+	constructor() {
+		
+	}
+	serialize(): Uint8Array
+		{let out = [4];
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -109,12 +146,25 @@ function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 			clockwise = type_boolean_deserialize(buf, index);
 			counter_clockwise = type_boolean_deserialize(buf, index);
 			return new ToServerMsg_SetThrusters(forward, backward, clockwise, counter_clockwise);
+		}; break;		case 2: {
+			let x: number; let y: number;
+			x = type_float_deserialize(buf, index);
+			y = type_float_deserialize(buf, index);
+			return new ToServerMsg_CommitGrab(x, y);
+		}; break;		case 3: {
+			let x: number; let y: number;
+			x = type_float_deserialize(buf, index);
+			y = type_float_deserialize(buf, index);
+			return new ToServerMsg_MoveGrab(x, y);
+		}; break;		case 4: {
+			
+			return new ToServerMsg_ReleaseGrab();
 		}; break;		default: throw new Error();
 	}
 }
 export const ToServerMsg = {
 	deserialize: deserialize_ToServerMsg,
-	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters
+	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters, CommitGrab: ToServerMsg_CommitGrab, MoveGrab: ToServerMsg_MoveGrab, ReleaseGrab: ToServerMsg_ReleaseGrab
 };
 
 class ToClientMsg_HandshakeAccepted {
