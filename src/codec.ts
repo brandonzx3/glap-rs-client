@@ -253,22 +253,23 @@ class ToClientMsg_RemovePart {
 }
 class ToClientMsg_AddPlayer {
 	static readonly id = 6;
-	id: number; name: string;
-	constructor(id: number, name: string,) {
-		this.id = id; this.name = name;
+	id: number; core_id: number; name: string;
+	constructor(id: number, core_id: number, name: string,) {
+		this.id = id; this.core_id = core_id; this.name = name;
 	}
 	serialize(): Uint8Array
 		{let out = [6];
 		type_ushort_serialize(out, this.id);
+		type_ushort_serialize(out, this.core_id);
 		type_string_serialize(out, this.name);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_UpdatePlayerMeta {
 	static readonly id = 7;
-	id: number; thrust_forward: boolean; thrust_backward: boolean; thrust_clockwise: boolean; thrust_counter_clockwise: boolean;
-	constructor(id: number, thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean,) {
-		this.id = id; this.thrust_forward = thrust_forward; this.thrust_backward = thrust_backward; this.thrust_clockwise = thrust_clockwise; this.thrust_counter_clockwise = thrust_counter_clockwise;
+	id: number; thrust_forward: boolean; thrust_backward: boolean; thrust_clockwise: boolean; thrust_counter_clockwise: boolean; grabed_part: number|null;
+	constructor(id: number, thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean, grabed_part: number|null,) {
+		this.id = id; this.thrust_forward = thrust_forward; this.thrust_backward = thrust_backward; this.thrust_clockwise = thrust_clockwise; this.thrust_counter_clockwise = thrust_counter_clockwise; this.grabed_part = grabed_part;
 	}
 	serialize(): Uint8Array
 		{let out = [7];
@@ -277,6 +278,7 @@ class ToClientMsg_UpdatePlayerMeta {
 		type_boolean_serialize(out, this.thrust_backward);
 		type_boolean_serialize(out, this.thrust_clockwise);
 		type_boolean_serialize(out, this.thrust_counter_clockwise);
+		if (this.grabed_part === null) out.push(0); else {out.push(1); type_ushort_serialize(out, this.grabed_part);};
 		return new Uint8Array(out);
 	}
 }
@@ -355,18 +357,20 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePart(id);
 		}; break;		case 6: {
-			let id: number; let name: string;
+			let id: number; let core_id: number; let name: string;
 			id = type_ushort_deserialize(buf, index);
+			core_id = type_ushort_deserialize(buf, index);
 			name = type_string_deserialize(buf, index);
-			return new ToClientMsg_AddPlayer(id, name);
+			return new ToClientMsg_AddPlayer(id, core_id, name);
 		}; break;		case 7: {
-			let id: number; let thrust_forward: boolean; let thrust_backward: boolean; let thrust_clockwise: boolean; let thrust_counter_clockwise: boolean;
+			let id: number; let thrust_forward: boolean; let thrust_backward: boolean; let thrust_clockwise: boolean; let thrust_counter_clockwise: boolean; let grabed_part: number|null;
 			id = type_ushort_deserialize(buf, index);
 			thrust_forward = type_boolean_deserialize(buf, index);
 			thrust_backward = type_boolean_deserialize(buf, index);
 			thrust_clockwise = type_boolean_deserialize(buf, index);
 			thrust_counter_clockwise = type_boolean_deserialize(buf, index);
-			return new ToClientMsg_UpdatePlayerMeta(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise);
+			if (buf[index.v++] > 0) {grabed_part = type_ushort_deserialize(buf, index);} else {grabed_part = null;}
+			return new ToClientMsg_UpdatePlayerMeta(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise, grabed_part);
 		}; break;		case 8: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);

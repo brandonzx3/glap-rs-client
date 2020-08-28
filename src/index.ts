@@ -11,13 +11,32 @@ pixi.stage.addChild(scaling);
 const background = PIXI.TilingSprite.from("/starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
 background.tileScale.set(0.1);
 background.position.set(-50);
+background.zIndex = -100;
 scaling.addChild(background);
 scaling.addChild(world);
 scaling.interactive = true;
+const holograms = new PIXI.Container();
+world.addChild(holograms);
 
 let main_hud: MainHud;
 let my_core: PartMeta = null;
 let screen_to_player_space: (x: number, y: number) => [number, number];
+
+let holographic_grab: PIXI.Texture;
+{
+    const el_canvas = document.createElement("canvas");
+    el_canvas.width = 1500; el_canvas.height = 1;
+    const el_context = el_canvas.getContext("2d");
+    const el_grado = el_context.createLinearGradient(0,0,1500,0);
+    el_grado.addColorStop(0, "rgba(230, 152, 230, 1)");
+    el_grado.addColorStop(0.3, "rgba(214, 92, 214, 0.3)");
+    el_grado.addColorStop(0.7, "rgba(214, 92, 214, 0.3)");
+    el_grado.addColorStop(1, "rgba(230, 152, 230, 1)");
+    el_context.fillStyle = el_grado;
+    el_context.fillRect(0,0,1500,1);
+    holographic_grab = PIXI.Texture.from(el_canvas);
+    holographic_grab.defaultAnchor.set(0, 0.5);
+}
 
 let raw_scale_up, zoom = 1, scale_up: number;
 function resize() {
@@ -40,6 +59,11 @@ function resize() {
 }
 
 let rendering = true;
+let my_id: number = null, my_core_id: number = null;
+let max_fuel = 1;
+const parts = new Map<number, PartMeta>();
+const celestial_objects = new Map<number, CelestialObjectMeta>();
+const players = new Map<number, PlayerMeta>();
 
 let spritesheet: PIXI.Spritesheet;
 export function get_spritesheet() { return spritesheet; }
@@ -69,14 +93,13 @@ new Promise(async (resolve, reject) => {
     socket.onopen = () => {
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
     };
-    let my_id: number = null;
-    let my_core_id: number = null;
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
         if (message instanceof ToClientMsg.HandshakeAccepted) {
             console.log("Handshake Accepted");
             console.log(message);
-            my_id = message.id; my_core_id = message.core_id;
+            my_id = message.id;
+            my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
             socket.addEventListener("message", on_message);
             window.addEventListener("keydown", key_down);
@@ -88,11 +111,6 @@ new Promise(async (resolve, reject) => {
     }
     socket.addEventListener("message", handshake_ing);
     socket.onerror = err => { throw err; };
-    
-    let max_fuel = 1;
-    const parts = new Map<number, PartMeta>();
-    const celestial_objects = new Map<number, CelestialObjectMeta>();
-    const players = new Map<number, PlayerMeta>();
 
     function on_message(e: MessageEvent) {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
@@ -134,23 +152,25 @@ new Promise(async (resolve, reject) => {
             if (msg.owning_player !== null) {
                 meta.owning_player = players.get(msg.owning_player);
                 meta.owning_player.parts.add(meta);
-                if (meta.kind === PartKind.Core) meta.owning_player.core = this;
             } else meta.owning_player = null;
             meta.thrust_mode.dat = msg.thrust_mode;
         }
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
-            players.set(msg.id, new PlayerMeta(msg.id, msg.name));
+            players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
         }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
             const meta = players.get(msg.id);
-
             meta.thrust_forward = msg.thrust_forward;
             meta.thrust_backward = msg.thrust_backward;
             meta.thrust_clockwise = msg.thrust_clockwise;
             meta.thrust_counter_clockwise = msg.thrust_counter_clockwise;
             meta.update_thruster_sprites();
-            
+            meta.grabbed_part = msg.grabed_part;
+            if (meta.grabbed_part === null && meta.holographic_grab_sprite !== null) {
+                holograms.removeChild(meta.holographic_grab_sprite);
+                meta.holographic_grab_sprite = null;
+            }
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
             max_fuel = msg.max_fuel;
@@ -171,6 +191,7 @@ new Promise(async (resolve, reject) => {
                 background.tilePosition.set(-my_core.container.position.x / 50, -my_core.container.position.y / 50);
                 if (starguide_visible) starguide.update(my_core.container.position.x, my_core.container.position.y);
             }
+            for (const player of players.values()) player.update_grabbing_sprite();
             pixi.render();
             requestAnimationFrame(render);
         }
@@ -311,21 +332,40 @@ class CompactThrustMode {
 
 class PlayerMeta {
     id: number;
+    core_id: number;
     name: string;
-    constructor(id: number, name: string) {
+    constructor(id: number, name: string, core_id: number) {
         this.id = id;
         this.name = name;
+        this.core_id = core_id;
     }
     thrust_forward = false;
     thrust_backward = false;
     thrust_clockwise = false;
     thrust_counter_clockwise = false;
     parts = new Set<PartMeta>();
-    core: PartMeta;
+    grabbed_part: number = null;
+    holographic_grab_sprite: PIXI.Sprite = null;
 
     update_thruster_sprites() {
         for (const part of this.parts) {
             part.update_thruster_sprites(this.thrust_forward, this.thrust_backward, this.thrust_clockwise, this.thrust_counter_clockwise);
+        }
+    }
+    update_grabbing_sprite() {
+        if (this.grabbed_part !== null) {
+            if (this.holographic_grab_sprite === null) {
+                this.holographic_grab_sprite = new PIXI.Sprite(holographic_grab);
+                this.holographic_grab_sprite.height = 0.25;
+                holograms.addChild(this.holographic_grab_sprite);
+            }
+            const player = parts.get(this.core_id);
+            const grabbed_part = parts.get(this.grabbed_part);
+            const delta_x = grabbed_part.container.position.x - player.container.position.x;
+            const delta_y = grabbed_part.container.position.y - player.container.position.y;
+            this.holographic_grab_sprite.position.set(player.container.position.x, player.container.position.y);
+            this.holographic_grab_sprite.width = Math.sqrt(Math.pow(delta_x, 2) + Math.pow(delta_y, 2));
+            this.holographic_grab_sprite.rotation = Math.atan2(delta_y, delta_x);
         }
     }
 }
