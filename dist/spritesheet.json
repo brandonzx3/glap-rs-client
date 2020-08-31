@@ -45,7 +45,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"Cargo.png":
+		"cargo.png":
 		{
 			"frame": {"x":1655,"y":500,"w":150,"h":145},
 			"rotated": false,
@@ -53,7 +53,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"Core.png":
+		"core.png":
 		{
 			"frame": {"x":1805,"y":500,"w":150,"h":145},
 			"rotated": false,

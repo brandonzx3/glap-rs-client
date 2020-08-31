@@ -5,8 +5,11 @@ import { PartMeta, CompactThrustMode } from "./parts";
 
 export interface GlobalData {
     scaling: PIXI.Container;
-    holograms: PIXI.Container;
     world: PIXI.Container;
+    holograms: PIXI.Container;
+    thrust_sprites: PIXI.Container;
+    part_sprites: PIXI.Container;
+    connector_sprites: PIXI.Container;
     main_hud: MainHud;
     screen_to_player_space: (x: number, y: number) => [number, number];
     holographic_grab: PIXI.Texture;
@@ -27,6 +30,9 @@ export const global: GlobalData = {
     scaling: new PIXI.Container(),
     world: new PIXI.Container(),
     holograms: new PIXI.Container(),
+    thrust_sprites: new PIXI.Container(),
+    part_sprites: new PIXI.Container(),
+    connector_sprites: new PIXI.Container(),
     holographic_grab: null,
     screen_to_player_space: null,
     main_hud: null,
@@ -46,18 +52,19 @@ export const global: GlobalData = {
 const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 document.body.appendChild(pixi.view);
 
-global.scaling = new PIXI.Container();
-global.world = new PIXI.Container();
 pixi.stage.addChild(global.scaling);
 const background = PIXI.TilingSprite.from("/starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
 background.tileScale.set(0.1);
 background.position.set(-50);
 background.zIndex = -100;
+
 global.scaling.addChild(background);
+global.world.addChild(global.holograms);
+global.world.addChild(global.thrust_sprites);
+global.world.addChild(global.part_sprites);
+global.world.addChild(global.connector_sprites);
 global.scaling.addChild(global.world);
 global.scaling.interactive = true;
-global.holograms = new PIXI.Container();
-global.world.addChild(global.holograms);
 
 {
     const el_canvas = document.createElement("canvas");
@@ -110,6 +117,7 @@ new Promise(async (resolve, reject) => {
     global.spritesheet = new PIXI.Spritesheet(texture, dat);
     global.spritesheet.parse(resolve);
 }).then(() => {
+    global.main_hud = new MainHud();
     pixi.stage.addChild(global.main_hud.container);
 
     resize();
@@ -153,28 +161,27 @@ new Promise(async (resolve, reject) => {
         }
 
         else if (msg instanceof ToClientMsg.AddPart) {
-            const part = new PIXI.Sprite(global.spritesheet.textures[PartKind[msg.kind] + ".png"]);
-            part.width = 1; part.height = 1;
-            if (msg.kind === PartKind.Core) part.anchor.set(0.5, 0.5); else part.anchor.set(0.5, 1);
-            global.world.addChild(part);
-            const container = new PIXI.Container();
-            container.addChild(part);
-            global.world.addChild(container);
-            container.on("mousedown", part_mouse_down.bind(null, msg.id));
-            container.interactive = true;
-            const meta = new PartMeta(msg.id, msg.kind, container);
+            const meta = new PartMeta(msg.id, msg.kind);
+            meta.sprite.on("mousedown", part_mouse_down.bind(null, msg.id));
+            meta.sprite.interactive = true;
             global.parts.set(msg.id, meta);
             if (msg.id === my_core_id) global.my_core = meta;
         } else if (msg instanceof ToClientMsg.MovePart) {
-            const part = global.parts.get(msg.id).container;
-            //part.position.set(msg.x - 0.5, msg.y - 0.5);
-            part.position.set(msg.x, msg.y);
-            part.rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
+            const part = global.parts.get(msg.id)
+            part.sprite.position.set(msg.x, msg.y);
+            const rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
+            part.sprite.rotation = rotation;
+            part.connector_sprite.position.set(msg.x, msg.y);
+            part.connector_sprite.rotation = rotation;
+            part.thrust_sprites.position.set(msg.x, msg.y);
+            part.thrust_sprites.rotation = rotation;
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = global.parts.get(msg.id);
             if (part !== null) {
                 global.parts.delete(msg.id);
-                global.world.removeChild(part.container);
+                global.part_sprites.removeChild(part.sprite);
+                global.thrust_sprites.removeChild(part.thrust_sprites);
+                global.connector_sprites.removeChild(part.connector_sprite);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
             const meta = global.parts.get(msg.id);
@@ -184,6 +191,7 @@ new Promise(async (resolve, reject) => {
                 meta.owning_player.parts.add(meta);
             } else meta.owning_player = null;
             meta.thrust_mode.dat = msg.thrust_mode;
+            meta.update_sprites();
         }
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
@@ -217,9 +225,9 @@ new Promise(async (resolve, reject) => {
     function render() {
         if (global.rendering) {
             if (global.my_core != null) {
-                global.world.position.set(-global.my_core.container.position.x, -global.my_core.container.position.y);
-                background.tilePosition.set(-global.my_core.container.position.x / 50, -global.my_core.container.position.y / 50);
-                if (starguide_visible) starguide.update(global.my_core.container.position.x, global.my_core.container.position.y);
+                global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
+                background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
+                if (starguide_visible) starguide.update(global.my_core.sprite.position.x, global.my_core.sprite.position.y);
             }
             for (const player of global.players.values()) player.update_grabbing_sprite();
             pixi.render();
@@ -354,9 +362,9 @@ export class PlayerMeta {
             }
             const player = global.parts.get(this.core_id);
             const grabbed_part = global.parts.get(this.grabbed_part);
-            const delta_x = grabbed_part.container.position.x - player.container.position.x;
-            const delta_y = grabbed_part.container.position.y - player.container.position.y;
-            this.holographic_grab_sprite.position.set(player.container.position.x, player.container.position.y);
+            const delta_x = grabbed_part.sprite.position.x - player.sprite.position.x;
+            const delta_y = grabbed_part.sprite.position.y - player.sprite.position.y;
+            this.holographic_grab_sprite.position.set(player.sprite.position.x, player.sprite.position.y);
             this.holographic_grab_sprite.width = Math.sqrt(Math.pow(delta_x, 2) + Math.pow(delta_y, 2));
             this.holographic_grab_sprite.rotation = Math.atan2(delta_y, delta_x);
         }

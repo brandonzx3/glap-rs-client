@@ -1,56 +1,99 @@
 import { PartKind } from "./codec";
 import { PlayerMeta, global } from "./index";
+import * as PIXI from 'pixi.js';
 
 export class PartMeta {
     id: number;
-    container: PIXI.Container;
+    sprite: PIXI.Sprite;
+    connector_sprite: PIXI.Sprite = null;
     kind: PartKind;
-    constructor(id: number, kind: PartKind, container: PIXI.Container) {
-        this.id = id; this.container = container;
+    thrust_sprites = new PIXI.Container();
+    constructor(id: number, kind: PartKind) {
+        this.id = id;
         this.kind = kind;
+        this.sprite = new PIXI.Sprite();
+        this.sprite.width = 1; this.sprite.height = 1;
+        this.init_thruster_sprites();
+        this.update_sprites();
+        if (kind === PartKind.Core) this.sprite.anchor.set(0.5,0.5);
+        else this.sprite.anchor.set(0.5,1);
+        global.part_sprites.addChild(this.sprite);
+        global.thrust_sprites.addChild(this.thrust_sprites);
+
+        this.connector_sprite = new PIXI.Sprite(global.spritesheet.textures["connector.png"]);
+        this.connector_sprite.width = 0.333; this.connector_sprite.height = 0.15;
+        this.connector_sprite.anchor.set(0.5,0);
     }
-    thrust_sprites: PIXI.Sprite[] = []; //Potentially could be better
     owning_player: PlayerMeta = null;
     thrust_mode = new CompactThrustMode(0);
 
-    update_thruster_sprites(thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean) {
-        for (const sprite of this.thrust_sprites) this.container.removeChild(sprite)        
+    update_sprites() {
+        switch (this.kind) {
+            case PartKind.Core: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
+            case PartKind.Cargo: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "cargo.png" : "cargo_off.png"]; break;
+            default: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
+        }
+        global.connector_sprites.removeChild(this.connector_sprite);
+        if (this.owning_player !== null && this.kind !== PartKind.Core) global.connector_sprites.addChild(this.connector_sprite);
+    }
+
+    init_thruster_sprites() {
         switch (this.kind) {
             case PartKind.Core: {
-                this.thrust_sprites = [];
-                if (thrust_forward || thrust_clockwise) {
-                    //Height = width * 4.00552486
-                    const sprite = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = 0.8;
-                    sprite.x = -0.5; sprite.y = 0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-                if (thrust_forward || thrust_counter_clockwise) {
-                    const sprite = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = 0.8;
-                    sprite.x = 0.3; sprite.y = 0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-                if (thrust_backward || thrust_counter_clockwise) {
-                    //Height = width * 4.00552486
-                    const sprite = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = -0.8;
-                    sprite.x = -0.5; sprite.y = -0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-                if (thrust_backward || thrust_clockwise) {
-                    const sprite = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = -0.8;
-                    sprite.x = 0.3; sprite.y = -0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
+                //Height = width * 4.00552486
+                const bottom_left = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
+                bottom_left.width = 0.2; bottom_left.height = 0.8;
+                bottom_left.x = -0.5; bottom_left.y = 0.5;
+                bottom_left.visible = false;
+                this.thrust_sprites.addChild(bottom_left);
+                const bottom_right = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
+                bottom_right.width = 0.2; bottom_right.height = 0.8;
+                bottom_right.x = 0.3; bottom_right.y = 0.5;
+                bottom_right.visible = false;
+                this.thrust_sprites.addChild(bottom_right);
+                //Height = width * 4.00552486
+                const top_left = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
+                top_left.width = 0.2; top_left.height = -0.8;
+                top_left.x = -0.5; top_left.y = -0.5;
+                top_left.visible = false;
+                this.thrust_sprites.addChild(top_left);
+                const top_right = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]); 
+                top_right.width = 0.2; top_right.height = -0.8;
+                top_right.x = 0.3; top_right.y = -0.5;
+                top_right.visible = false;
+                this.thrust_sprites.addChild(top_right);
             }; break;
 
-            default: { this.thrust_sprites = []; break; }
+            case PartKind.LandingThruster: {
+                const thrust_sprite = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]);
+                thrust_sprite.width = 0.4; thrust_sprite.height = -1.6;
+                thrust_sprite.x = -0.2; thrust_sprite.y = -1;
+                thrust_sprite.visible = false;
+                this.thrust_sprites.addChild(thrust_sprite);
+            }; break;
+        }
+    }
+    update_thruster_sprites(thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean) {     
+        let am_i_thrusting;
+        switch (this.thrust_mode.horizontal) {
+            case HorizontalThrustMode.Clockwise: am_i_thrusting = thrust_clockwise; break;
+            case HorizontalThrustMode.CounterClockwise: am_i_thrusting = thrust_counter_clockwise; break;
+            case HorizontalThrustMode.Either: am_i_thrusting = false; break;
+        }
+        switch (this.thrust_mode.vertical) {
+            case VerticalThrustMode.Forwards: am_i_thrusting = am_i_thrusting || thrust_forward; break;
+            case VerticalThrustMode.Backwards: am_i_thrusting = am_i_thrusting || thrust_backward; break;
+            //case VerticalThrustMode.None: break;
+        }
+        switch (this.kind) {
+            case PartKind.Core: {
+                this.thrust_sprites.children[0].visible = thrust_forward || thrust_clockwise
+                this.thrust_sprites.children[1].visible = thrust_forward || thrust_counter_clockwise;
+                this.thrust_sprites.children[2].visible = thrust_backward || thrust_counter_clockwise;
+                this.thrust_sprites.children[3].visible = thrust_backward || thrust_clockwise;
+            }; break;
+
+            case PartKind.LandingThruster: this.thrust_sprites.children[0].visible = am_i_thrusting; break;
         }
     }
 }
