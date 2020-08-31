@@ -296,39 +296,41 @@ new Promise(async (resolve, reject) => {
 });
 
 enum HorizontalThrustMode { Clockwise, CounterClockwise, Either }
-enum VerticalThrustMode { Forwards, Backwards }
+enum VerticalThrustMode { Forwards, Backwards, None }
 
 class CompactThrustMode {
     dat: number;
     constructor(dat: number) { this.dat = dat; }
     get horizontal(): HorizontalThrustMode {
         switch (this.dat & 0b00000011) {
-            case 1: return HorizontalThrustMode.Clockwise;
-            case 0: return HorizontalThrustMode.CounterClockwise;
-            case 2: return HorizontalThrustMode.Either;
+            case 0b00000001: return HorizontalThrustMode.Clockwise;
+            case 0b00000000: return HorizontalThrustMode.CounterClockwise;
+            case 0b00000010: return HorizontalThrustMode.Either;
         }
     }
     set horizontal(horizontal: HorizontalThrustMode) {
         let representation;
         switch (horizontal) {
-            case HorizontalThrustMode.Clockwise: representation = 1; break;
-            case HorizontalThrustMode.CounterClockwise: representation = 0; break;
-            case HorizontalThrustMode.Either: representation = 2; break;
+            case HorizontalThrustMode.Clockwise: representation = 0b00000001; break;
+            case HorizontalThrustMode.CounterClockwise: representation = 0b00000000; break;
+            case HorizontalThrustMode.Either: representation = 0b00000010; break;
         };
         this.dat = (this.dat & 0b11111100) | representation;
     }
     get vertical(): VerticalThrustMode {
         switch (this.dat & 0b00001100) {
-            case 1: VerticalThrustMode.Forwards;
-            case 0: VerticalThrustMode.Backwards;
+            case 0b00000100: return VerticalThrustMode.Forwards;
+            case 0b00000000: return VerticalThrustMode.Backwards;
+            case 0b00001000: return VerticalThrustMode.None;
             default: throw new Error();
         }
     }
     set vertical(vertical: VerticalThrustMode) {
         let representation;
         switch (vertical) {
-            case VerticalThrustMode.Forwards: representation = 4; break;
-            case VerticalThrustMode.Backwards: representation = 0; break;
+            case VerticalThrustMode.Forwards: representation = 0b00000100; break;
+            case VerticalThrustMode.Backwards: representation = 0b00000000; break;
+            case VerticalThrustMode.None: representation = 0b00001000; break;
         }
         this.dat = (this.dat & 0b11110011) | representation;
     }
