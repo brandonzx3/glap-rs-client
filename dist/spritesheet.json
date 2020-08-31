@@ -52,6 +52,14 @@
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
+		},
+		"LandingThruster.png":
+		{
+			"frame": {"x":1805,"y":500,"w":79,"h":107},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":79,"h":107},
+			"sourceSize": {"w":79,"h":107}
 		}
 	}
 }

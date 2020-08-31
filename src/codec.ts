@@ -97,12 +97,13 @@ class ToServerMsg_SetThrusters {
 }
 class ToServerMsg_CommitGrab {
 	static readonly id = 2;
-	x: number; y: number;
-	constructor(x: number, y: number,) {
-		this.x = x; this.y = y;
+	grabbed_id: number; x: number; y: number;
+	constructor(grabbed_id: number, x: number, y: number,) {
+		this.grabbed_id = grabbed_id; this.x = x; this.y = y;
 	}
 	serialize(): Uint8Array
 		{let out = [2];
+		type_ushort_serialize(out, this.grabbed_id);
 		type_float_serialize(out, this.x);
 		type_float_serialize(out, this.y);
 		return new Uint8Array(out);
@@ -147,10 +148,11 @@ function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 			counter_clockwise = type_boolean_deserialize(buf, index);
 			return new ToServerMsg_SetThrusters(forward, backward, clockwise, counter_clockwise);
 		}; break;		case 2: {
-			let x: number; let y: number;
+			let grabbed_id: number; let x: number; let y: number;
+			grabbed_id = type_ushort_deserialize(buf, index);
 			x = type_float_deserialize(buf, index);
 			y = type_float_deserialize(buf, index);
-			return new ToServerMsg_CommitGrab(x, y);
+			return new ToServerMsg_CommitGrab(grabbed_id, x, y);
 		}; break;		case 3: {
 			let x: number; let y: number;
 			x = type_float_deserialize(buf, index);

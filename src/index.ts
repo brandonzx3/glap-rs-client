@@ -132,6 +132,8 @@ new Promise(async (resolve, reject) => {
             const container = new PIXI.Container();
             container.addChild(part);
             world.addChild(container);
+            container.on("mousedown", part_mouse_down.bind(null, msg.id));
+            container.interactive = true;
             const meta = new PartMeta(msg.id, msg.kind, container);
             parts.set(msg.id, meta);
             if (msg.id === my_core_id) my_core = meta;
@@ -265,10 +267,19 @@ new Promise(async (resolve, reject) => {
 
     let am_grabbing = false;
     function world_mouse_down(event: PIXI.InteractionEvent) {
-        const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
-        console.log(scaled);
-        socket.send(new ToServerMsg.CommitGrab(scaled[0], scaled[1]).serialize());
-        am_grabbing = true;
+        // const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
+        // console.log(scaled);
+        // socket.send(new ToServerMsg.CommitGrab(scaled[0], scaled[1]).serialize());
+        // am_grabbing = true;
+    }
+    function part_mouse_down(part_id: number, event: PIXI.InteractionEvent) {
+        if (!am_grabbing) {
+            am_grabbing = true;
+            const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
+            console.log(scaled);
+            socket.send(new ToServerMsg.CommitGrab(part_id, scaled[0], scaled[1]).serialize());
+            am_grabbing = true;
+        }
     }
     function world_mouse_move(event: PIXI.InteractionEvent) {
         if (am_grabbing) {
