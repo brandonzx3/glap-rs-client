@@ -1,4 +1,4 @@
-import { CelestialObjectMeta, get_spritesheet } from ".";
+import { CelestialObjectMeta, global } from ".";
 import * as PIXI from 'pixi.js';
 
 export class Starguide {
@@ -38,7 +38,7 @@ export class MainHud {
             fill: "white",
         });
         
-        const background = new PIXI.Sprite(get_spritesheet().textures["fuel_gague.png"]);
+        const background = new PIXI.Sprite(global.spritesheet.textures["fuel_gague.png"]);
         background.width = 1; background.height = 1;
 
         this.container.addChild(background);

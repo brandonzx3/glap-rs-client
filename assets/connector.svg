@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="connector.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg2841"
+   version="1.1"
+   viewBox="0 0 15.874999 7.1437502"
+   height="27"
+   width="59.999996">
+  <defs
+     id="defs2835" />
+  <sodipodi:namedview
+     inkscape:window-maximized="0"
+     inkscape:window-y="50"
+     inkscape:window-x="122"
+     inkscape:window-height="1030"
+     inkscape:window-width="1375"
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     units="px"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:cy="39.061049"
+     inkscape:cx="19.560017"
+     inkscape:zoom="7.9195959"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata2838">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(35.907738,52.70878)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <path
+       id="rect973"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3.165;stop-color:#000000"
+       d="m -35.907738,-52.70878 v 2.858289 c 0,2.37427 2.98448,4.285461 6.690999,4.285461 h 2.493 c 3.706519,0 6.691,-1.911191 6.691,-4.285461 v -2.858289 z"
+       inkscape:label="el connecto" />
+  </g>
+</svg>

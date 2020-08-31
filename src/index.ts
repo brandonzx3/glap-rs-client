@@ -1,28 +1,64 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
 import { Starguide, MainHud } from './gui';
+import { PartMeta, CompactThrustMode } from "./parts";
+
+export interface GlobalData {
+    scaling: PIXI.Container;
+    holograms: PIXI.Container;
+    world: PIXI.Container;
+    main_hud: MainHud;
+    screen_to_player_space: (x: number, y: number) => [number, number];
+    holographic_grab: PIXI.Texture;
+    rendering: boolean;
+    spritesheet: PIXI.Spritesheet;
+    raw_scale_up: number;
+    zoom: number;
+    scale_up: number;
+
+    my_core: PartMeta;
+    my_id: number;
+    parts: Map<number, PartMeta>;
+    celestial_objects: Map<number, CelestialObjectMeta>;
+    players: Map<number, PlayerMeta>;
+}
+
+export const global: GlobalData = {
+    scaling: new PIXI.Container(),
+    world: new PIXI.Container(),
+    holograms: new PIXI.Container(),
+    holographic_grab: null,
+    screen_to_player_space: null,
+    main_hud: null,
+    rendering: true,
+    spritesheet: null,
+    raw_scale_up: null,
+    zoom: 1,
+    scale_up: null,
+
+    my_core: null,
+    my_id: null,
+    parts: new Map(),
+    celestial_objects: new Map(),
+    players: new Map()
+};
 
 const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 document.body.appendChild(pixi.view);
 
-const scaling = new PIXI.Container();
-const world = new PIXI.Container();
-pixi.stage.addChild(scaling);
+global.scaling = new PIXI.Container();
+global.world = new PIXI.Container();
+pixi.stage.addChild(global.scaling);
 const background = PIXI.TilingSprite.from("/starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
 background.tileScale.set(0.1);
 background.position.set(-50);
 background.zIndex = -100;
-scaling.addChild(background);
-scaling.addChild(world);
-scaling.interactive = true;
-const holograms = new PIXI.Container();
-world.addChild(holograms);
+global.scaling.addChild(background);
+global.scaling.addChild(global.world);
+global.scaling.interactive = true;
+global.holograms = new PIXI.Container();
+global.world.addChild(global.holograms);
 
-let main_hud: MainHud;
-let my_core: PartMeta = null;
-let screen_to_player_space: (x: number, y: number) => [number, number];
-
-let holographic_grab: PIXI.Texture;
 {
     const el_canvas = document.createElement("canvas");
     el_canvas.width = 1500; el_canvas.height = 1;
@@ -34,39 +70,32 @@ let holographic_grab: PIXI.Texture;
     el_grado.addColorStop(1, "rgba(230, 152, 230, 1)");
     el_context.fillStyle = el_grado;
     el_context.fillRect(0,0,1500,1);
-    holographic_grab = PIXI.Texture.from(el_canvas);
-    holographic_grab.defaultAnchor.set(0, 0.5);
+    global.holographic_grab = PIXI.Texture.from(el_canvas);
+    global.holographic_grab.defaultAnchor.set(0, 0.5);
 }
 
-let raw_scale_up, zoom = 1, scale_up: number;
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
     pixi.view.width = window.innerWidth;
     pixi.view.height = window.innerHeight;
     pixi.renderer.resize(window.innerWidth, window.innerHeight);
-    scaling.position.set(pixi.view.width / 2, pixi.view.height / 2);
-    raw_scale_up = Math.max(window_size * (0.035545023696682464), 30);
-    scale_up = raw_scale_up * zoom;
-    scaling.scale.set(scale_up, scale_up);
+    global.scaling.position.set(pixi.view.width / 2, pixi.view.height / 2);
+    global.raw_scale_up = Math.max(window_size * (0.035545023696682464), 30);
+    global.scale_up = global.raw_scale_up * global.zoom;
+    global.scaling.scale.set(global.scale_up, global.scale_up);
 
     const half_win_width = window.innerWidth / 2, half_win_height = window.innerHeight / 2;
-    screen_to_player_space = (x, y) => [((x - half_win_width) / scale_up), ((y - half_win_height) / scale_up)];
+    global.screen_to_player_space = (x, y) => [((x - half_win_width) / global.scale_up), ((y - half_win_height) / global.scale_up)];
 
     const main_hud_width = window.innerWidth * 0.44326579427083335;
     const main_hud_height = main_hud_width * 0.117749597249793;
-    main_hud.container.position.set((window.innerWidth - main_hud_width) / 2, window.innerHeight - main_hud_height);
-    main_hud.container.scale.x = main_hud_width; main_hud.container.height = main_hud_height;
+    global.main_hud.container.position.set((window.innerWidth - main_hud_width) / 2, window.innerHeight - main_hud_height);
+    global.main_hud.container.scale.x = main_hud_width; global.main_hud.container.height = main_hud_height;
 }
 
-let rendering = true;
-let my_id: number = null, my_core_id: number = null;
+let my_core_id: number = null;
 let max_fuel = 1;
-const parts = new Map<number, PartMeta>();
-const celestial_objects = new Map<number, CelestialObjectMeta>();
-const players = new Map<number, PlayerMeta>();
 
-let spritesheet: PIXI.Spritesheet;
-export function get_spritesheet() { return spritesheet; }
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
@@ -78,11 +107,10 @@ new Promise(async (resolve, reject) => {
     const image = await image_promise;
     const dat = await dat_promise;
     const texture = PIXI.Texture.from(image);
-    spritesheet = new PIXI.Spritesheet(texture, dat);
-    spritesheet.parse(resolve);
+    global.spritesheet = new PIXI.Spritesheet(texture, dat);
+    global.spritesheet.parse(resolve);
 }).then(() => {
-    main_hud = new MainHud();
-    pixi.stage.addChild(main_hud.container);
+    pixi.stage.addChild(global.main_hud.container);
 
     resize();
     window.addEventListener("resize", resize);
@@ -98,15 +126,15 @@ new Promise(async (resolve, reject) => {
         if (message instanceof ToClientMsg.HandshakeAccepted) {
             console.log("Handshake Accepted");
             console.log(message);
-            my_id = message.id;
+            global.my_id = message.id;
             my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
             socket.addEventListener("message", on_message);
             window.addEventListener("keydown", key_down);
             window.addEventListener("keyup", key_up);
-            scaling.on("mousedown", world_mouse_down);
-            scaling.on("mousemove", world_mouse_move);
-            scaling.on("mouseup", world_mouse_up);
+            global.scaling.on("mousedown", world_mouse_down);
+            global.scaling.on("mousemove", world_mouse_move);
+            global.scaling.on("mouseup", world_mouse_up);
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
@@ -116,53 +144,53 @@ new Promise(async (resolve, reject) => {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
 
         if (msg instanceof ToClientMsg.AddCelestialObject) {
-            const celestial_object = new PIXI.Sprite(spritesheet.textures[msg.name + ".png"]);
+            const celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
             celestial_object.width = msg.radius * 2;
             celestial_object.height = msg.radius * 2;
             celestial_object.position.set(msg.position[0] - msg.radius, msg.position[1] - msg.radius);
-            world.addChild(celestial_object);
-            celestial_objects.set(msg.id, new CelestialObjectMeta(msg.id, msg.display_name, celestial_object));
+            global.world.addChild(celestial_object);
+            global.celestial_objects.set(msg.id, new CelestialObjectMeta(msg.id, msg.display_name, celestial_object));
         }
 
         else if (msg instanceof ToClientMsg.AddPart) {
-            const part = new PIXI.Sprite(spritesheet.textures[PartKind[msg.kind] + ".png"]);
+            const part = new PIXI.Sprite(global.spritesheet.textures[PartKind[msg.kind] + ".png"]);
             part.width = 1; part.height = 1;
             if (msg.kind === PartKind.Core) part.anchor.set(0.5, 0.5); else part.anchor.set(0.5, 1);
-            world.addChild(part);
+            global.world.addChild(part);
             const container = new PIXI.Container();
             container.addChild(part);
-            world.addChild(container);
+            global.world.addChild(container);
             container.on("mousedown", part_mouse_down.bind(null, msg.id));
             container.interactive = true;
             const meta = new PartMeta(msg.id, msg.kind, container);
-            parts.set(msg.id, meta);
-            if (msg.id === my_core_id) my_core = meta;
+            global.parts.set(msg.id, meta);
+            if (msg.id === my_core_id) global.my_core = meta;
         } else if (msg instanceof ToClientMsg.MovePart) {
-            const part = parts.get(msg.id).container;
+            const part = global.parts.get(msg.id).container;
             //part.position.set(msg.x - 0.5, msg.y - 0.5);
             part.position.set(msg.x, msg.y);
             part.rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
         } else if (msg instanceof ToClientMsg.RemovePart) {
-            const part = parts.get(msg.id);
+            const part = global.parts.get(msg.id);
             if (part !== null) {
-                parts.delete(msg.id);
-                world.removeChild(part.container);
+                global.parts.delete(msg.id);
+                global.world.removeChild(part.container);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
-            const meta = parts.get(msg.id);
+            const meta = global.parts.get(msg.id);
             if (meta.owning_player !== null) meta.owning_player.parts.delete(meta);
             if (msg.owning_player !== null) {
-                meta.owning_player = players.get(msg.owning_player);
+                meta.owning_player = global.players.get(msg.owning_player);
                 meta.owning_player.parts.add(meta);
             } else meta.owning_player = null;
             meta.thrust_mode.dat = msg.thrust_mode;
         }
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
-            players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
+            global.players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
         }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
-            const meta = players.get(msg.id);
+            const meta = global.players.get(msg.id);
             meta.thrust_forward = msg.thrust_forward;
             meta.thrust_backward = msg.thrust_backward;
             meta.thrust_clockwise = msg.thrust_clockwise;
@@ -170,7 +198,7 @@ new Promise(async (resolve, reject) => {
             meta.update_thruster_sprites();
             meta.grabbed_part = msg.grabed_part;
             if (meta.grabbed_part === null && meta.holographic_grab_sprite !== null) {
-                holograms.removeChild(meta.holographic_grab_sprite);
+                global.holograms.removeChild(meta.holographic_grab_sprite);
                 meta.holographic_grab_sprite = null;
             }
         }
@@ -178,22 +206,22 @@ new Promise(async (resolve, reject) => {
             max_fuel = msg.max_fuel;
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
-            players.delete(msg.id);
+            global.players.delete(msg.id);
         }
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
-            main_hud.set_fuel(msg.your_fuel, max_fuel);
+            global.main_hud.set_fuel(msg.your_fuel, max_fuel);
         }
     }
 
     let starguide: Starguide = null, starguide_visible = false;
     function render() {
-        if (rendering) {
-            if (my_core != null) {
-                world.position.set(-my_core.container.position.x, -my_core.container.position.y);
-                background.tilePosition.set(-my_core.container.position.x / 50, -my_core.container.position.y / 50);
-                if (starguide_visible) starguide.update(my_core.container.position.x, my_core.container.position.y);
+        if (global.rendering) {
+            if (global.my_core != null) {
+                global.world.position.set(-global.my_core.container.position.x, -global.my_core.container.position.y);
+                background.tilePosition.set(-global.my_core.container.position.x / 50, -global.my_core.container.position.y / 50);
+                if (starguide_visible) starguide.update(global.my_core.container.position.x, global.my_core.container.position.y);
             }
-            for (const player of players.values()) player.update_grabbing_sprite();
+            for (const player of global.players.values()) player.update_grabbing_sprite();
             pixi.render();
             requestAnimationFrame(render);
         }
@@ -223,7 +251,7 @@ new Promise(async (resolve, reject) => {
                 socket.send(my_thrusters.serialize());
                 break;
             case 77: //m
-                if (starguide == null) starguide = new Starguide(celestial_objects);
+                if (starguide == null) starguide = new Starguide(global.celestial_objects);
                 starguide_visible = !starguide_visible;
                 if (starguide_visible) {
                     starguide.stuff.scale.set(Math.min(window.innerWidth, window.innerHeight) * 0.45);
@@ -257,13 +285,13 @@ new Promise(async (resolve, reject) => {
     }
 
     pixi.view.addEventListener("wheel", event => {
-        zoom -= event.deltaY * 0.01;
-        if (zoom > 1) zoom = 1;
-        else if (zoom < 0.5) zoom = 0.5;
+        global.zoom -= event.deltaY * 0.01;
+        if (global.zoom > 1) global.zoom = 1;
+        else if (global.zoom < 0.5) global.zoom = 0.5;
         resize();
     });
 
-    (window as any)["dev"] = { pixi, my_core: () => { return my_core }, parts, celestial_objects, spritesheet }
+    (window as any)["dev"] = global;
 
     let am_grabbing = false;
     function world_mouse_down(event: PIXI.InteractionEvent) {
@@ -275,7 +303,7 @@ new Promise(async (resolve, reject) => {
     function part_mouse_down(part_id: number, event: PIXI.InteractionEvent) {
         if (!am_grabbing) {
             am_grabbing = true;
-            const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
+            const scaled = global.screen_to_player_space(event.data.global.x, event.data.global.y);
             console.log(scaled);
             socket.send(new ToServerMsg.CommitGrab(part_id, scaled[0], scaled[1]).serialize());
             am_grabbing = true;
@@ -283,7 +311,7 @@ new Promise(async (resolve, reject) => {
     }
     function world_mouse_move(event: PIXI.InteractionEvent) {
         if (am_grabbing) {
-            const scaled = screen_to_player_space(event.data.global.x, event.data.global.y);
+            const scaled = global.screen_to_player_space(event.data.global.x, event.data.global.y);
             socket.send(new ToServerMsg.MoveGrab(scaled[0], scaled[1]).serialize());
         }
     }
@@ -295,55 +323,7 @@ new Promise(async (resolve, reject) => {
     }
 });
 
-enum HorizontalThrustMode { Clockwise, CounterClockwise, Either }
-enum VerticalThrustMode { Forwards, Backwards, None }
-
-class CompactThrustMode {
-    dat: number;
-    constructor(dat: number) { this.dat = dat; }
-    get horizontal(): HorizontalThrustMode {
-        switch (this.dat & 0b00000011) {
-            case 0b00000001: return HorizontalThrustMode.Clockwise;
-            case 0b00000000: return HorizontalThrustMode.CounterClockwise;
-            case 0b00000010: return HorizontalThrustMode.Either;
-        }
-    }
-    set horizontal(horizontal: HorizontalThrustMode) {
-        let representation;
-        switch (horizontal) {
-            case HorizontalThrustMode.Clockwise: representation = 0b00000001; break;
-            case HorizontalThrustMode.CounterClockwise: representation = 0b00000000; break;
-            case HorizontalThrustMode.Either: representation = 0b00000010; break;
-        };
-        this.dat = (this.dat & 0b11111100) | representation;
-    }
-    get vertical(): VerticalThrustMode {
-        switch (this.dat & 0b00001100) {
-            case 0b00000100: return VerticalThrustMode.Forwards;
-            case 0b00000000: return VerticalThrustMode.Backwards;
-            case 0b00001000: return VerticalThrustMode.None;
-            default: throw new Error();
-        }
-    }
-    set vertical(vertical: VerticalThrustMode) {
-        let representation;
-        switch (vertical) {
-            case VerticalThrustMode.Forwards: representation = 0b00000100; break;
-            case VerticalThrustMode.Backwards: representation = 0b00000000; break;
-            case VerticalThrustMode.None: representation = 0b00001000; break;
-        }
-        this.dat = (this.dat & 0b11110011) | representation;
-    }
-
-    static compose(horizontal: HorizontalThrustMode, vertical: VerticalThrustMode): CompactThrustMode {
-        let thrust = new CompactThrustMode(0);
-        thrust.horizontal = horizontal;
-        thrust.vertical = vertical;
-        return thrust;
-    }
-}
-
-class PlayerMeta {
+export class PlayerMeta {
     id: number;
     core_id: number;
     name: string;
@@ -368,12 +348,12 @@ class PlayerMeta {
     update_grabbing_sprite() {
         if (this.grabbed_part !== null) {
             if (this.holographic_grab_sprite === null) {
-                this.holographic_grab_sprite = new PIXI.Sprite(holographic_grab);
+                this.holographic_grab_sprite = new PIXI.Sprite(global.holographic_grab);
                 this.holographic_grab_sprite.height = 0.25;
-                holograms.addChild(this.holographic_grab_sprite);
+                global.holograms.addChild(this.holographic_grab_sprite);
             }
-            const player = parts.get(this.core_id);
-            const grabbed_part = parts.get(this.grabbed_part);
+            const player = global.parts.get(this.core_id);
+            const grabbed_part = global.parts.get(this.grabbed_part);
             const delta_x = grabbed_part.container.position.x - player.container.position.x;
             const delta_y = grabbed_part.container.position.y - player.container.position.y;
             this.holographic_grab_sprite.position.set(player.container.position.x, player.container.position.y);
@@ -382,59 +362,7 @@ class PlayerMeta {
         }
     }
 }
-class PartMeta {
-    id: number;
-    container: PIXI.Container;
-    kind: PartKind;
-    constructor(id: number, kind: PartKind, container: PIXI.Container) {
-        this.id = id; this.container = container;
-        this.kind = kind;
-    }
-    thrust_sprites: PIXI.Sprite[] = []; //Potentially could be better
-    owning_player: PlayerMeta = null;
-    thrust_mode = new CompactThrustMode(0);
 
-    update_thruster_sprites(thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean) {
-        for (const sprite of this.thrust_sprites) this.container.removeChild(sprite)        
-        switch (this.kind) {
-            case PartKind.Core: {
-                this.thrust_sprites = [];
-                if (thrust_forward || thrust_clockwise) {
-                    //Height = width * 4.00552486
-                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = 0.8;
-                    sprite.x = -0.5; sprite.y = 0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-                if (thrust_forward || thrust_counter_clockwise) {
-                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = 0.8;
-                    sprite.x = 0.3; sprite.y = 0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-                if (thrust_backward || thrust_counter_clockwise) {
-                    //Height = width * 4.00552486
-                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = -0.8;
-                    sprite.x = -0.5; sprite.y = -0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-                if (thrust_backward || thrust_clockwise) {
-                    const sprite = new PIXI.Sprite(spritesheet.textures["thrust.png"]); 
-                    sprite.width = 0.2; sprite.height = -0.8;
-                    sprite.x = 0.3; sprite.y = -0.5;
-                    this.container.addChild(sprite);
-                    this.thrust_sprites.push(sprite);
-                }
-            }; break;
-
-            default: { this.thrust_sprites = []; break; }
-        }
-    }
-}
 export class CelestialObjectMeta {
     id: number;
     display_name: string;
