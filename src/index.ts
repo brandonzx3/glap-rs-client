@@ -100,6 +100,19 @@ function resize() {
     global.main_hud.container.scale.x = main_hud_width; global.main_hud.container.height = main_hud_height;
 }
 
+//Tempoary lines of doom
+const tmp_lines = new PIXI.Graphics();
+// tmp_lines.beginFill(0xff0000);
+// tmp_lines.drawPolygon([0,0], [1,1], [43.4530083832,70.2770133538], [42.4530083832,69.2770133538]);
+// tmp_lines.drawPolygon([0,0], [1,1], [1,1001], [0,1000]);
+// tmp_lines.drawRect(0,0,100000,10000);
+// tmp_lines.endFill();
+tmp_lines.lineStyle(1, 0xff0000);
+tmp_lines.lineTo(43.4530083832,70.2770133538);
+tmp_lines.lineTo(0,0);
+tmp_lines.lineTo(0,-1000);
+global.holograms.addChild(tmp_lines);
+
 let my_core_id: number = null;
 let max_fuel = 1;
 
