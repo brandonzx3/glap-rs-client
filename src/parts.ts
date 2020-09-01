@@ -31,6 +31,8 @@ export class PartMeta {
         switch (this.kind) {
             case PartKind.Core: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
             case PartKind.Cargo: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "cargo.png" : "cargo_off.png"]; break;
+            case PartKind.LandingThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "landing_thruster.png" : "landing_thruster_off.png"]; break;
+            case PartKind.Hub: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "hub.png" : "hub_off.png"]; break;
             default: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
         }
         global.connector_sprites.removeChild(this.connector_sprite);
@@ -66,8 +68,8 @@ export class PartMeta {
 
             case PartKind.LandingThruster: {
                 const thrust_sprite = new PIXI.Sprite(global.spritesheet.textures["thrust.png"]);
-                thrust_sprite.width = 0.4; thrust_sprite.height = -1.6;
-                thrust_sprite.x = -0.2; thrust_sprite.y = -1;
+                thrust_sprite.width = 0.25; thrust_sprite.height = -1;
+                thrust_sprite.x = -0.125; thrust_sprite.y = -1;
                 thrust_sprite.visible = false;
                 this.thrust_sprites.addChild(thrust_sprite);
             }; break;

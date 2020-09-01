@@ -1,10 +1,18 @@
 {
 	"meta": {
 		"image": "spritesheet.png",
-		"size": {"w":2005,"h":1117},
+		"size": {"w":2505,"h":2117},
 		"scale": "1"
 	},
 	"frames": {
+		"trade_planet.png":
+		{
+			"frame": {"x":0,"y":117,"w":1000,"h":1000},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":1000,"h":1000},
+			"sourceSize": {"w":1000,"h":1000}
+		},
 		"fuel_gague.png":
 		{
 			"frame": {"x":0,"y":0,"w":1505,"h":117},
@@ -15,7 +23,15 @@
 		},
 		"earth.png":
 		{
-			"frame": {"x":0,"y":117,"w":1000,"h":1000},
+			"frame": {"x":1505,"y":0,"w":1000,"h":1000},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":1000,"h":1000},
+			"sourceSize": {"w":1000,"h":1000}
+		},
+		"mars.png":
+		{
+			"frame": {"x":0,"y":1117,"w":1000,"h":1000},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":1000,"h":1000},
@@ -31,23 +47,39 @@
 		},
 		"moon.png":
 		{
-			"frame": {"x":1505,"y":0,"w":500,"h":500},
+			"frame": {"x":1000,"y":1117,"w":500,"h":500},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":500,"h":500},
 			"sourceSize": {"w":500,"h":500}
 		},
-		"cargo_off.png":
+		"hub_off.png":
 		{
-			"frame": {"x":1505,"y":500,"w":150,"h":145},
+			"frame": {"x":1181,"y":117,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"cargo.png":
+		"connector.png":
 		{
-			"frame": {"x":1655,"y":500,"w":150,"h":145},
+			"frame": {"x":1584,"y":1000,"w":100,"h":45},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":100,"h":45},
+			"sourceSize": {"w":100,"h":45}
+		},
+		"landing_thruster_off.png":
+		{
+			"frame": {"x":1181,"y":262,"w":150,"h":145},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
+			"sourceSize": {"w":150,"h":145}
+		},
+		"cargo_off.png":
+		{
+			"frame": {"x":1331,"y":262,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
@@ -55,27 +87,43 @@
 		},
 		"core.png":
 		{
-			"frame": {"x":1805,"y":500,"w":150,"h":145},
+			"frame": {"x":1181,"y":407,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
+		"hub.png":
+		{
+			"frame": {"x":1331,"y":407,"w":150,"h":145},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
+			"sourceSize": {"w":150,"h":145}
+		},
+		"landing_thruster.png":
+		{
+			"frame": {"x":1181,"y":552,"w":147,"h":142},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":147,"h":142},
+			"sourceSize": {"w":147,"h":142}
+		},
 		"LandingThruster.png":
 		{
-			"frame": {"x":1505,"y":645,"w":79,"h":107},
+			"frame": {"x":1505,"y":1000,"w":79,"h":107},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":79,"h":107},
 			"sourceSize": {"w":79,"h":107}
 		},
-		"connector.png":
+		"cargo.png":
 		{
-			"frame": {"x":1584,"y":645,"w":100,"h":45},
+			"frame": {"x":1331,"y":117,"w":150,"h":145},
 			"rotated": false,
 			"trimmed": false,
-			"spriteSourceSize": {"x":0,"y":0,"w":100,"h":45},
-			"sourceSize": {"w":100,"h":45}
+			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
+			"sourceSize": {"w":150,"h":145}
 		}
 	}
 }
