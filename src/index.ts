@@ -189,7 +189,11 @@ new Promise(async (resolve, reject) => {
             if (msg.owning_player !== null) {
                 meta.owning_player = global.players.get(msg.owning_player);
                 meta.owning_player.parts.add(meta);
-            } else meta.owning_player = null;
+                meta.update_thruster_sprites(meta.owning_player.thrust_forward, meta.owning_player.thrust_backward, meta.owning_player.thrust_clockwise, meta.owning_player.thrust_counter_clockwise);
+            } else {
+                meta.owning_player = null;
+                meta.update_thruster_sprites(false, false, false, false);
+            }
             meta.thrust_mode.dat = msg.thrust_mode;
             meta.update_sprites();
         }
