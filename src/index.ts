@@ -296,13 +296,6 @@ new Promise(async (resolve, reject) => {
                 break;
             case 77: //m
                 if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
-                // if (starguide == null) starguide = new Starguide(global.celestial_objects);
-                // starguide_visible = !starguide_visible;
-                // if (starguide_visible) {
-                //     starguide.container.scale.set(Math.min(window.innerWidth, window.innerHeight) * 0.45);
-                //     starguide.container.position.set(window.innerWidth / 2, window.innerHeight / 2);
-                //     pixi.stage.addChild(starguide.container);
-                // } else pixi.stage.removeChild(starguide.container);
 
         };
     }
