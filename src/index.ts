@@ -12,6 +12,7 @@ export interface GlobalData {
     part_sprites: PIXI.Container;
     connector_sprites: PIXI.Container;
     main_hud: MainHud;
+    starguide: Starguide;
     starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
     holographic_grab: PIXI.Texture;
@@ -39,6 +40,7 @@ export const global: GlobalData = {
     holographic_grab: null,
     screen_to_player_space: null,
     main_hud: null,
+    starguide: null,
     starguide_button: null,
     rendering: true,
     spritesheet: null,
@@ -53,7 +55,7 @@ export const global: GlobalData = {
     players: new Map()
 };
 
-const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
+const pixi = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 global.pixi = pixi;
 document.body.appendChild(pixi.view);
 
@@ -105,6 +107,7 @@ function resize() {
     global.main_hud.container.scale.x = main_hud_width; global.main_hud.container.height = main_hud_height;
     global.starguide_button.container.position.set(window.innerWidth, window.innerHeight);
     global.starguide_button.container.scale.set(main_hud_height);
+    global.starguide.update_sprites(main_hud_width, window.innerHeight - main_hud_height - 20, (window.innerWidth - main_hud_width) * 0.5, 10);
 }
 
 //Tempoary lines of doom
@@ -141,6 +144,9 @@ new Promise(async (resolve, reject) => {
     pixi.stage.addChild(global.main_hud.container);
     global.starguide_button = new StarguideButton();
     pixi.stage.addChild(global.starguide_button.container);
+    global.starguide = new Starguide();
+    pixi.stage.addChild(global.starguide.container);
+
 
     resize();
     window.addEventListener("resize", resize);
@@ -247,7 +253,6 @@ new Promise(async (resolve, reject) => {
         }
     }
 
-    let starguide: Starguide = null, starguide_visible = false;
     let last_time = performance.now();
     function render(now_time: DOMHighResTimeStamp) {
         const delta_ms = now_time - last_time;
@@ -256,10 +261,11 @@ new Promise(async (resolve, reject) => {
             if (global.my_core != null) {
                 global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
                 background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
-                if (starguide_visible) starguide.update(global.my_core.sprite.position.x, global.my_core.sprite.position.y);
+                global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
             }
             for (const player of global.players.values()) player.update_grabbing_sprite();
             global.starguide_button.pre_render(delta_ms);
+            global.starguide.pre_render(delta_ms);
             pixi.render();
             requestAnimationFrame(render);
         }
@@ -289,13 +295,14 @@ new Promise(async (resolve, reject) => {
                 socket.send(my_thrusters.serialize());
                 break;
             case 77: //m
-                if (starguide == null) starguide = new Starguide(global.celestial_objects);
-                starguide_visible = !starguide_visible;
-                if (starguide_visible) {
-                    starguide.stuff.scale.set(Math.min(window.innerWidth, window.innerHeight) * 0.45);
-                    starguide.stuff.position.set(window.innerWidth / 2, window.innerHeight / 2);
-                    pixi.stage.addChild(starguide.stuff);
-                } else pixi.stage.removeChild(starguide.stuff);
+                if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
+                // if (starguide == null) starguide = new Starguide(global.celestial_objects);
+                // starguide_visible = !starguide_visible;
+                // if (starguide_visible) {
+                //     starguide.container.scale.set(Math.min(window.innerWidth, window.innerHeight) * 0.45);
+                //     starguide.container.position.set(window.innerWidth / 2, window.innerHeight / 2);
+                //     pixi.stage.addChild(starguide.container);
+                // } else pixi.stage.removeChild(starguide.container);
 
         };
     }
