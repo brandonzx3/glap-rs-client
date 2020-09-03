@@ -12,7 +12,9 @@ export class Starguide {
     onscreen_y = 1;
     width = 1;
     height = 1;
+    center: [number, number] = [0, 0];
     mouseover = false;
+    is_dragging = false;
 
     map_coordinate_space = new PIXI.Container();
     map_items = new PIXI.Container();
@@ -46,6 +48,7 @@ export class Starguide {
         this.offscreen_y = -container_offset_y - height;
         this.onscreen_y = container_offset_y;
         this.width = width; this.height = height;
+        this.center = [width / 2 + container_offset_x, height / 2 + container_offset_y];
 
         this.background = new PIXI.Graphics();
         this.background.beginFill(0xdd55ff);
@@ -132,7 +135,20 @@ export class Starguide {
         this.map_coordinate_space.position.set(this.width / 2 - this.core_sprite.position.x, this.height / 2 - this.core_sprite.position.y);
     }
     add_celestial_object(celestial_object: CelestialObjectMeta) {
+        
+    }
 
+    on_wheel(event: WheelEvent) {
+        if (this.is_dragging) return;
+        const d_center = [event.x - this.center[0], event.y - this.center[1]];
+        const x = (this.map_coordinate_space.position.x + d_center[0]) / this.map_zoom_factor;
+        const y = (this.map_coordinate_space.position.y + d_center[1]) / this.map_zoom_factor;
+        this.map_zoom += event.deltaY * 0.1;
+        this.map_zoom_factor = this.map_zoom / this.map_zoom_divisor;
+        this.map_coordinate_space.position.set(
+            x * this.map_zoom_factor - d_center[0],
+            y * this.map_zoom_factor - d_center[1]
+        );
     }
 }
 

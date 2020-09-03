@@ -330,10 +330,13 @@ new Promise(async (resolve, reject) => {
     }
 
     pixi.view.addEventListener("wheel", event => {
-        global.zoom -= event.deltaY * 0.01;
-        if (global.zoom > 1) global.zoom = 1;
-        else if (global.zoom < 0.5) global.zoom = 0.5;
-        resize();
+        if (global.starguide.mouseover) global.starguide.on_wheel(event);
+        else {
+            global.zoom -= event.deltaY * 0.01;
+            if (global.zoom > 1) global.zoom = 1;
+            else if (global.zoom < 0.5) global.zoom = 0.5;
+            resize();
+        }
     });
 
     (window as any)["dev"] = global;
