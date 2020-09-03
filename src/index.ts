@@ -28,7 +28,7 @@ export interface GlobalData {
     players: Map<number, PlayerMeta>;
 }
 
-export const global: GlobalData = {,
+export const global: GlobalData = {
     pixi: null,
     scaling: new PIXI.Container(),
     world: new PIXI.Container(),
