@@ -135,6 +135,12 @@ export class Starguide {
         this.map_coordinate_space.position.set(this.width / 2 - this.core_sprite.position.x, this.height / 2 - this.core_sprite.position.y);
     }
     add_celestial_object(celestial_object: CelestialObjectMeta) {
+        const circle = new PIXI.Graphics();
+        circle.beginFill(0xdd55ff);
+        circle.drawCircle(0, 0, celestial_object.radius);
+        circle.endFill();
+        const mask = new PIXI.Sprite(global.spritesheet.textures["symbol_" + celestial_object.name + ".png"]);
+        mask.anchor.set(0.5,0.5);
         
     }
 

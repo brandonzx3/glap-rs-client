@@ -147,7 +147,6 @@ new Promise(async (resolve, reject) => {
     global.starguide = new Starguide();
     pixi.stage.addChild(global.starguide.container);
 
-
     resize();
     window.addEventListener("resize", resize);
 
@@ -185,7 +184,9 @@ new Promise(async (resolve, reject) => {
             celestial_object.height = msg.radius * 2;
             celestial_object.position.set(msg.position[0] - msg.radius, msg.position[1] - msg.radius);
             global.world.addChild(celestial_object);
-            global.celestial_objects.set(msg.id, new CelestialObjectMeta(msg.id, msg.display_name, celestial_object));
+            const meta = new CelestialObjectMeta(msg.id, msg.name, msg.display_name, celestial_object, msg.radius);
+            global.celestial_objects.set(msg.id, meta);
+            global.starguide.add_celestial_object(meta);
         }
 
         else if (msg instanceof ToClientMsg.AddPart) {
@@ -408,7 +409,9 @@ export class CelestialObjectMeta {
     id: number;
     display_name: string;
     sprite: PIXI.Sprite;
-    constructor(id: number, display_name: string, sprite: PIXI.Sprite) {
-        this.id = id; this.display_name = display_name; this.sprite = sprite;
+    radius: number;
+    name: string;
+    constructor(id: number, name: string, display_name: string, sprite: PIXI.Sprite, radius: number) {
+        this.id = id; this.display_name = display_name; this.sprite = sprite; this.name = name;
     }
 }
