@@ -21,6 +21,7 @@ export interface GlobalData {
     raw_scale_up: number;
     zoom: number;
     scale_up: number;
+    destination_hologram: PIXI.TilingSprite;
 
     my_core: PartMeta;
     my_id: number;
@@ -47,6 +48,7 @@ export const global: GlobalData = {
     raw_scale_up: null,
     zoom: 1,
     scale_up: null,
+    destination_hologram: null,
 
     my_core: null,
     my_id: null,
@@ -146,6 +148,14 @@ new Promise(async (resolve, reject) => {
     pixi.stage.addChild(global.starguide_button.container);
     global.starguide = new Starguide();
     pixi.stage.addChild(global.starguide.container);
+    global.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["destination_hologram.png"], 2, 2);
+    global.destination_hologram.anchor.set(1,0.5);
+    global.destination_hologram.height = 0.35;
+    global.destination_hologram.tileScale.y = global.destination_hologram.height / global.destination_hologram.texture.height;
+    global.destination_hologram.tileScale.x = global.destination_hologram.tileScale.y / 2.35;    
+    global.destination_hologram.alpha = 0.5;
+    global.destination_hologram.visible = false;
+    global.holograms.addChild(global.destination_hologram);
 
     resize();
     window.addEventListener("resize", resize);
@@ -182,11 +192,18 @@ new Promise(async (resolve, reject) => {
             const celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
             celestial_object.width = msg.radius * 2;
             celestial_object.height = msg.radius * 2;
-            celestial_object.position.set(msg.position[0] - msg.radius, msg.position[1] - msg.radius);
+            celestial_object.anchor.set(0.5,0.5);
+            celestial_object.position.set(msg.position[0], msg.position[1]);
             global.world.addChild(celestial_object);
             const meta = new CelestialObjectMeta(msg.id, msg.name, msg.display_name, celestial_object, msg.radius);
             global.celestial_objects.set(msg.id, meta);
             global.starguide.add_celestial_object(meta);
+
+            if (msg.name === "moon") {
+                global.destination_hologram.visible = true;
+                global.starguide.current_destination = meta;
+                global.starguide.retarget_destination_hologram();
+            }
         }
 
         else if (msg instanceof ToClientMsg.AddPart) {
@@ -263,6 +280,11 @@ new Promise(async (resolve, reject) => {
                 global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
                 background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
                 global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
+
+                const distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
+                global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
+                global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
+                global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
             }
             for (const player of global.players.values()) player.update_grabbing_sprite();
             global.starguide_button.pre_render(delta_ms);
@@ -413,5 +435,6 @@ export class CelestialObjectMeta {
     name: string;
     constructor(id: number, name: string, display_name: string, sprite: PIXI.Sprite, radius: number) {
         this.id = id; this.display_name = display_name; this.sprite = sprite; this.name = name;
+        this.radius = radius;
     }
 }
