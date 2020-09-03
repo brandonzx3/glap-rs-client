@@ -1,9 +1,10 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
-import { Starguide, MainHud } from './gui';
+import { Starguide, MainHud, StarguideButton } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 
 export interface GlobalData {
+    pixi: PIXI.Application;
     scaling: PIXI.Container;
     world: PIXI.Container;
     holograms: PIXI.Container;
@@ -11,6 +12,7 @@ export interface GlobalData {
     part_sprites: PIXI.Container;
     connector_sprites: PIXI.Container;
     main_hud: MainHud;
+    starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
     holographic_grab: PIXI.Texture;
     rendering: boolean;
@@ -26,7 +28,8 @@ export interface GlobalData {
     players: Map<number, PlayerMeta>;
 }
 
-export const global: GlobalData = {
+export const global: GlobalData = {,
+    pixi: null,
     scaling: new PIXI.Container(),
     world: new PIXI.Container(),
     holograms: new PIXI.Container(),
@@ -36,6 +39,7 @@ export const global: GlobalData = {
     holographic_grab: null,
     screen_to_player_space: null,
     main_hud: null,
+    starguide_button: null,
     rendering: true,
     spritesheet: null,
     raw_scale_up: null,
@@ -50,6 +54,7 @@ export const global: GlobalData = {
 };
 
 const pixi = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
+global.pixi = pixi;
 document.body.appendChild(pixi.view);
 
 pixi.stage.addChild(global.scaling);
@@ -98,6 +103,8 @@ function resize() {
     const main_hud_height = main_hud_width * 0.117749597249793;
     global.main_hud.container.position.set((window.innerWidth - main_hud_width) / 2, window.innerHeight - main_hud_height);
     global.main_hud.container.scale.x = main_hud_width; global.main_hud.container.height = main_hud_height;
+    global.starguide_button.container.position.set(window.innerWidth, window.innerHeight);
+    global.starguide_button.container.scale.set(main_hud_height);
 }
 
 //Tempoary lines of doom
@@ -132,6 +139,8 @@ new Promise(async (resolve, reject) => {
 }).then(() => {
     global.main_hud = new MainHud();
     pixi.stage.addChild(global.main_hud.container);
+    global.starguide_button = new StarguideButton();
+    pixi.stage.addChild(global.starguide_button.container);
 
     resize();
     window.addEventListener("resize", resize);
@@ -239,7 +248,10 @@ new Promise(async (resolve, reject) => {
     }
 
     let starguide: Starguide = null, starguide_visible = false;
-    function render() {
+    let last_time = performance.now();
+    function render(now_time: DOMHighResTimeStamp) {
+        const delta_ms = now_time - last_time;
+        last_time = now_time;
         if (global.rendering) {
             if (global.my_core != null) {
                 global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
@@ -247,6 +259,7 @@ new Promise(async (resolve, reject) => {
                 if (starguide_visible) starguide.update(global.my_core.sprite.position.x, global.my_core.sprite.position.y);
             }
             for (const player of global.players.values()) player.update_grabbing_sprite();
+            global.starguide_button.pre_render(delta_ms);
             pixi.render();
             requestAnimationFrame(render);
         }

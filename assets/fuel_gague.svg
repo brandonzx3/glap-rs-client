@@ -15,8 +15,8 @@
    sodipodi:docname="fuel_gague.svg"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\fuel_gague.png"
-   inkscape:export-xdpi="212.17953"
-   inkscape:export-ydpi="212.17953">
+   inkscape:export-xdpi="272.02505"
+   inkscape:export-ydpi="272.02505">
   <metadata
      id="metadata923">
     <rdf:RDF>
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -607,7 +607,7 @@
        id="rect56"
        style="fill:#6e6a6a;fill-opacity:1;stroke:#cccccc;stroke-width:2.59418;stroke-opacity:1;stop-color:#000000" />
     <g
-       style="display:inline"
+       style="display:none"
        inkscape:label="mockup-stuff"
        id="g1966">
       <g

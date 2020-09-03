@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="36.394714"
+   inkscape:export-xdpi="36.394714"
+   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\starguide_close_icon.png"
+   sodipodi:docname="starguide_close_icon.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 145.4291 104.68554"
+   height="395.66187"
+   width="549.65332">
+  <defs
+     id="defs2">
+    <mask
+       id="mask978"
+       maskUnits="userSpaceOnUse">
+      <g
+         style="stroke-width:0.999999"
+         id="g984">
+        <rect
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+           id="rect980"
+           width="75.122765"
+           height="36.569195"
+           x="66.996277"
+           y="78.241074" />
+        <path
+           id="path982"
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:none;stroke-width:9.99999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+           d="m 396.55859,308.57227 a 65.714506,65.714506 0 0 0 -65.42187,65.71289 65.714506,65.714506 0 0 0 0,0.35742 H 462.5625 a 65.714506,65.714506 0 0 0 0.002,-0.35742 65.714506,65.714506 0 0 0 -65.71484,-65.71289 65.714506,65.714506 0 0 0 -0.29102,0 z"
+           transform="scale(0.26458333)" />
+      </g>
+    </mask>
+    <mask
+       id="mask1083"
+       maskUnits="userSpaceOnUse">
+      <g
+         transform="translate(-4.4768912,11.759859)"
+         style="stroke:#e9afaf;stroke-width:3.96875;stroke-miterlimit:4;stroke-dasharray:none"
+         id="g1103"
+         inkscape:label="solar_system_mask">
+        <rect
+           y="76.171814"
+           x="29.132378"
+           height="90.069847"
+           width="153.14545"
+           id="rect1085"
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5.29167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+        <circle
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:5.29167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+           id="circle1087"
+           cx="105"
+           cy="99.029816"
+           r="17.386963" />
+        <g
+           style="stroke:#000000;stroke-width:3.96875;stroke-miterlimit:4;stroke-dasharray:none"
+           mask="none"
+           inkscape:label="solar_system_rings"
+           id="g1101">
+          <ellipse
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3.96875;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             id="ellipse1089"
+             cx="104.51042"
+             cy="96.383919"
+             rx="23.623514"
+             ry="7.9375005" />
+          <ellipse
+             ry="12.473214"
+             rx="30.427086"
+             cy="96.383911"
+             cx="104.51042"
+             id="ellipse1091"
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3.96875;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+          <ellipse
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3.96875;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             id="ellipse1093"
+             cx="104.51041"
+             cy="96.383911"
+             rx="36.474705"
+             ry="17.008928" />
+          <circle
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3.96875;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             id="circle1095"
+             cx="81.312096"
+             cy="94.919235"
+             r="1.0866454" />
+          <circle
+             cy="103.84892"
+             cx="128.79536"
+             id="circle1097"
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3.96875;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             r="1.9843389" />
+          <circle
+             r="0.80316329"
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3.96875;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             id="circle1099"
+             cx="78.193802"
+             cy="84.524887" />
+        </g>
+      </g>
+    </mask>
+    <mask
+       id="mask931"
+       maskUnits="userSpaceOnUse">
+      <g
+         id="g945"
+         style="stroke-width:0.999999">
+        <rect
+           y="78.777695"
+           x="67.285103"
+           height="39.021355"
+           width="75.370003"
+           id="rect933"
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:5.29168;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+        <g
+           style="stroke:#000000;stroke-width:0.999999"
+           mask="url(#mask978)"
+           inkscape:label="solar_system_rings"
+           id="g941">
+          <ellipse
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.64583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             id="ellipse935"
+             cx="104.51042"
+             cy="96.383919"
+             rx="23.623514"
+             ry="7.9375005" />
+          <ellipse
+             ry="12.473214"
+             rx="30.427086"
+             cy="96.383911"
+             cx="104.51042"
+             id="ellipse937"
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.64583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+          <ellipse
+             style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.64583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+             id="ellipse939"
+             cx="104.51041"
+             cy="96.383911"
+             rx="36.474705"
+             ry="17.008928" />
+        </g>
+        <rect
+           y="80.448128"
+           x="66.55011"
+           height="16.30344"
+           width="75.102737"
+           id="rect943"
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:5.29168;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+      </g>
+    </mask>
+  </defs>
+  <sodipodi:namedview
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     inkscape:snap-global="false"
+     inkscape:window-maximized="1"
+     inkscape:window-y="42"
+     inkscape:window-x="-8"
+     inkscape:window-height="1002"
+     inkscape:window-width="1920"
+     units="px"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:cy="329.61919"
+     inkscape:cx="46.196278"
+     inkscape:zoom="0.49497475"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-32.285449,-74.833831)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <image
+       sodipodi:absref="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\dist\starfield.jpg"
+       xlink:href="../dist/starfield.jpg"
+       y="5.923975"
+       x="-0.53324425"
+       width="262.5444"
+       height="262.5444"
+       preserveAspectRatio="none"
+       id="image1148"
+       style="display:none;stroke-width:0.515976" />
+    <path
+       sodipodi:nodetypes="sssssssss"
+       d="M 65.146168,76.156746 H 179.33161 c 17.47194,0 16.30344,14.06586 16.30344,31.537804 v 52.81625 c 0,17.47195 -14.06586,31.53781 -31.5378,31.53781 H 65.146168 c -17.471943,0 -31.537804,11.59201 -31.537804,-5.87994 v -78.47412 c 0,-17.471944 14.065861,-31.537804 31.537804,-31.537804 z"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#5f0079;fill-opacity:0.689516;stroke:#dd55ff;stroke-width:2.64583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+       id="rect1135" />
+    <circle
+       r="17.386963"
+       cy="99.029816"
+       cx="105"
+       id="path881"
+       style="font-variation-settings:normal;display:none;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:2.64583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+    <path
+       inkscape:label="star"
+       id="rect949-7"
+       style="display:none;fill:#ff0000;stroke:none;stroke-width:2.64583;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+       d="m -51.048479,98.221305 c -0.22029,5.568695 -6.344661,10.764955 -10.824145,10.824665 4.479484,0.0597 10.603855,5.25598 10.824145,10.82466 0.05971,-4.47948 5.255459,-10.60437 10.824144,-10.82466 -5.568686,-0.22029 -10.764434,-6.34518 -10.824144,-10.824665 z" />
+    <text
+       id="text1133"
+       y="169.33333"
+       x="104.98967"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#dd55ff;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#dd55ff;fill-opacity:1;stroke-width:0.264583"
+         y="169.33333"
+         x="104.98967"
+         id="tspan1131"
+         sodipodi:role="line">Close</tspan></text>
+    <g
+       transform="translate(-2.9751731)"
+       id="g1158">
+      <rect
+         style="opacity:1;vector-effect:none;fill:#dd55ff;fill-opacity:1;stroke:none;stroke-width:2.64584;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+         id="rect1152"
+         width="87.879471"
+         height="4.7247028"
+         x="-54.114418"
+         y="160.51228"
+         ry="0"
+         transform="rotate(-45)" />
+      <rect
+         transform="rotate(-135)"
+         ry="0"
+         y="-12.537029"
+         x="-206.81438"
+         height="4.7247028"
+         width="87.879471"
+         id="rect1154"
+         style="opacity:1;vector-effect:none;fill:#dd55ff;fill-opacity:1;stroke:none;stroke-width:2.64584;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1" />
+    </g>
+  </g>
+</svg>
