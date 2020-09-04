@@ -54,7 +54,28 @@ export class Starguide {
         });
         this.container.addListener("mouseout", () => {
             this.mouseover = false;
+            this.is_dragging = false;
             global.pixi.view.style.cursor = "default";
+        });
+        let prev_location: [number, number];
+        this.container.addListener("mousedown", e => {
+            this.is_dragging = true;
+            prev_location = [e.data.global.x, e.data.global.y];
+            global.pixi.view.style.cursor = "grabbing";
+            this.following_core = false;
+        });
+        this.container.addListener("mousemove", e => {
+            if (this.is_dragging) {
+                this.map_coordinate_space.position.x += (e.data.global.x - prev_location[0]) * 2.5;
+                this.map_coordinate_space.position.y += (e.data.global.y - prev_location[1]) * 2.5;
+                prev_location = [e.data.global.x, e.data.global.y];
+            }
+        });
+        this.container.addListener("mouseup", e => {
+            if (this.is_dragging) {
+                global.pixi.view.style.cursor = this.mouseover ? "grab" : "default";
+                this.is_dragging = false;
+            }
         });
     }
 
@@ -194,19 +215,19 @@ export class Starguide {
 
     on_wheel(event: WheelEvent) {
         if (this.is_dragging) return;
-        const d_center = this.following_core ? this.center : [event.x - this.center[0], event.y - this.center[1]];
-        const x = (this.map_coordinate_space.position.x + d_center[0]) / this.map_zoom_factor;
-        const y = (this.map_coordinate_space.position.y + d_center[1]) / this.map_zoom_factor;
+        const cursor_at: [number, number] = this.following_core ? [...this.center] : [event.x, event.y];
+        const unscaled_space =  [cursor_at[0] - this.container.position.x - this.map_coordinate_space.x, cursor_at[1] - this.container.position.y - this.map_coordinate_space.position.y];
+        const scaled_space = [unscaled_space[0] / this.map_zoom_factor, unscaled_space[1] / this.map_zoom_factor];
+        console.log(scaled_space);
         this.map_zoom -= event.deltaY * 15;
         if (this.map_zoom < 100) this.map_zoom = 100;
         else if (this.map_zoom > 3000) this.map_zoom = 3000;
         this.map_zoom_factor = this.map_zoom / this.map_zoom_divisor;
-        this.map_coordinate_space.position.set(
-            x * this.map_zoom_factor - d_center[0],
-            y * this.map_zoom_factor - d_center[1]
-        );
         this.map_items.scale.set(this.map_zoom_factor);
         this.retarget_destination_hologram();
+        const new_unscaled = [scaled_space[0] * this.map_zoom_factor, scaled_space[1] * this.map_zoom_factor];
+        this.map_coordinate_space.x += new_unscaled[0] - unscaled_space[0];
+        this.map_coordinate_space.y += new_unscaled[1] - unscaled_space[1];
     }
 
     update_destination_hologram() {
