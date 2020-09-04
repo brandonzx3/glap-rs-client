@@ -181,6 +181,13 @@ export class Starguide {
         this.map_items.addChild(circle);
         this.map_items.addChild(mask);
 
+        circle.interactive = true;
+        circle.addListener("mousedown", event => {
+            event.stopPropagation();
+            this.current_destination = celestial_object;
+            this.retarget_destination_hologram();
+        });
+
         this.planets.add(celestial_object);
         this.interplanetary_lines();
     }
