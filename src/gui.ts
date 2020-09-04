@@ -226,8 +226,8 @@ export class Starguide {
         this.map_items.scale.set(this.map_zoom_factor);
         this.retarget_destination_hologram();
         const new_unscaled = [scaled_space[0] * this.map_zoom_factor, scaled_space[1] * this.map_zoom_factor];
-        this.map_coordinate_space.x += new_unscaled[0] - unscaled_space[0];
-        this.map_coordinate_space.y += new_unscaled[1] - unscaled_space[1];
+        this.map_coordinate_space.x -= new_unscaled[0] - unscaled_space[0];
+        this.map_coordinate_space.y -= new_unscaled[1] - unscaled_space[1];
     }
 
     update_destination_hologram() {
