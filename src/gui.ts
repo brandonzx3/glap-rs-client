@@ -3,7 +3,6 @@ import * as PIXI from 'pixi.js';
 
 export class Starguide {
     background: PIXI.Graphics;
-    planets: PIXI.Graphics;
     public container: PIXI.Container = new PIXI.Container();
     is_open = false;
     animation_ms: number = 0;
@@ -27,8 +26,10 @@ export class Starguide {
     destination_hologram: PIXI.TilingSprite;
     destination_hologram_margin_core: number;
     destination_hologram_mask = new PIXI.Container();
-    destination_hologram_rectangle = new PIXI.Graphics().beginFill(0xffffff).drawRect(-1,0.5,1,1).endFill();
+    destination_hologram_rectangle = new PIXI.Graphics().beginFill(0xffffff).drawRect(-1,-0.5,1,1).endFill();
     current_destination: CelestialObjectMeta = null;
+    planets: Set<CelestialObjectMeta> = new Set();
+    map_lines = new PIXI.Graphics();
 
     constructor() {
         this.container.visible = false;
@@ -37,7 +38,15 @@ export class Starguide {
         this.core_sprite.texture = global.spritesheet.textures["starguide_core.png"];
         this.core_sprite.anchor.set(0.5,0.5);
         this.map_coordinate_space.addChild(this.core_sprite);
+        this.map_items.addChild(this.map_lines);
+
+        this.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["starguide_destination_hologram.png"], 2);
+        this.destination_hologram.anchor.set(1,0.5);
+        this.destination_hologram.mask = this.destination_hologram_mask;
+        this.map_coordinate_space.addChild(this.destination_hologram);
+        this.map_coordinate_space.addChild(this.destination_hologram_mask);
         this.destination_hologram_mask.addChild(this.destination_hologram_rectangle);
+        
 
         this.container.addListener("mouseover", () => {
             this.mouseover = true;
@@ -85,14 +94,11 @@ export class Starguide {
         this.core_sprite.height = this.core_sprite.width;
         this.center_around_core();
 
-        this.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["starguide_destination_hologram.png"], 2, this.core_sprite.width * 0.5);
-        this.destination_hologram.anchor.set(1,0.5);
+        this.destination_hologram.height = this.core_sprite.width * 0.5;
         this.destination_hologram.tileScale.y = this.destination_hologram.height / this.destination_hologram.texture.height;
         this.destination_hologram.tileScale.x = this.destination_hologram.tileScale.y / 2.35;
         this.destination_hologram_margin_core = this.core_sprite.width * Math.SQRT2;
-        this.destination_hologram.mask = this.destination_hologram_mask;
-        this.map_coordinate_space.addChild(this.destination_hologram);
-        this.map_coordinate_space.addChild(this.destination_hologram_mask);
+        this.destination_hologram_rectangle.height = this.destination_hologram.height;
         if (this.current_destination !== null) this.retarget_destination_hologram();
     }
 
@@ -169,11 +175,14 @@ export class Starguide {
         mask.width = celestial_object.radius * 2;
         mask.height = mask.width;
         circle.mask = mask;
-        circle.x = celestial_object.sprite.position.x + celestial_object.radius;
-        circle.y = celestial_object.sprite.position.y + celestial_object.radius;
+        circle.x = celestial_object.sprite.position.x;
+        circle.y = celestial_object.sprite.position.y;
         mask.position.copyFrom(circle.position);
         this.map_items.addChild(circle);
         this.map_items.addChild(mask);
+
+        this.planets.add(celestial_object);
+        this.interplanetary_lines();
     }
 
     on_wheel(event: WheelEvent) {
@@ -190,6 +199,7 @@ export class Starguide {
             y * this.map_zoom_factor - d_center[1]
         );
         this.map_items.scale.set(this.map_zoom_factor);
+        this.retarget_destination_hologram();
     }
 
     update_destination_hologram() {
@@ -200,7 +210,10 @@ export class Starguide {
         this.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
         this.destination_hologram_mask.rotation = this.destination_hologram.rotation;
         this.destination_hologram.tilePosition.x = this.destination_hologram.width;
-        this.destination_hologram_rectangle.width = distance_without_margin;
+        if (distance_without_margin > 0) {
+            this.destination_hologram.visible = true;
+            this.destination_hologram_rectangle.width = distance_without_margin;
+        } else this.destination_hologram.visible = false;
     }
     retarget_destination_hologram() {
         const meta = this.current_destination;
@@ -208,6 +221,51 @@ export class Starguide {
         this.destination_hologram.position.set(meta.sprite.x * this.map_zoom_factor, meta.sprite.y * this.map_zoom_factor);
         this.destination_hologram_rectangle.position.x = -meta.radius * this.map_zoom_factor;
         this.destination_hologram_mask.position.copyFrom(this.destination_hologram);
+    }
+
+    interplanetary_lines() {
+        this.map_lines.clear();
+        this.map_lines.lineStyle(3, 0xdd55ff);
+        const pairs: [CelestialObjectMeta, CelestialObjectMeta][] = [];
+        for (const obj of this.planets) {
+            let first: [number, CelestialObjectMeta] = [1000000000000, null];
+            let second: [number, CelestialObjectMeta] = [1000000000000, null];
+            let third: [number, CelestialObjectMeta] = [1000000000000, null];
+            for (const obj2 of this.planets) {
+                if (obj2 === obj) continue;
+                const distance = Math.sqrt(Math.pow(obj.sprite.x - obj2.sprite.x, 2) + Math.pow(obj.sprite.y - obj2.sprite.y, 2));
+                if (distance <= first[0]) {
+                    third = second;
+                    second = first;
+                    first = [distance, obj2];
+                } else if (distance <= second[0]) {
+                    third = second;
+                    second = [distance, obj2];
+                } else if (distance <= third[0]) {
+                    third = [distance, obj2];
+                }
+            }
+            for (const [distance, obj2] of [first, second, third]) {
+                if (obj2 === null) continue;
+                let has_existed = false;
+                for (const pair of pairs) {
+                    if ((pair[0] === obj && pair[1] === obj2) || (pair[0] === obj2 && pair[1] === obj)) { has_existed = true; break;}
+                }
+                if (!has_existed) {
+                    console.log([obj, obj2]);
+                    console.log([obj.sprite.position.x, obj.sprite.position.y, obj2.sprite.position.x, obj2.sprite.position.y]);
+                    const distance = [obj2.sprite.x - obj.sprite.x, obj2.sprite.y - obj.sprite.y];
+                    const larger = Math.max(Math.abs(distance[0]), Math.abs(distance[1]));
+                    distance[0] /= larger; distance[1] /= larger;
+                    const point_1 = rotate_vector(obj.radius + 5, 0, distance[1], distance[0]);
+                    const point_2 = rotate_vector(obj2.radius + 5, 0, -distance[1], -distance[0]);
+                    console.log([...point_1, ...point_2]);
+                    this.map_lines.moveTo(obj.sprite.x + point_1[0], obj.sprite.y + point_1[1]);
+                    this.map_lines.lineTo(obj2.sprite.x + point_2[0], obj2.sprite.y + point_2[1]);
+                    pairs.push([obj, obj2]);
+                }
+            }
+        }
     }
 }
 
@@ -309,4 +367,9 @@ export function create_planet_icon_mask(icon: PIXI.Texture): PIXI.RenderTexture 
     mask.addChild(mask_sprite);
     global.pixi.renderer.render(mask, mask_texture);
     return mask_texture;
+}
+
+export function rotate_vector_with_angle(x: number, y: number, theta: number): [number, number] { return rotate_vector(x, y, Math.sin(theta), Math.cos(theta)); }
+export function rotate_vector(x: number, y: number, theta_sin: number, theta_cos: number): [number, number] {
+    return [(x * theta_cos) - (y * theta_sin), (x * theta_sin) + (y * theta_cos)];
 }
