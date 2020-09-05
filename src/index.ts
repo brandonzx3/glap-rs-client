@@ -22,6 +22,7 @@ export interface GlobalData {
     zoom: number;
     scale_up: number;
     destination_hologram: PIXI.TilingSprite;
+    heading_hologram: PIXI.Sprite;
 
     my_core: PartMeta;
     my_id: number;
@@ -49,6 +50,7 @@ export const global: GlobalData = {
     zoom: 1,
     scale_up: null,
     destination_hologram: null,
+    heading_hologram: new PIXI.Sprite(),
 
     my_core: null,
     my_id: null,
@@ -110,10 +112,15 @@ function resize() {
     global.starguide_button.container.position.set(window.innerWidth, window.innerHeight);
     global.starguide_button.container.scale.set(main_hud_height);
     global.starguide.update_sprites(main_hud_width, window.innerHeight - main_hud_height - 20, (window.innerWidth - main_hud_width) * 0.5, 10);
+
+    global.heading_hologram.height = window.innerHeight * 0.75 / global.scaling.scale.y;
+    global.heading_hologram.width = global.heading_hologram.height / global.heading_hologram.texture.height * global.heading_hologram.texture.width
 }
 
 let my_core_id: number = null;
 let max_fuel = 1;
+
+const PI_over_2 = Math.PI / 2;
 
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
@@ -144,6 +151,11 @@ new Promise(async (resolve, reject) => {
     global.destination_hologram.visible = false;
     global.holograms.addChild(global.destination_hologram);
 
+    global.heading_hologram.texture = global.spritesheet.textures["heading_hologram.png"];
+    global.heading_hologram.anchor.set(0.5);
+    global.heading_hologram.alpha = 0.5;
+    global.holograms.addChild(global.heading_hologram);
+
     resize();
     window.addEventListener("resize", resize);
 
@@ -171,6 +183,8 @@ new Promise(async (resolve, reject) => {
     }
     socket.addEventListener("message", handshake_ing);
     socket.onerror = err => { throw err; };
+
+    let prev_core_position = [0,0];
 
     function on_message(e: MessageEvent) {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
@@ -208,6 +222,11 @@ new Promise(async (resolve, reject) => {
             part.connector_sprite.rotation = rotation;
             part.thrust_sprites.position.set(msg.x, msg.y);
             part.thrust_sprites.rotation = rotation;
+
+            if (msg.id === my_core_id) {
+                global.heading_hologram.rotation = Math.atan2((prev_core_position[1] - msg.y), (prev_core_position[0] - msg.x)) - PI_over_2;
+                prev_core_position = [msg.x, msg.y];
+            }
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = global.parts.get(msg.id);
             if (part !== null) {
@@ -272,6 +291,7 @@ new Promise(async (resolve, reject) => {
                 global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
                 global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
                 global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
+                global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
             }
             for (const player of global.players.values()) player.update_grabbing_sprite();
             global.starguide_button.pre_render(delta_ms);

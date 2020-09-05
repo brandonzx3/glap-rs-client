@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="69.560455"
+   inkscape:export-xdpi="69.560455"
+   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\mercury.png"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="mercury.svg"
+   viewBox="0 0 552.03778 552.03778"
+   height="552.03778"
+   width="552.03778"
+   id="svg951"
+   version="1.1">
+  <metadata
+     id="metadata957">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs955">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath836">
+      <circle
+         style="display:inline;fill:#427128;fill-opacity:1;stroke:#000000;stroke-width:3.45;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+         id="circle838"
+         cx="282"
+         cy="282"
+         r="276.01889"
+         inkscape:label="Land" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     inkscape:current-layer="g959"
+     inkscape:window-maximized="1"
+     inkscape:window-y="42"
+     inkscape:window-x="-8"
+     inkscape:cy="368.25402"
+     inkscape:cx="314.61502"
+     inkscape:zoom="0.81868925"
+     inkscape:snap-global="false"
+     showgrid="false"
+     id="namedview953"
+     inkscape:window-height="1002"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <g
+     id="g959"
+     inkscape:label="Image"
+     inkscape:groupmode="layer"
+     transform="translate(-5.9811091,-5.9811091)">
+    <circle
+       inkscape:label="Land"
+       r="276.01889"
+       cy="282"
+       cx="282"
+       id="path1019"
+       style="display:inline;fill:#807871;fill-opacity:1;stroke:none;stroke-width:3.45;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000" />
+    <path
+       sodipodi:nodetypes="ccccccccccccccccccccccc"
+       id="path857"
+       d="m 87.819242,103.69828 64.737628,102.60304 -131.918185,25.65076 149.018695,53.74444 -68.40202,59.85177 89.16692,-14.65758 -36.64394,162.45481 86.72399,-118.48208 36.64394,103.8245 31.75808,-108.71036 83.05959,134.36111 L 356.54147,335.77657 504.3387,400.5142 376.08491,275.9248 539.76117,269.81748 379.7493,207.52278 421.2791,46.289443 322.34046,151.33541 293.02531,38.960655 261.26723,139.12076 170.87884,54.839696 192.86521,165.99298 Z"
+       style="fill:#8f8a85;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       id="path859"
+       d="m 137.8993,181.87202 43.97272,62.2947 -85.502525,19.54344 100.160105,30.53661 -46.41566,37.86541 61.07324,-15.87904 -19.54344,103.8245 53.74445,-80.61667 25.65075,67.18055 14.65758,-73.28788 62.2947,83.0596 -29.31515,-107.48889 95.27424,32.97955 -86.72399,-70.84496 113.59621,-14.65757 -111.15328,-24.42929 21.98636,-112.37476 -63.51616,79.39521 -25.65076,-75.73081 -15.87904,68.40202 -58.6303,-45.19419 21.98636,73.28788 z"
+       style="fill:#b3afab;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  </g>
+</svg>

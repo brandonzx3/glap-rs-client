@@ -59,11 +59,11 @@ function type_boolean_serialize(out: number[], bool: boolean) { out.push(bool ? 
 function type_boolean_deserialize(buf: Uint8Array, index: Box<number>): boolean { return buf[index.v++] > 0; }
 
 export enum PartKind {
-	Core, Cargo, LandingThruster, Hub
+	Core, Cargo, LandingThruster, Hub, SolarPanel
 }
 function enum_PartKind_serialize(buf: number[], val: PartKind) { buf.push(val as number); }function enum_PartKind_deserialize(buf: Uint8Array, index: Box<number>): PartKind {
 	const me = buf[index.v++];
-	if (me < 4) return me as PartKind;
+	if (me < 5) return me as PartKind;
 	else throw new Error('Bad PartKind deserialize');
 }
 
