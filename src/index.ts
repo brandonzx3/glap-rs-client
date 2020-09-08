@@ -2,6 +2,11 @@ import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
 import { Starguide, MainHud, StarguideButton } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
+import { parse as qs_parse } from "query-string";
+
+export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
+console.log("RE");
+console.log(params);
 
 export interface GlobalData {
     pixi: PIXI.Application;
@@ -64,7 +69,7 @@ global.pixi = pixi;
 document.body.appendChild(pixi.view);
 
 pixi.stage.addChild(global.scaling);
-const background = PIXI.TilingSprite.from("/starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
+const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
 background.tileScale.set(0.1);
 background.position.set(-50);
 background.zIndex = -100;
@@ -125,11 +130,11 @@ const PI_over_2 = Math.PI / 2;
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
-        image.src = "/spritesheet.png";
+        image.src = "./spritesheet.png";
         image.onload = () => { resolve(image); }
         image.onerror = err => reject(err);
     });
-    const dat_promise: Promise<Object> = fetch("/spritesheet.json").then(res => res.json());
+    const dat_promise: Promise<Object> = fetch("./spritesheet.json").then(res => res.json());
     const image = await image_promise;
     const dat = await dat_promise;
     const texture = PIXI.Texture.from(image);
@@ -160,10 +165,11 @@ new Promise(async (resolve, reject) => {
     window.addEventListener("resize", resize);
 
     //ws%3A%2F%2Flocalhost%3A8081 for localhost 8081
-    const socket = new WebSocket(decodeURIComponent(window.location.hash.slice(1)));
+    if (typeof params["server"] !== "string") throw new Error("No server address provided");
+    const socket = new WebSocket(params["server"] as string);
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
-        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null).serialize()));
+        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null, name in params ? params[name] as string : "Unnamed").serialize()));
     };
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));

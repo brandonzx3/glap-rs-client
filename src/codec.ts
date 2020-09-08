@@ -69,14 +69,15 @@ function enum_PartKind_serialize(buf: number[], val: PartKind) { buf.push(val as
 
 class ToServerMsg_Handshake {
 	static readonly id = 0;
-	client: string; session: string|null;
-	constructor(client: string, session: string|null,) {
-		this.client = client; this.session = session;
+	client: string; session: string|null; name: string;
+	constructor(client: string, session: string|null, name: string,) {
+		this.client = client; this.session = session; this.name = name;
 	}
 	serialize(): Uint8Array
 		{let out = [0];
 		type_string_serialize(out, this.client);
 		if (this.session === null) out.push(0); else {out.push(1); type_string_serialize(out, this.session);};
+		type_string_serialize(out, this.name);
 		return new Uint8Array(out);
 	}
 }
@@ -136,10 +137,11 @@ class ToServerMsg_ReleaseGrab {
 function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
-			let client: string; let session: string|null;
+			let client: string; let session: string|null; let name: string;
 			client = type_string_deserialize(buf, index);
 			if (buf[index.v++] > 0) {session = type_string_deserialize(buf, index);} else {session = null;}
-			return new ToServerMsg_Handshake(client, session);
+			name = type_string_deserialize(buf, index);
+			return new ToServerMsg_Handshake(client, session, name);
 		}; break;		case 1: {
 			let forward: boolean; let backward: boolean; let clockwise: boolean; let counter_clockwise: boolean;
 			forward = type_boolean_deserialize(buf, index);

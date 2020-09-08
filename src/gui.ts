@@ -382,6 +382,7 @@ export class MainHud {
     public set_fuel(fuel: number, max_fuel: number) {
         this.fuel.width = (fuel/max_fuel) * 0.715988129418095;
         this.fuel_text.text = `Fuel: ${fuel}/${max_fuel}`;
+        this.fuel_text.width = (this.fuel_text.texture.width / this.fuel_text.texture.height) * this.fuel_text.height * 0.1;
     }
 }
 
