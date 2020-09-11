@@ -191,7 +191,7 @@ export class Starguide {
         circle.drawCircle(0, 0, celestial_object.radius);
         circle.endFill();
         
-        const mask = new PIXI.Sprite(create_planet_icon_mask(global.spritesheet.textures["symbol_" + celestial_object.name + ".png"]));
+        const mask = new PIXI.Sprite(celestial_object.icon_mask);
         mask.anchor.set(0.5,0.5);
         mask.width = celestial_object.radius * 2;
         mask.height = mask.width;
@@ -249,6 +249,10 @@ export class Starguide {
         this.destination_hologram.position.set(meta.sprite.x * this.map_zoom_factor, meta.sprite.y * this.map_zoom_factor);
         this.destination_hologram_rectangle.position.x = -meta.radius * this.map_zoom_factor;
         this.destination_hologram_mask.position.copyFrom(this.destination_hologram);
+
+        global.main_hud.target_text.text = `Relative to ${meta.display_name}:`;
+        global.main_hud.target_text.width = (global.main_hud.target_text.texture.width / global.main_hud.target_text.texture.height) * global.main_hud.target_text.height * 0.1;
+        global.main_hud.target_graphic_mask.texture = meta.icon_mask;
     }
 
     interplanetary_lines() {
@@ -348,6 +352,11 @@ export class MainHud {
     public container: PIXI.Container;
     fuel: PIXI.Graphics;
     fuel_text: PIXI.Text;
+    target_text: PIXI.Text;
+    position_text: PIXI.Text;
+    velocity_text: PIXI.Text;
+    target_graphic: PIXI.Graphics;
+    target_graphic_mask: PIXI.Sprite;
 
     constructor() {
         this.container = new PIXI.Container();
@@ -362,13 +371,13 @@ export class MainHud {
 
         const fuel_background = new PIXI.Graphics();
         fuel_background.beginFill(0x00aad4);
-        fuel_background.drawRect(0.047274295458486, 0.498618150494084, 0.715988129418095, 0.230238985346539);
+        fuel_background.drawRect(0.047274295458486, 0.498618150494084, 0.526532575319202, 0.230238985346539);
         fuel_background.endFill();
         this.container.addChild(fuel_background);
 
         this.fuel = new PIXI.Graphics();
         this.fuel.beginFill(0x55ddff);
-        this.fuel.drawRect(0,0.498618150494084,0.715988129418095,0.230238985346539);
+        this.fuel.drawRect(0,0.498618150494084,0.526532575319202,0.230238985346539);
         this.fuel.endFill();
         this.fuel.position.x = 0.047274295458486;
         this.container.addChild(this.fuel);
@@ -377,10 +386,40 @@ export class MainHud {
         this.fuel_text.position.set(0.048566785594363, 0.261918570054953);
         this.fuel_text.width = 0.078612775037128; this.fuel_text.height = 0.204358823718318;
         this.container.addChild(this.fuel_text);
+
+        this.target_text = new PIXI.Text("No Target Set", text_style);
+        this.target_text.position.set(0.58387360644962, 0.261918570054953);
+        this.target_text.height = 0.204358823718318;
+        this.target_text.width = (this.target_text.texture.width / this.target_text.texture.height) * this.target_text.height * 0.1;
+        this.container.addChild(this.target_text);
+        this.position_text = new PIXI.Text("Pos: 0, 0", text_style);
+        this.position_text.position.set(0.584287790788617, 0.4368604813710061);
+        this.position_text.height = 0.20575673025882;
+        this.position_text.width = (this.position_text.texture.width / this.position_text.texture.height) * this.position_text.height * 0.1;
+        this.container.addChild(this.position_text);
+        this.velocity_text = new PIXI.Text("Vel: 0, 0", text_style);
+        this.velocity_text.position.set(0.58387360644962, 0.6135970024350019);
+        this.velocity_text.height = 0.20575673025882;
+        this.velocity_text.width = (this.velocity_text.texture.width / this.velocity_text.texture.height) * this.velocity_text.height * 0.1;
+        this.container.addChild(this.velocity_text);
+
+        this.target_graphic = new PIXI.Graphics()
+            .beginFill(0xffffff)
+            .drawEllipse(0, 0, 0.023043042888377, 0.296375077215446)
+            .endFill();
+        this.target_graphic.position.set(0.955934516927259, 0.245710410436695);
+        this.target_graphic_mask = new PIXI.Sprite();
+        this.target_graphic_mask.position.copyFrom(this.target_graphic.position);
+        this.target_graphic_mask.anchor.set(0.5, 0.5);
+        this.target_graphic_mask.width = 0.023043042888377 * 2;
+        this.target_graphic_mask.height = 0.296375077215446 * 2;
+        this.target_graphic.mask = this.target_graphic_mask;
+        this.container.addChild(this.target_graphic);
+        this.container.addChild(this.target_graphic_mask);
     }
 
     public set_fuel(fuel: number, max_fuel: number) {
-        this.fuel.width = (fuel/max_fuel) * 0.715988129418095;
+        this.fuel.width = (fuel/max_fuel) * 0.526532575319202;
         this.fuel_text.text = `Fuel: ${fuel}/${max_fuel}`;
         this.fuel_text.width = (this.fuel_text.texture.width / this.fuel_text.texture.height) * this.fuel_text.height * 0.1;
     }

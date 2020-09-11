@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
-import { Starguide, MainHud, StarguideButton } from './gui';
+import { Starguide, MainHud, StarguideButton, create_planet_icon_mask } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 
@@ -191,6 +191,7 @@ new Promise(async (resolve, reject) => {
     socket.onerror = err => { throw err; };
 
     let prev_core_position = [0,0];
+    //const move_msgs: ToClientMsg.MovePart[] = [];
 
     function on_message(e: MessageEvent) {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
@@ -230,7 +231,14 @@ new Promise(async (resolve, reject) => {
             part.thrust_sprites.rotation = rotation;
 
             if (msg.id === my_core_id) {
-                global.heading_hologram.rotation = Math.atan2((prev_core_position[1] - msg.y), (prev_core_position[0] - msg.x)) - PI_over_2;
+                const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
+                global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
+                global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
+
+                const delta_pos = [prev_core_position[0] - msg.x, prev_core_position[1] - msg.y];
+                global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
+                global.main_hud.velocity_text.text = `Vel: ${Math.round(delta_pos[0] * 20)}, ${Math.round(delta_pos[1] * 20)}`;
+                global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
                 prev_core_position = [msg.x, msg.y];
             }
         } else if (msg instanceof ToClientMsg.RemovePart) {
@@ -446,8 +454,10 @@ export class CelestialObjectMeta {
     sprite: PIXI.Sprite;
     radius: number;
     name: string;
+    icon_mask: PIXI.Texture;
     constructor(id: number, name: string, display_name: string, sprite: PIXI.Sprite, radius: number) {
         this.id = id; this.display_name = display_name; this.sprite = sprite; this.name = name;
         this.radius = radius;
+        this.icon_mask = create_planet_icon_mask(global.spritesheet.textures["symbol_" + this.name + ".png"])
     }
 }
