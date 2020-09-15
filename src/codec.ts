@@ -44,6 +44,17 @@ function type_ushort_deserialize(buf: Uint8Array, index: Box<number>): number {
     return view[0];
 }
 
+function type_uint_serialize(out: number[], uint: number) {
+    const arr = new Uint32Array([uint]);
+    const view = new Uint8Array(arr.buffer);
+    out.push(view[3], view[2], view[1], view[0]);
+}
+function type_uint_deserialize(buf: Uint8Array, index: Box<number>): number {
+    const arr = new Uint8Array([buf[index.v+3], buf[index.v+2], buf[index.v+1], buf[index.v]]);
+    const view = new Uint32Array(arr.buffer);
+    return view[0];
+}
+
 function type_float_pair_serialize(out: number[], pair: [number, number]) {
     type_float_serialize(out, pair[0])
     type_float_serialize(out, pair[1]);
@@ -57,6 +68,7 @@ function type_ubyte_deserialize(buf: Uint8Array, index: Box<number>): number { r
 
 function type_boolean_serialize(out: number[], bool: boolean) { out.push(bool ? 1 : 0); }
 function type_boolean_deserialize(buf: Uint8Array, index: Box<number>): boolean { return buf[index.v++] > 0; }
+
 
 export enum PartKind {
 	Core, Cargo, LandingThruster, Hub, SolarPanel
@@ -300,25 +312,25 @@ class ToClientMsg_RemovePlayer {
 }
 class ToClientMsg_PostSimulationTick {
 	static readonly id = 9;
-	your_fuel: number;
-	constructor(your_fuel: number,) {
-		this.your_fuel = your_fuel;
+	your_power: number;
+	constructor(your_power: number,) {
+		this.your_power = your_power;
 	}
 	serialize(): Uint8Array
 		{let out = [9];
-		type_ushort_serialize(out, this.your_fuel);
+		type_uint_serialize(out, this.your_power);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_UpdateMyMeta {
 	static readonly id = 10;
-	max_fuel: number;
-	constructor(max_fuel: number,) {
-		this.max_fuel = max_fuel;
+	max_power: number;
+	constructor(max_power: number,) {
+		this.max_power = max_power;
 	}
 	serialize(): Uint8Array
 		{let out = [10];
-		type_ushort_serialize(out, this.max_fuel);
+		type_uint_serialize(out, this.max_power);
 		return new Uint8Array(out);
 	}
 }
@@ -380,13 +392,13 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePlayer(id);
 		}; break;		case 9: {
-			let your_fuel: number;
-			your_fuel = type_ushort_deserialize(buf, index);
-			return new ToClientMsg_PostSimulationTick(your_fuel);
+			let your_power: number;
+			your_power = type_uint_deserialize(buf, index);
+			return new ToClientMsg_PostSimulationTick(your_power);
 		}; break;		case 10: {
-			let max_fuel: number;
-			max_fuel = type_ushort_deserialize(buf, index);
-			return new ToClientMsg_UpdateMyMeta(max_fuel);
+			let max_power: number;
+			max_power = type_uint_deserialize(buf, index);
+			return new ToClientMsg_UpdateMyMeta(max_power);
 		}; break;		default: throw new Error();
 	}
 }

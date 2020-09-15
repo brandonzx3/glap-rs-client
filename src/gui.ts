@@ -213,13 +213,13 @@ export class Starguide {
         this.interplanetary_lines();
     }
 
-    on_wheel(event: WheelEvent) {
+    on_wheel(event: WheelEvent, deltaY: number) {
         if (this.is_dragging) return;
         const cursor_at: [number, number] = this.following_core ? [...this.center] : [event.x, event.y];
         const unscaled_space =  [cursor_at[0] - this.container.position.x - this.map_coordinate_space.x, cursor_at[1] - this.container.position.y - this.map_coordinate_space.position.y];
         const scaled_space = [unscaled_space[0] / this.map_zoom_factor, unscaled_space[1] / this.map_zoom_factor];
         console.log(scaled_space);
-        this.map_zoom -= event.deltaY * 15;
+        this.map_zoom -= deltaY * 15;
         if (this.map_zoom < 100) this.map_zoom = 100;
         else if (this.map_zoom > 3000) this.map_zoom = 3000;
         this.map_zoom_factor = this.map_zoom / this.map_zoom_divisor;
@@ -414,8 +414,8 @@ export class MainHud {
         this.target_graphic_mask.width = 0.023043042888377 * 2;
         this.target_graphic_mask.height = 0.296375077215446 * 2;
         this.target_graphic.mask = this.target_graphic_mask;
-        this.container.addChild(this.target_graphic);
-        this.container.addChild(this.target_graphic_mask);
+        //this.container.addChild(this.target_graphic);
+        //this.container.addChild(this.target_graphic_mask);
     }
 
     public set_fuel(fuel: number, max_fuel: number) {

@@ -27,6 +27,19 @@ export class PartMeta {
     owning_player: PlayerMeta = null;
     thrust_mode = new CompactThrustMode(0);
 
+    x = 0;
+    y = 0;
+    rot = 0;
+    inter_x_delta = 0;
+    inter_x_positive = true;
+    inter_x_dest = 0;
+    inter_y_delta = 0;
+    inter_y_positive = true;
+    inter_y_dest = 0;
+    inter_rot_delta = 0;
+    inter_rot_positive = true;
+    inter_rot_dest = 0;
+
     update_sprites() {
         switch (this.kind) {
             case PartKind.Core: this.sprite.texture = global.spritesheet.textures["core.png"]; break;

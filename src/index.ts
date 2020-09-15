@@ -34,6 +34,7 @@ export interface GlobalData {
     parts: Map<number, PartMeta>;
     celestial_objects: Map<number, CelestialObjectMeta>;
     players: Map<number, PlayerMeta>;
+    server_tick_times: number[];
 }
 
 export const global: GlobalData = {
@@ -61,7 +62,8 @@ export const global: GlobalData = {
     my_id: null,
     parts: new Map(),
     celestial_objects: new Map(),
-    players: new Map()
+    players: new Map(),
+    server_tick_times: null,
 };
 
 const pixi = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
@@ -97,6 +99,11 @@ global.scaling.interactive = true;
     global.holographic_grab.defaultAnchor.set(0, 0.5);
 }
 
+let hh_inter_delta = 0;
+let hh_inter_positive = true;
+let hh_inter_dest = 0;
+let hh_inter_next = 0;
+
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
     pixi.view.width = window.innerWidth;
@@ -113,7 +120,7 @@ function resize() {
     const main_hud_width = window.innerWidth * 0.44326579427083335;
     const main_hud_height = main_hud_width * 0.117749597249793;
     global.main_hud.container.position.set((window.innerWidth - main_hud_width) / 2, window.innerHeight - main_hud_height);
-    global.main_hud.container.scale.x = main_hud_width; global.main_hud.container.height = main_hud_height;
+    global.main_hud.container.scale.x = main_hud_width; global.main_hud.container.scale.y = main_hud_height;
     global.starguide_button.container.position.set(window.innerWidth, window.innerHeight);
     global.starguide_button.container.scale.set(main_hud_height);
     global.starguide.update_sprites(main_hud_width, window.innerHeight - main_hud_height - 20, (window.innerWidth - main_hud_width) * 0.5, 10);
@@ -191,7 +198,11 @@ new Promise(async (resolve, reject) => {
     socket.onerror = err => { throw err; };
 
     let prev_core_position = [0,0];
-    //const move_msgs: ToClientMsg.MovePart[] = [];
+    const server_tick_times: number[] = [];
+    global.server_tick_times = server_tick_times;
+    let next_server_tick_i = 0;
+    let previous_server_tick = performance.now();
+    const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
 
     function on_message(e: MessageEvent) {
         const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
@@ -222,13 +233,9 @@ new Promise(async (resolve, reject) => {
             if (msg.id === my_core_id) global.my_core = meta;
         } else if (msg instanceof ToClientMsg.MovePart) {
             const part = global.parts.get(msg.id)
-            part.sprite.position.set(msg.x, msg.y);
+            part.x = msg.x; part.y = msg.y;
             const rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
-            part.sprite.rotation = rotation;
-            part.connector_sprite.position.set(msg.x, msg.y);
-            part.connector_sprite.rotation = rotation;
-            part.thrust_sprites.position.set(msg.x, msg.y);
-            part.thrust_sprites.rotation = rotation;
+            part.rot = rotation;
 
             if (msg.id === my_core_id) {
                 const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
@@ -236,7 +243,9 @@ new Promise(async (resolve, reject) => {
                 global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
 
                 const delta_pos = [prev_core_position[0] - msg.x, prev_core_position[1] - msg.y];
-                global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
+		if (Math.abs(delta_pos[0]) > 0.01 || Math.abs(delta_pos[1]) > 0.01) 
+			global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
+			//hh_inter_next = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
                 global.main_hud.velocity_text.text = `Vel: ${Math.round(delta_pos[0] * 20)}, ${Math.round(delta_pos[1] * 20)}`;
                 global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
                 prev_core_position = [msg.x, msg.y];
@@ -281,13 +290,53 @@ new Promise(async (resolve, reject) => {
             }
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
-            max_fuel = msg.max_fuel;
+            max_fuel = msg.max_power;
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
             global.players.delete(msg.id);
         }
+
+
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
-            global.main_hud.set_fuel(msg.your_fuel, max_fuel);
+            global.main_hud.set_fuel(msg.your_power, max_fuel);
+
+            const now = performance.now();
+            const delta_server_tick = now - previous_server_tick;
+            previous_server_tick = now;
+            server_tick_times[next_server_tick_i] = delta_server_tick;
+            next_server_tick_i += 1;
+            if (next_server_tick_i >= 40) next_server_tick_i = 0;
+            let average_server_tick_time = 0;
+            server_tick_times.forEach(val => average_server_tick_time += val);
+            average_server_tick_time /= server_tick_times.length;
+            average_server_tick_time += 100;
+		
+	    /*{
+		let sprite_rot = global.heading_hologram.rotation;
+                const dif = sprite_rot - hh_inter_next;
+                if (dif > Math.PI) sprite_rot -= PIXI.PI_2;
+                else if (dif < -Math.PI) sprite_rot += PIXI.PI_2;
+                global.heading_hologram.rotation = sprite_rot;
+		hh_inter_dest = hh_inter_next;
+                hh_inter_delta = (hh_inter_dest - sprite_rot) / average_server_tick_time;
+                hh_inter_positive = hh_inter_delta >= 0;
+	    }*/
+            for (const part of global.parts.values()) {
+                part.inter_x_dest = part.x;
+                part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
+                part.inter_x_positive = part.inter_x_delta >= 0;
+                part.inter_y_dest = part.y;
+                part.inter_y_delta = (part.inter_y_dest - part.sprite.y) / average_server_tick_time;
+                part.inter_y_positive = part.inter_y_delta >= 0;
+                part.inter_rot_dest = part.rot;
+                let sprite_rot = part.sprite.rotation;
+                const dif = part.sprite.rotation - part.rot;
+                if (dif > Math.PI) sprite_rot -= PIXI.PI_2;
+                else if (dif < -Math.PI) sprite_rot += PIXI.PI_2;
+                part.sprite.rotation = sprite_rot;
+                part.inter_rot_delta = (part.inter_rot_dest - sprite_rot) / average_server_tick_time;
+                part.inter_rot_positive = part.inter_rot_delta >= 0;             
+            }
         }
     }
 
@@ -296,6 +345,24 @@ new Promise(async (resolve, reject) => {
         const delta_ms = now_time - last_time;
         last_time = now_time;
         if (global.rendering) {
+	    //global.heading_hologram.rotation += hh_inter_delta;
+	    //if (hh_inter_positive ? global.heading_hologram.rotation > hh_inter_dest : global.heading_hologram.rotation < hh_inter_dest) global.heading_hologram.rotation = hh_inter_dest;
+            for (const part of global.parts.values()) {
+                part.sprite.x += part.inter_x_delta * delta_ms;
+                if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
+                part.sprite.y += part.inter_y_delta * delta_ms;
+                if (part.inter_y_positive ? part.sprite.y > part.inter_y_dest : part.sprite.y < part.inter_y_dest) part.sprite.y = part.inter_y_dest;
+                part.sprite.rotation += part.inter_rot_delta * delta_ms;
+                if (part.inter_rot_positive ? part.sprite.rotation > part.inter_rot_dest : part.sprite.rotation < part.inter_rot_dest) part.sprite.rotation = part.inter_rot_dest;
+
+                const x = part.sprite.x; const y = part.sprite.y; const rotation = part.sprite.rotation;
+                part.sprite.rotation = rotation;
+                part.connector_sprite.position.set(x, y);
+                part.connector_sprite.rotation = rotation;
+                part.thrust_sprites.position.set(x, y);
+                part.thrust_sprites.rotation = rotation;
+            }
+
             if (global.my_core != null) {
                 global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
                 background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
@@ -307,6 +374,7 @@ new Promise(async (resolve, reject) => {
                 global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
                 global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
             }
+
             for (const player of global.players.values()) player.update_grabbing_sprite();
             global.starguide_button.pre_render(delta_ms);
             global.starguide.pre_render(delta_ms);
@@ -340,6 +408,7 @@ new Promise(async (resolve, reject) => {
                 break;
             case 77: //m
                 if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
+                break;
 
         };
     }
@@ -367,9 +436,10 @@ new Promise(async (resolve, reject) => {
     }
 
     pixi.view.addEventListener("wheel", event => {
-        if (global.starguide.mouseover) global.starguide.on_wheel(event);
+	const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
+        if (global.starguide.mouseover) global.starguide.on_wheel(event, deltaY);
         else {
-            global.zoom -= event.deltaY * 0.01;
+            global.zoom -= deltaY * 0.01;
             if (global.zoom > 1) global.zoom = 1;
             else if (global.zoom < 0.5) global.zoom = 0.5;
             resize();
@@ -389,7 +459,7 @@ new Promise(async (resolve, reject) => {
         if (!am_grabbing) {
             am_grabbing = true;
             const scaled = global.screen_to_player_space(event.data.global.x, event.data.global.y);
-            console.log(scaled);
+            //console.log(scaled);
             socket.send(new ToServerMsg.CommitGrab(part_id, scaled[0], scaled[1]).serialize());
             am_grabbing = true;
         }
