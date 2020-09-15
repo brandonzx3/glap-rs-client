@@ -275,6 +275,7 @@ new Promise(async (resolve, reject) => {
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
             global.players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
+	    console.log(msg.name);
         }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
             const meta = global.players.get(msg.id);
