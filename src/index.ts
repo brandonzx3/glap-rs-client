@@ -14,6 +14,7 @@ export interface GlobalData {
     world: PIXI.Container;
     holograms: PIXI.Container;
     thrust_sprites: PIXI.Container;
+    planet_sprites: PIXI.Container;
     part_sprites: PIXI.Container;
     connector_sprites: PIXI.Container;
     main_hud: MainHud;
@@ -43,6 +44,7 @@ export const global: GlobalData = {
     world: new PIXI.Container(),
     holograms: new PIXI.Container(),
     thrust_sprites: new PIXI.Container(),
+    planet_sprites: new PIXI.Container(),
     part_sprites: new PIXI.Container(),
     connector_sprites: new PIXI.Container(),
     holographic_grab: null,
@@ -80,7 +82,9 @@ global.scaling.addChild(background);
 global.world.addChild(global.holograms);
 global.world.addChild(global.thrust_sprites);
 global.world.addChild(global.part_sprites);
+global.world.addChild(global.planet_sprites);
 global.world.addChild(global.connector_sprites);
+global.connector_sprites.zIndex = 10;
 global.scaling.addChild(global.world);
 global.scaling.interactive = true;
 
@@ -176,7 +180,7 @@ new Promise(async (resolve, reject) => {
     const socket = new WebSocket(params["server"] as string);
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
-        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null, name in params ? params[name] as string : "Unnamed").serialize()));
+        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null, "name" in params ? params["name"] as string : "Unnamed").serialize()));
     };
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
@@ -213,7 +217,7 @@ new Promise(async (resolve, reject) => {
             celestial_object.height = msg.radius * 2;
             celestial_object.anchor.set(0.5,0.5);
             celestial_object.position.set(msg.position[0], msg.position[1]);
-            global.world.addChild(celestial_object);
+            global.planet_sprites.addChild(celestial_object);
             const meta = new CelestialObjectMeta(msg.id, msg.name, msg.display_name, celestial_object, msg.radius);
             global.celestial_objects.set(msg.id, meta);
             global.starguide.add_celestial_object(meta);
@@ -265,6 +269,10 @@ new Promise(async (resolve, reject) => {
                 meta.owning_player = global.players.get(msg.owning_player);
                 meta.owning_player.parts.add(meta);
                 meta.update_thruster_sprites(meta.owning_player.thrust_forward, meta.owning_player.thrust_backward, meta.owning_player.thrust_clockwise, meta.owning_player.thrust_counter_clockwise);
+
+		if (meta.kind === PartKind.Core) {
+			meta.owning_player.core = meta;
+		}
             } else {
                 meta.owning_player = null;
                 meta.update_thruster_sprites(false, false, false, false);
@@ -275,7 +283,6 @@ new Promise(async (resolve, reject) => {
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
             global.players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
-	    console.log(msg.name);
         }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
             const meta = global.players.get(msg.id);
@@ -294,7 +301,12 @@ new Promise(async (resolve, reject) => {
             max_fuel = msg.max_power;
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
-            global.players.delete(msg.id);
+	    const player = global.players.get(msg.id);
+	    if (player !== null) {
+		    global.connector_sprites.removeChild(player.name_sprite);
+		    global.players.delete(msg.id);
+	    }
+	    
         }
 
 
@@ -362,6 +374,9 @@ new Promise(async (resolve, reject) => {
                 part.connector_sprite.rotation = rotation;
                 part.thrust_sprites.position.set(x, y);
                 part.thrust_sprites.rotation = rotation;
+		if (part.kind === PartKind.Core && part.owning_player !== null) {
+			part.owning_player.name_sprite.position.set(x, y - 0.85);
+		}
             }
 
             if (global.my_core != null) {
@@ -479,15 +494,26 @@ new Promise(async (resolve, reject) => {
     }
 });
 
+const name_text_style = new PIXI.TextStyle({ fill: 0xffffff, align: "center", stroke: 0x000000, strokeThickness: 0.01});
 export class PlayerMeta {
     id: number;
     core_id: number;
     name: string;
+    name_sprite: PIXI.Text;
     constructor(id: number, name: string, core_id: number) {
         this.id = id;
         this.name = name;
         this.core_id = core_id;
+
+	this.name_sprite = new PIXI.Text(this.name, name_text_style);
+	this.name_sprite.updateText(true);
+	console.log(this.name_sprite.texture.height);
+	this.name_sprite.width = 0.8 / this.name_sprite.texture.height * this.name_sprite.texture.width;
+	this.name_sprite.height = 0.8;
+	this.name_sprite.anchor.set(0.5,1);
+	global.connector_sprites.addChild(this.name_sprite);
     }
+    core: PartMeta = null;
     thrust_forward = false;
     thrust_backward = false;
     thrust_clockwise = false;

@@ -218,7 +218,7 @@ export class Starguide {
         const cursor_at: [number, number] = this.following_core ? [...this.center] : [event.x, event.y];
         const unscaled_space =  [cursor_at[0] - this.container.position.x - this.map_coordinate_space.x, cursor_at[1] - this.container.position.y - this.map_coordinate_space.position.y];
         const scaled_space = [unscaled_space[0] / this.map_zoom_factor, unscaled_space[1] / this.map_zoom_factor];
-        console.log(scaled_space);
+        //console.log(scaled_space);
         this.map_zoom -= deltaY * 15;
         if (this.map_zoom < 100) this.map_zoom = 100;
         else if (this.map_zoom > 3000) this.map_zoom = 3000;
@@ -284,14 +284,14 @@ export class Starguide {
                     if ((pair[0] === obj && pair[1] === obj2) || (pair[0] === obj2 && pair[1] === obj)) { has_existed = true; break;}
                 }
                 if (!has_existed) {
-                    console.log([obj, obj2]);
-                    console.log([obj.sprite.position.x, obj.sprite.position.y, obj2.sprite.position.x, obj2.sprite.position.y]);
+                    //console.log([obj, obj2]);
+                    //console.log([obj.sprite.position.x, obj.sprite.position.y, obj2.sprite.position.x, obj2.sprite.position.y]);
                     const distance = [obj2.sprite.x - obj.sprite.x, obj2.sprite.y - obj.sprite.y];
                     const larger = Math.max(Math.abs(distance[0]), Math.abs(distance[1]));
                     distance[0] /= larger; distance[1] /= larger;
                     const point_1 = rotate_vector(obj.radius + 5, 0, distance[1], distance[0]);
                     const point_2 = rotate_vector(obj2.radius + 5, 0, -distance[1], -distance[0]);
-                    console.log([...point_1, ...point_2]);
+                    //console.log([...point_1, ...point_2]);
                     this.map_lines.moveTo(obj.sprite.x + point_1[0], obj.sprite.y + point_1[1]);
                     this.map_lines.lineTo(obj2.sprite.x + point_2[0], obj2.sprite.y + point_2[1]);
                     pairs.push([obj, obj2]);
