@@ -441,3 +441,26 @@ export function rotate_vector_with_angle(x: number, y: number, theta: number): [
 export function rotate_vector(x: number, y: number, theta_sin: number, theta_cos: number): [number, number] {
     return [(x * theta_cos) - (y * theta_sin), (x * theta_sin) + (y * theta_cos)];
 }
+
+
+export class BeamOutButton {
+	container = new PIXI.Container();
+	sprite = new PIXI.Sprite(global.spritesheet.textures["beamout_button.png"]);
+	constructor() {
+		this.sprite.width = 1; this.sprite.height = 1;
+		this.sprite.anchor.set(1,0);
+		this.container.addChild(this.sprite);
+		this.container.visible = false;
+	}
+
+	can_beamout = false;
+	set_can_beamout(can_beamout: boolean) {
+		if (can_beamout === this.can_beamout) return;
+		this.can_beamout = can_beamout;
+		if (can_beamout) {
+			this.container.visible = true;
+		} else {
+			this.container.visible = false;
+		}
+	}
+}

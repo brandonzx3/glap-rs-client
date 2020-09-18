@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
-import { Starguide, MainHud, StarguideButton, create_planet_icon_mask } from './gui';
+import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_mask } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 
@@ -19,6 +19,7 @@ export interface GlobalData {
     connector_sprites: PIXI.Container;
     main_hud: MainHud;
     starguide: Starguide;
+	beamout_button: BeamOutButton;
     starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
     holographic_grab: PIXI.Texture;
@@ -51,6 +52,7 @@ export const global: GlobalData = {
     screen_to_player_space: null,
     main_hud: null,
     starguide: null,
+	beamout_button: null,
     starguide_button: null,
     rendering: true,
     spritesheet: null,
@@ -73,7 +75,7 @@ global.pixi = pixi;
 document.body.appendChild(pixi.view);
 
 pixi.stage.addChild(global.scaling);
-const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 100, height: 100 }) as PIXI.TilingSprite;
+const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 150, height: 150 }) as PIXI.TilingSprite;
 background.tileScale.set(0.1);
 background.position.set(-50);
 background.zIndex = -100;
@@ -128,6 +130,8 @@ function resize() {
     global.starguide_button.container.position.set(window.innerWidth, window.innerHeight);
     global.starguide_button.container.scale.set(main_hud_height);
     global.starguide.update_sprites(main_hud_width, window.innerHeight - main_hud_height - 20, (window.innerWidth - main_hud_width) * 0.5, 10);
+	global.beamout_button.container.position.set(window.innerWidth, 0);
+	global.beamout_button.container.scale.set(global.starguide_button.container.scale.y);
 
     global.heading_hologram.height = window.innerHeight * 0.75 / global.scaling.scale.y;
     global.heading_hologram.width = global.heading_hologram.height / global.heading_hologram.texture.height * global.heading_hologram.texture.width
@@ -156,6 +160,8 @@ new Promise(async (resolve, reject) => {
     pixi.stage.addChild(global.main_hud.container);
     global.starguide_button = new StarguideButton();
     pixi.stage.addChild(global.starguide_button.container);
+	global.beamout_button = new BeamOutButton();
+	pixi.stage.addChild(global.beamout_button.container);
     global.starguide = new Starguide();
     pixi.stage.addChild(global.starguide.container);
     global.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["destination_hologram.png"], 2, 2);
@@ -299,6 +305,7 @@ new Promise(async (resolve, reject) => {
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
             max_fuel = msg.max_power;
+			global.beamout_button.set_can_beamout(msg.can_beamout);
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 	    const player = global.players.get(msg.id);

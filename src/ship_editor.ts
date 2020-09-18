@@ -24,19 +24,23 @@ export const global: GlobalData = {
 	sidebar: new PIXI.Container(),
 	spritesheet: null
 };
+(window as any)["dev"] = global;
 
 const app = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, });
 document.body.appendChild(app.view);
 app.view.style.display = "none";
 
+const blueprint = new PIXI.TilingSprite(PIXI.Texture.from("./blueprint.png"), 150, 150);
+
 app.stage.addChild(global.scaling);
+global.scaling.addChild(blueprint);
 global.scaling.addChild(global.world);
 global.world.addChild(global.part_sprites);
 global.world.addChild(global.connector_sprites);
 app.stage.addChild(global.sidebar);
 
-if (typeof params["ship_url"] !== "string") { alert("Invalid ship url"); throw new Error("Invalid ship url"); }
-const ship_url = params["ship_url"] as string;
+if (typeof params["ship"] !== "string") { alert("Invalid ship url"); throw new Error("Invalid ship url"); }
+const ship_url = params["ship"] as string;
 if (typeof params["spritesheet"] !== "string") { alert("Invalid spritesheet url"); throw new Error("Invalid spritesheet url"); }
 const spritesheet_url_base = params["spritesheet"] as string;
 

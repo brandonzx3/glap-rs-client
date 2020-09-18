@@ -1,7 +1,19 @@
 <html>
     <body>
+		<form action="./game.html" method="GET">
+			<h1>Launch game</h1>
+			<label for=name>Username: </label><input name=name type=text value=Christian7573 /><br>
+			<label for=server>Server: </label><input name=server id=server type=text /><br>
+			<input type=submit />
+		</form>
+		<form action="./ship_editor.html" method="GET">
+			<h1>Ship editor</h1>
+			<label for=ship>Ship Address: </label><input name=ship type=text value="/api/test_ship_address" /><br>
+			<label for=spritesheet>Spritesheet: </label><input name=spritesheet type=text value="./spritesheet" /><br>
+			<input type=submit />
+		</form>
         <script>
-            window.location = "/game.html?name=Christian7573&server=" + encodeURIComponent(`ws://${window.location.hostname}:8081/`);
+			document.querySelector("#server").value = `ws://${window.location.hostname}:8081/`;
         </script>
     </body>
 </html>

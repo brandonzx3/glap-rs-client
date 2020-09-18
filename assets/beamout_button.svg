@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="62.110001"
+   inkscape:export-xdpi="62.110001"
+   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\beamout_button.png"
+   sodipodi:docname="beamout_button.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 122.677 122.677"
+   height="122.677mm"
+   width="122.677mm">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     inkscape:window-maximized="1"
+     inkscape:window-y="42"
+     inkscape:window-x="-8"
+     inkscape:window-height="1002"
+     inkscape:window-width="1920"
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     inkscape:snap-global="false"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="181.82021"
+     inkscape:cx="393.66049"
+     inkscape:zoom="0.98994949"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-30.735994,-37.685001)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       ry="23.57317"
+       style="fill:#80e5ff;fill-opacity:0.451613;stroke:#80e5ff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
+       id="rect906"
+       width="152.61119"
+       height="144.05856"
+       x="30.201456"
+       y="16.30344" />
+    <rect
+       y="37.685001"
+       x="30.735994"
+       height="122.677"
+       width="122.677"
+       id="rect904"
+       style="display:none;fill:#80e5ff;fill-opacity:0.451613;stroke:none;stroke-width:0.281324;stop-color:#000000" />
+    <path
+       d="M 75.221001,110.50006 A 43.845233,17.041745 0 0 0 48.229369,126.2327 43.845233,17.041745 0 0 0 92.074753,143.27423 43.845233,17.041745 0 0 0 135.91962,126.2327 43.845233,17.041745 0 0 0 108.9285,110.50044 39.582103,15.30209 0 0 1 131.65683,124.34584 39.582103,15.30209 0 0 1 92.074753,139.64781 39.582103,15.30209 0 0 1 52.492674,124.34584 39.582103,15.30209 0 0 1 75.221001,110.50006 Z"
+       style="fill:#80e5ff;stroke:none;stroke-width:0.225627;stop-color:#000000"
+       id="path833" />
+    <g
+       style="fill:#80e5ff"
+       transform="translate(6.2811496,0.59338512)"
+       id="g851">
+      <path
+         sodipodi:nodetypes="cccccc"
+         id="rect840"
+         style="fill:#80e5ff;fill-opacity:1;stroke:none;stroke-width:0.190842;stop-color:#000000"
+         d="M 70.559136,68.883426 C 79.093671,90.973474 69.936561,112.71933 54.522907,126.6858 H 117.06379 C 101.65014,112.71933 92.493547,90.973474 101.02808,68.883426 H 85.79335 Z" />
+      <path
+         id="rect846"
+         style="fill:#80e5ff;fill-opacity:1;stroke:none;stroke-width:0.289018;stop-color:#000000"
+         d="M 85.793351,41.961317 118.80113,70.024616 H 52.785565 Z"
+         sodipodi:nodetypes="cccc" />
+    </g>
+    <text
+       transform="scale(0.89598669,1.116088)"
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:13.9937px;line-height:1.25;font-family:sans-serif;fill:#80e5ff;fill-opacity:1;stroke:none;stroke-width:0.349844"
+       x="101.47866"
+       y="139.12088"
+       id="text855"><tspan
+         sodipodi:role="line"
+         id="tspan853"
+         x="101.47866"
+         y="139.12088"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;fill:#80e5ff;stroke-width:0.349844">Beam Out</tspan></text>
+  </g>
+</svg>

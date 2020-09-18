@@ -84,3 +84,23 @@ export function AttachedPartFacing_GetActualRotation(my_attached_as: AttachedPar
 	if (num > 3) return (num - 4) as AttachedPartFacing;
 	else return num as AttachedPartFacing;
 }
+
+export class RecursivePartDescription {
+	kind: PartKind;
+	dx: number;
+	dy: number;
+	drot: number;
+	attachments: RecursivePartDescription[]
+
+	constructor(kind: PartKind, dx: number, dy: number, drot: number, attachments: RecursivePartDescription[]) {
+		this.kind = kind;
+		this.dx = dx;
+		this.dy = dy;
+		this.drot = drot;
+		this.attachments = attachments;
+	}
+	static upgrade(source: any): RecursivePartDescription {
+		const attachments = (source.attachments as object[]).map(obj => obj === null ? null : RecursivePartDescription.upgrade(obj));
+		return new RecursivePartDescription(source.kind, source.dx, source.dy, source.drot, attachments);
+	}
+}

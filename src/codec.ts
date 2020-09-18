@@ -52,6 +52,7 @@ function type_uint_serialize(out: number[], uint: number) {
 function type_uint_deserialize(buf: Uint8Array, index: Box<number>): number {
     const arr = new Uint8Array([buf[index.v+3], buf[index.v+2], buf[index.v+1], buf[index.v]]);
     const view = new Uint32Array(arr.buffer);
+	index.v += 4;
     return view[0];
 }
 
@@ -338,13 +339,14 @@ class ToClientMsg_PostSimulationTick {
 }
 class ToClientMsg_UpdateMyMeta {
 	static readonly id = 10;
-	max_power: number;
-	constructor(max_power: number,) {
-		this.max_power = max_power;
+	max_power: number; can_beamout: boolean;
+	constructor(max_power: number, can_beamout: boolean,) {
+		this.max_power = max_power; this.can_beamout = can_beamout;
 	}
 	serialize(): Uint8Array
 		{let out = [10];
 		type_uint_serialize(out, this.max_power);
+		type_boolean_serialize(out, this.can_beamout);
 		return new Uint8Array(out);
 	}
 }
@@ -410,9 +412,10 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			your_power = type_uint_deserialize(buf, index);
 			return new ToClientMsg_PostSimulationTick(your_power);
 		}; break;		case 10: {
-			let max_power: number;
+			let max_power: number; let can_beamout: boolean;
 			max_power = type_uint_deserialize(buf, index);
-			return new ToClientMsg_UpdateMyMeta(max_power);
+			can_beamout = type_boolean_deserialize(buf, index);
+			return new ToClientMsg_UpdateMyMeta(max_power, can_beamout);
 		}; break;		default: throw new Error();
 	}
 }
