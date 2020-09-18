@@ -146,6 +146,17 @@ class ToServerMsg_ReleaseGrab {
 		return new Uint8Array(out);
 	}
 }
+class ToServerMsg_BeamOut {
+	static readonly id = 5;
+	
+	constructor() {
+		
+	}
+	serialize(): Uint8Array
+		{let out = [5];
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -175,12 +186,15 @@ function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 		}; break;		case 4: {
 			
 			return new ToServerMsg_ReleaseGrab();
+		}; break;		case 5: {
+			
+			return new ToServerMsg_BeamOut();
 		}; break;		default: throw new Error();
 	}
 }
 export const ToServerMsg = {
 	deserialize: deserialize_ToServerMsg,
-	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters, CommitGrab: ToServerMsg_CommitGrab, MoveGrab: ToServerMsg_MoveGrab, ReleaseGrab: ToServerMsg_ReleaseGrab
+	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters, CommitGrab: ToServerMsg_CommitGrab, MoveGrab: ToServerMsg_MoveGrab, ReleaseGrab: ToServerMsg_ReleaseGrab, BeamOut: ToServerMsg_BeamOut
 };
 
 class ToClientMsg_HandshakeAccepted {
