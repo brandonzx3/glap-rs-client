@@ -1,4 +1,5 @@
 import { CelestialObjectMeta, global } from ".";
+import { ToServerMsg } from "./codec";
 import * as PIXI from 'pixi.js';
 
 export class Starguide {
@@ -447,11 +448,19 @@ export class BeamOutButton {
 	container = new PIXI.Container();
 	sprite = new PIXI.Sprite(global.spritesheet.textures["beamout_button.png"]);
 	constructor() {
-		this.sprite.width = 1; this.sprite.height = 1;
+		this.sprite.width = 2; this.sprite.height = 1;
 		this.sprite.anchor.set(1,0);
+		this.sprite.position.y = -1;
 		this.container.addChild(this.sprite);
 		this.container.visible = false;
+
+		this.sprite.interactive = true;
+		this.sprite.addListener("click", this.commit_beamout.bind(this));
+		this.sprite.addListener("mouseover", () => { global.pixi.view.style.cursor = "pointer"; });
+		this.sprite.addListener("mouseout", () => { global.pixi.view.style.cursor = "default"; });
 	}
+
+	pre_render: Function = function() {};
 
 	can_beamout = false;
 	set_can_beamout(can_beamout: boolean) {
@@ -459,8 +468,32 @@ export class BeamOutButton {
 		this.can_beamout = can_beamout;
 		if (can_beamout) {
 			this.container.visible = true;
+			this.pre_render = this.appear_animation.bind(this);
 		} else {
+			this.pre_render = this.disappear_animation.bind(this);
+		}
+	}
+
+	appear_animation(dt: DOMHighResTimeStamp) {
+		this.sprite.y += dt * 0.002;
+		if (this.sprite.y > 0) {
+			this.sprite.y = 0;
+			this.pre_render = function() {};
+		}
+	}
+	disappear_animation(dt: DOMHighResTimeStamp) {
+		this.sprite.y -= dt * 0.002;
+		if (this.sprite.y < -1) {
+			this.sprite.y = -1;
+			this.pre_render = function() {};
 			this.container.visible = false;
 		}
+	}
+
+	has_beamed_out = false;
+	commit_beamout() {
+		if (!this.can_beamout || this.has_beamed_out) return;
+		this.has_beamed_out = true;
+		global.socket.send((new ToServerMsg.BeamOut()).serialize());
 	}
 }

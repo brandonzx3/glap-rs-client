@@ -31,6 +31,7 @@ export interface GlobalData {
     destination_hologram: PIXI.TilingSprite;
     heading_hologram: PIXI.Sprite;
 
+	socket: WebSocket;
     my_core: PartMeta;
     my_id: number;
     parts: Map<number, PartMeta>;
@@ -62,6 +63,7 @@ export const global: GlobalData = {
     destination_hologram: null,
     heading_hologram: new PIXI.Sprite(),
 
+	socket: null,
     my_core: null,
     my_id: null,
     parts: new Map(),
@@ -184,6 +186,7 @@ new Promise(async (resolve, reject) => {
     //ws%3A%2F%2Flocalhost%3A8081 for localhost 8081
     if (typeof params["server"] !== "string") throw new Error("No server address provided");
     const socket = new WebSocket(params["server"] as string);
+	global.socket = socket;
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
         socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null, "name" in params ? params["name"] as string : "Unnamed").serialize()));
@@ -308,11 +311,11 @@ new Promise(async (resolve, reject) => {
 			global.beamout_button.set_can_beamout(msg.can_beamout);
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
-	    const player = global.players.get(msg.id);
-	    if (player !== null) {
-		    global.connector_sprites.removeChild(player.name_sprite);
-		    global.players.delete(msg.id);
-	    }
+			const player = global.players.get(msg.id);
+			if (player !== null) {
+				global.connector_sprites.removeChild(player.name_sprite);
+				global.players.delete(msg.id);
+			}
 	    
         }
 
@@ -401,6 +404,7 @@ new Promise(async (resolve, reject) => {
             for (const player of global.players.values()) player.update_grabbing_sprite();
             global.starguide_button.pre_render(delta_ms);
             global.starguide.pre_render(delta_ms);
+			global.beamout_button.pre_render(delta_ms);
             pixi.render();
             requestAnimationFrame(render);
         }
