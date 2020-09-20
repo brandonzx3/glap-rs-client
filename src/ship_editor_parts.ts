@@ -41,6 +41,11 @@ export class Part {
 		this.sprite.position.set(x,y);
 		this.connector_sprite.position.copyFrom(this.sprite);
 	}
+	set_rotation(rot: number) {
+		const actual_rot = rot + Math.PI;
+		this.sprite.rotation = actual_rot;
+		this.connector_sprite.rotation = actual_rot;
+	}
 
 	depower() {
 		global.part_sprites.removeChild(this.sprite);
@@ -90,7 +95,7 @@ export class RecursivePartDescription {
 	dx: number;
 	dy: number;
 	drot: number;
-	attachments: RecursivePartDescription[]
+	attachments: RecursivePartDescription[];
 
 	constructor(kind: PartKind, dx: number, dy: number, drot: number, attachments: RecursivePartDescription[]) {
 		this.kind = kind;
