@@ -118,7 +118,7 @@ function resize() {
     pixi.view.height = window.innerHeight;
     pixi.renderer.resize(window.innerWidth, window.innerHeight);
     global.scaling.position.set(pixi.view.width / 2, pixi.view.height / 2);
-    global.raw_scale_up = Math.max(window_size * (0.035545023696682464), 30);
+    global.raw_scale_up = Math.max(window_size * (0.045545023696682464), 30);
     global.scale_up = global.raw_scale_up * global.zoom;
     global.scaling.scale.set(global.scale_up, global.scale_up);
 

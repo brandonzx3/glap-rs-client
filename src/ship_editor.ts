@@ -13,10 +13,17 @@ export interface GlobalData {
 	world: PIXI.Container;
 	part_sprites: PIXI.Container;
 	connector_sprites: PIXI.Container;
-	sidebar: PIXI.Container;
 	spritesheet: PIXI.Spritesheet;
 
+	sidebar: PIXI.Container;
+	pane_background: PIXI.Graphics;
+	pane_border: PIXI.TilingSprite;
+
 	ship_dat: ShipDat;
+	pane_size: number;
+	zoom: number;
+	raw_scale_up: number;
+	scale_up: number;
 }
 
 export const global: GlobalData = {
@@ -24,30 +31,61 @@ export const global: GlobalData = {
 	world: new PIXI.Container(),
  	part_sprites: new PIXI.Container(),
 	connector_sprites: new PIXI.Container(),
-	sidebar: new PIXI.Container(),
 	spritesheet: null,
 
+	sidebar: new PIXI.Container(),
+	pane_background: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
+	pane_border: null,
+
 	ship_dat: null,
+	pane_size: 0,
+	zoom: 1,
+	raw_scale_up: 0,
+	scale_up: 0,
 };
 (window as any)["dev"] = global;
 
 const app = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, });
 document.body.appendChild(app.view);
-app.view.style.display = "none";
 
 const blueprint = new PIXI.TilingSprite(PIXI.Texture.from("./blueprint.png"), 150, 150);
+blueprint.anchor.set(0.5,0.5);
 
 app.stage.addChild(global.scaling);
 global.scaling.addChild(blueprint);
 global.scaling.addChild(global.world);
 global.world.addChild(global.part_sprites);
 global.world.addChild(global.connector_sprites);
+
 app.stage.addChild(global.sidebar);
+global.sidebar.addChild(global.pane_background);
 
 if (typeof params["ship"] !== "string") { alert("Invalid ship url"); throw new Error("Invalid ship url"); }
 const ship_url = params["ship"] as string;
 if (typeof params["spritesheet"] !== "string") { alert("Invalid spritesheet url"); throw new Error("Invalid spritesheet url"); }
 const spritesheet_url_base = params["spritesheet"] as string;
+
+export function resize() {
+    const window_size = Math.min(window.innerWidth, window.innerHeight);
+	app.view.width = window.innerWidth;
+	app.view.height = window.innerHeight;
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+	global.pane_size = Math.max(window.innerWidth * 0.07, 100);
+	const pane_border_size = global.pane_size * 0.1;
+    global.scaling.position.set(app.view.width / 2 + global.pane_size + pane_border_size, app.view.height / 2);
+    global.raw_scale_up = Math.max(window_size * (0.045545023696682464), 30);
+    global.scale_up = global.raw_scale_up * global.zoom;
+    global.scaling.scale.set(global.scale_up, global.scale_up);
+
+	blueprint.tileScale.set(2 / global.scale_up);
+	global.pane_background.width = global.pane_size;
+	global.pane_background.height = window.innerHeight;
+	global.pane_border.height = pane_border_size;
+	global.pane_border.width = window.innerHeight;
+	global.pane_border.x = global.pane_size;
+	global.pane_border.tileScale.y = 0.75 / pane_border_size;
+	global.pane_border.tileScale.x = global.pane_border.tileScale.y / global.pane_border.texture.height * global.pane_border.texture.width;
+}
 
 let spritesheet: PIXI.Spritesheet = null;
 new Promise(async (resolve, reject) => {
@@ -76,7 +114,21 @@ new Promise(async (resolve, reject) => {
 	if ("layout_4" in save_data) global.ship_dat.layout_4 = RecursivePartDescription.upgrade(save_data.layout_4);
 
 	empower_layout(global.ship_dat.inventory, global.ship_dat.layout_current);
-}).catch(err => { alert("Failed to load save data"); console.error(err); return never_promise; });
+}).catch(err => { alert("Failed to load save data"); console.error(err); return never_promise; })
+.then(() => {
+	global.pane_border = new PIXI.TilingSprite(global.spritesheet.textures["tiling_caution_border.png"], 1, 1);
+	global.sidebar.addChild(global.pane_border);
+	global.pane_border.rotation = Math.PI / 2;
+
+	resize();
+	window.addEventListener("resize", resize);
+	
+	function render() {
+		app.render();	
+		requestAnimationFrame(render);
+	}
+	requestAnimationFrame(render);
+});
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
 export class ShipDat {

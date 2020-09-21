@@ -85,7 +85,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":300,"h":382},
 			"sourceSize": {"w":300,"h":382}
 		},
-		"starguide_icon.png":
+		"starguide_close_icon.png":
 		{
 			"frame": {"x":1006,"y":885,"w":208,"h":150},
 			"rotated": false,
@@ -93,7 +93,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":208,"h":150},
 			"sourceSize": {"w":208,"h":150}
 		},
-		"starguide_close_icon.png":
+		"starguide_icon.png":
 		{
 			"frame": {"x":1218,"y":885,"w":208,"h":150},
 			"rotated": false,
@@ -149,6 +149,14 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":155,"h":167},
 			"sourceSize": {"w":155,"h":167}
 		},
+		"symbol_moon.png":
+		{
+			"frame": {"x":1873,"y":1160,"w":155,"h":167},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":155,"h":167},
+			"sourceSize": {"w":155,"h":167}
+		},
 		"starguide_destination_hologram.png":
 		{
 			"frame": {"x":2647,"y":1006,"w":67,"h":35},
@@ -159,21 +167,13 @@
 		},
 		"symbol_earth.png":
 		{
-			"frame": {"x":2032,"y":1160,"w":155,"h":167},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {"x":0,"y":0,"w":155,"h":167},
-			"sourceSize": {"w":155,"h":167}
-		},
-		"symbol_mars.png":
-		{
 			"frame": {"x":2191,"y":1160,"w":155,"h":167},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":155,"h":167},
 			"sourceSize": {"w":155,"h":167}
 		},
-		"symbol_mercury.png":
+		"symbol_venus.png":
 		{
 			"frame": {"x":2350,"y":1160,"w":133,"h":167},
 			"rotated": false,
@@ -181,13 +181,21 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":133,"h":167},
 			"sourceSize": {"w":133,"h":167}
 		},
-		"symbol_venus.png":
+		"symbol_mercury.png":
 		{
 			"frame": {"x":2487,"y":1160,"w":133,"h":167},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":133,"h":167},
 			"sourceSize": {"w":133,"h":167}
+		},
+		"tiling_caution_border.png":
+		{
+			"frame": {"x":1935,"y":1060,"w":159,"h":75},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":159,"h":75},
+			"sourceSize": {"w":159,"h":75}
 		},
 		"starguide_core.png":
 		{
@@ -197,7 +205,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":156,"h":148},
 			"sourceSize": {"w":156,"h":148}
 		},
-		"landing_thruster_off.png":
+		"cargo_off.png":
 		{
 			"frame": {"x":1590,"y":885,"w":150,"h":145},
 			"rotated": false,
@@ -205,7 +213,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"solar_panel_off.png":
+		"core.png":
 		{
 			"frame": {"x":1744,"y":885,"w":150,"h":145},
 			"rotated": false,
@@ -213,7 +221,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"cargo_off.png":
+		"cargo.png":
 		{
 			"frame": {"x":2624,"y":1160,"w":150,"h":145},
 			"rotated": false,
@@ -221,7 +229,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"cargo.png":
+		"solar_panel.png":
 		{
 			"frame": {"x":2778,"y":1160,"w":150,"h":145},
 			"rotated": false,
@@ -229,7 +237,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"solar_panel.png":
+		"solar_panel_off.png":
 		{
 			"frame": {"x":2064,"y":1331,"w":150,"h":145},
 			"rotated": false,
@@ -237,7 +245,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"core.png":
+		"hub.png":
 		{
 			"frame": {"x":2218,"y":1331,"w":150,"h":145},
 			"rotated": false,
@@ -245,7 +253,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"hub_off.png":
+		"landing_thruster_off.png":
 		{
 			"frame": {"x":2372,"y":1331,"w":150,"h":145},
 			"rotated": false,
@@ -253,7 +261,7 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":150,"h":145},
 			"sourceSize": {"w":150,"h":145}
 		},
-		"hub.png":
+		"hub_off.png":
 		{
 			"frame": {"x":2526,"y":1331,"w":150,"h":145},
 			"rotated": false,
@@ -293,9 +301,9 @@
 			"spriteSourceSize": {"x":0,"y":0,"w":100,"h":45},
 			"sourceSize": {"w":100,"h":45}
 		},
-		"symbol_moon.png":
+		"symbol_mars.png":
 		{
-			"frame": {"x":1873,"y":1160,"w":155,"h":167},
+			"frame": {"x":2032,"y":1160,"w":155,"h":167},
 			"rotated": false,
 			"trimmed": false,
 			"spriteSourceSize": {"x":0,"y":0,"w":155,"h":167},
