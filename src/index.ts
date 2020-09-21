@@ -77,9 +77,9 @@ global.pixi = pixi;
 document.body.appendChild(pixi.view);
 
 pixi.stage.addChild(global.scaling);
-const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 150, height: 150 }) as PIXI.TilingSprite;
+const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 200, height: 150 }) as PIXI.TilingSprite;
 background.tileScale.set(0.1);
-background.position.set(-50);
+background.position.set(-100);
 background.zIndex = -100;
 
 global.scaling.addChild(background);
