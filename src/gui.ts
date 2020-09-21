@@ -203,6 +203,13 @@ export class Starguide {
         this.map_items.addChild(circle);
         this.map_items.addChild(mask);
 
+        let text = new PIXI.Text(celestial_object.display_name.toUpperCase(), {fontSize: 25, fill : 0xdd55ff, stroke: 'black', strokeThickness: 1});
+        //text.height = 0.75;
+        //text.width = (text.texture.width / text.texture.height) * text.height * 0.1;
+        text.position.copyFrom(celestial_object.sprite.position);
+        text.anchor.set(0.5);
+        text.position.y -= (celestial_object.radius + 15);
+
         circle.interactive = true;
         circle.addListener("mousedown", event => {
             event.stopPropagation();
@@ -212,6 +219,7 @@ export class Starguide {
 
         this.planets.add(celestial_object);
         this.interplanetary_lines();
+        this.map_items.addChild(text);
     }
 
     on_wheel(event: WheelEvent, deltaY: number) {
