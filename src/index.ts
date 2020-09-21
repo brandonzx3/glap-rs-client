@@ -8,6 +8,27 @@ export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.l
 console.log("RE");
 console.log(params);
 
+let session: string; 
+{
+	function getCookie(cname: string) {
+		  var name = cname + "=";
+		    var decodedCookie = decodeURIComponent(document.cookie);
+			  var ca = decodedCookie.split(';');
+			    for(var i = 0; i <ca.length; i++) {
+					    var c = ca[i];
+						    while (c.charAt(0) == ' ') {
+								      c = c.substring(1);
+									      }
+										      if (c.indexOf(name) == 0) {
+												        return c.substring(name.length, c.length);
+														    }
+															  }
+															    return "";
+	}
+	session = getCookie("session") as string;
+}
+console.log(session);
+
 export interface GlobalData {
     pixi: PIXI.Application;
     scaling: PIXI.Container;
@@ -189,7 +210,7 @@ new Promise(async (resolve, reject) => {
 	global.socket = socket;
     socket.binaryType = "arraybuffer";
     socket.onopen = () => {
-        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", null, "name" in params ? params["name"] as string : "Unnamed").serialize()));
+        socket.send(new Uint8Array(new ToServerMsg.Handshake("glap.rs-0.1.0", session, "name" in params ? params["name"] as string : "Unnamed").serialize()));
     };
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
