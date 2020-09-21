@@ -2,3 +2,4 @@ tmp_server
 node_modules
 .vscode
 dist/bundle.js
+dist/bundle_ship_editor.js
