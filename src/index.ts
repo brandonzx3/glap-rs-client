@@ -339,6 +339,21 @@ new Promise(async (resolve, reject) => {
 			}
 	    
         }
+		else if (msg instanceof ToClientMsg.BeamOutAnimation) {
+			const player = global.players.get(msg.player_id);
+			if (player !== null) {
+				//Fancy animation here later
+				for (const part of player.parts) {
+					global.parts.delete(part.id);
+					global.part_sprites.removeChild(part.sprite);
+					global.thrust_sprites.removeChild(part.thrust_sprites);
+					global.connector_sprites.removeChild(part.connector_sprite);
+				}
+			}
+			if (msg.player_id === global.my_id) {
+				window.location = "/" as any;
+			}
+		}
 
 
         else if (msg instanceof ToClientMsg.PostSimulationTick) {

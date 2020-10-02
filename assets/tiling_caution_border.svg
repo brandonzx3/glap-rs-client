@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="389.19662"
+   inkscape:export-xdpi="389.19662"
+   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\tiling_caution_border.png"
+   sodipodi:docname="tiling_caution_border.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg889"
+   version="1.1"
+   viewBox="0 0 10.395898 4.8946981"
+   height="4.8946981mm"
+   width="10.395898mm">
+  <defs
+     id="defs883">
+    <clipPath
+       id="clipPath967"
+       clipPathUnits="userSpaceOnUse">
+      <rect
+         style="display:inline;fill:#383536;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000"
+         id="rect969"
+         width="32.615299"
+         height="7.6897864"
+         x="23.953241"
+         y="11.402097" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-maximized="0"
+     inkscape:window-y="50"
+     inkscape:window-x="61"
+     inkscape:window-height="1030"
+     inkscape:window-width="1375"
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="g965"
+     inkscape:document-units="mm"
+     inkscape:cy="12.227545"
+     inkscape:cx="38.107811"
+     inkscape:zoom="44.8"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata886">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-272.64952,25.819967)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       transform="scale(-1)"
+       y="20.922974"
+       x="-296.37674"
+       height="4.8920002"
+       width="25.789202"
+       id="rect944"
+       style="display:inline;fill:#383536;fill-opacity:1;stroke:none;stroke-width:3.12349;stop-color:#000000" />
+    <g
+       style="stroke-width:0.334616"
+       transform="matrix(-0.79070869,0,0,-0.79070869,315.31678,-11.907337)"
+       clip-path="url(#clipPath967)"
+       id="g965">
+      <path
+         sodipodi:nodetypes="ccccc"
+         d="m 48.217755,10.694991 h 6.517856 l -7.40557,6.894291 h -6.517856 z"
+         style="fill:#fefe00;fill-opacity:1;stroke:none;stroke-width:4.00274;stop-color:#000000"
+         id="path949" />
+      <rect
+         transform="scale(-1)"
+         y="-17.59514"
+         x="-53.960785"
+         height="6.1902676"
+         width="13.147571"
+         id="rect1472"
+         style="display:none;fill:#87de87;stroke:none;stroke-width:2.78834;stop-color:#000000" />
+    </g>
+  </g>
+</svg>
