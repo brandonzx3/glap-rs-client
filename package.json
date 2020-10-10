@@ -9,6 +9,7 @@
   "author": "Christian7573",
   "license": "ISC",
   "dependencies": {
+    "pixi-particles": "^4.3.0",
     "pixi.js": "^5.3.2",
     "query-string": "^6.13.1"
   },
