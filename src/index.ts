@@ -503,28 +503,30 @@ new Promise(async (resolve, reject) => {
     function key_down(e: KeyboardEvent) {
         if (keys_down.has(e.keyCode)) return;
         keys_down.add(e.keyCode);
-        switch (e.keyCode) {
-            case 87: //w
-                my_thrusters.forward = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 83: //s
-                my_thrusters.backward = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 65: //a
-                my_thrusters.counter_clockwise = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 68: //d
-                my_thrusters.clockwise = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 77: //m
-                if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
-                break;
-
-        };
+        let message_box = (document.querySelector("#message_box") as HTMLInputElement);
+        if(message_box != document.activeElement) {
+            switch (e.keyCode) {
+                case 87: //w
+                    my_thrusters.forward = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 83: //s
+                    my_thrusters.backward = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 65: //a
+                    my_thrusters.counter_clockwise = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 68: //d
+                    my_thrusters.clockwise = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 77: //m
+                    if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
+                    break;
+            };
+        }
     }
     function key_up(e: KeyboardEvent) {
         if (keys_down.delete(e.keyCode)) {
