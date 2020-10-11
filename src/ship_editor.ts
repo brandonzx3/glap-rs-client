@@ -160,8 +160,8 @@ export function empower_layout(inventory: Map<PartKind, Box<number>>, layout: Re
 		}
 
 		const new_part = new Part(part.kind, has_the_part);
-		new_part.set_position(part.dx, part.dy);
-		new_part.set_rotation(part.drot);
+		//new_part.set_position(part.dx, part.dy);
+		//new_part.set_rotation(part.drot);
 		parts.push(new_part);
 
 		part.attachments.forEach(part => { if (part !== null) empower_part(part) } );

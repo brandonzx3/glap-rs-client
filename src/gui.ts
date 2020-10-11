@@ -135,16 +135,18 @@ export class Starguide {
         this.animation_ms = 0;
         this.container.position.y = this.offscreen_y;
         const distance = this.onscreen_y - this.offscreen_y;
+		global.onframe.delete(this.pre_render);
         this.pre_render = (delta_ms: number) => {
             this.animation_ms += delta_ms;
             if (this.animation_ms >= 250) {
                 this.container.interactive = true;
                 this.container.position.y = this.onscreen_y;
-                this.pre_render = function() {};
+				global.onframe.delete(this.pre_render);
             } else {
                 this.container.position.y = this.onscreen_y - (this.animation_curve_function(this.animation_ms * 2) * distance);
             }
         }
+		global.onframe.add(this.pre_render);
     }
     close() {
         if (!this.is_open) return;
@@ -159,16 +161,18 @@ export class Starguide {
         this.animation_ms = 0;
         this.container.position.y = this.onscreen_y;
         const distance = this.onscreen_y - this.offscreen_y;
+		global.onframe.delete(this.pre_render);
         this.pre_render = (delta_ms: number) => {
             this.animation_ms += delta_ms;
             if (this.animation_ms >= 250) {
                 this.container.visible = false;
                 this.container.position.y = this.offscreen_y;
-                this.pre_render = function() {};
+				global.onframe.delete(this.pre_render);
             } else {
                 this.container.position.y = this.offscreen_y + (this.animation_curve_function(this.animation_ms * 2) * distance);
             }
         }
+		global.onframe.add(this.pre_render);
     }
     animation_curve_function(ms: number): number {
         return 0.0000189147 * Math.pow(500 - ms, 1.75);
@@ -327,25 +331,29 @@ export class StarguideButton {
         this.sprite.interactive = true;
         this.sprite.addListener("mouseover", () => {
             global.pixi.view.style.cursor = "pointer";
+			global.onframe.delete(this.pre_render);
             this.pre_render = (delta_ms: number) => {
                 this.sprite.height += /*0.25 / 250 */ 0.001 *  delta_ms;
                 if (this.sprite.height >= 1.15) {
                     this.sprite.height = 1.15;
-                    this.pre_render = () => {};
+					global.onframe.delete(this.pre_render);
                 }
                 this.sprite.width = this.sprite.height * 1.38987342;
             };
+			global.onframe.add(this.pre_render);
         });
         this.sprite.addListener("mouseout", () => {
             global.pixi.view.style.cursor = "default";
+			global.onframe.delete(this.pre_render);
             this.pre_render = (delta_ms: number) => {
                 this.sprite.height -= /*0.25 / 250 */ 0.001 *  delta_ms;
                 if (this.sprite.height <= 1) {
                     this.sprite.height = 1;
-                    this.pre_render = () => {};
+					global.onframe.delete(this.pre_render);
                 }
                 this.sprite.width = this.sprite.height * 1.38987342;
             };
+			global.onframe.add(this.pre_render);
         });
         this.sprite.addListener("click", () => {
             if (this.open) global.starguide.close(); else global.starguide.open();
@@ -476,9 +484,13 @@ export class BeamOutButton {
 		this.can_beamout = can_beamout;
 		if (can_beamout) {
 			this.container.visible = true;
+			global.onframe.delete(this.pre_render);
 			this.pre_render = this.appear_animation.bind(this);
+			global.onframe.add(this.pre_render);
 		} else {
+			global.onframe.delete(this.pre_render);
 			this.pre_render = this.disappear_animation.bind(this);
+			global.onframe.add(this.pre_render);
 		}
 	}
 
@@ -486,14 +498,14 @@ export class BeamOutButton {
 		this.sprite.y += dt * 0.002;
 		if (this.sprite.y > 0) {
 			this.sprite.y = 0;
-			this.pre_render = function() {};
+			global.onframe.delete(this.pre_render);
 		}
 	}
 	disappear_animation(dt: DOMHighResTimeStamp) {
 		this.sprite.y -= dt * 0.002;
 		if (this.sprite.y < -1) {
 			this.sprite.y = -1;
-			this.pre_render = function() {};
+			global.onframe.delete(this.pre_render);
 			this.container.visible = false;
 		}
 	}

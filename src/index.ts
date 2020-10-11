@@ -1,8 +1,10 @@
 import * as PIXI from 'pixi.js';
+import * as Particles from 'pixi-particles';
 import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
 import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_mask } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
+import { validate as lib_uuid_validate } from "uuid";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -27,7 +29,7 @@ let session: string;
 	}
 	session = getCookie("session") as string;
 }
-console.log(session);
+const has_session = session !== "" && lib_uuid_validate(session);
 
 export interface GlobalData {
     pixi: PIXI.Application;
@@ -44,6 +46,7 @@ export interface GlobalData {
     starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
     holographic_grab: PIXI.Texture;
+	white_box: PIXI.Texture;
     rendering: boolean;
     spritesheet: PIXI.Spritesheet;
     raw_scale_up: number;
@@ -51,6 +54,7 @@ export interface GlobalData {
     scale_up: number;
     destination_hologram: PIXI.TilingSprite;
     heading_hologram: PIXI.Sprite;
+	onframe: Set<Function>;
 
 	socket: WebSocket;
     my_core: PartMeta;
@@ -71,6 +75,7 @@ export const global: GlobalData = {
     part_sprites: new PIXI.Container(),
     connector_sprites: new PIXI.Container(),
     holographic_grab: null,
+	white_box: null,
     screen_to_player_space: null,
     main_hud: null,
     starguide: null,
@@ -83,6 +88,7 @@ export const global: GlobalData = {
     scale_up: null,
     destination_hologram: null,
     heading_hologram: new PIXI.Sprite(),
+	onframe: new Set(),
 
 	socket: null,
     my_core: null,
@@ -127,6 +133,15 @@ global.scaling.interactive = true;
     global.holographic_grab = PIXI.Texture.from(el_canvas);
     global.holographic_grab.defaultAnchor.set(0, 0.5);
 }
+{
+	const el_canvas = document.createElement("canvas");
+	el_canvas.width = 1; el_canvas.height = 1;
+	const el_context = el_canvas.getContext("2d");
+	el_context.fillStyle = "white";
+	el_context.fillRect(0,0,1,1);
+	global.white_box = PIXI.Texture.from(el_canvas);
+	global.white_box.defaultAnchor.set(0.5,0.5);
+}
 
 let hh_inter_delta = 0;
 let hh_inter_positive = true;
@@ -162,6 +177,15 @@ function resize() {
 
 let my_core_id: number = null;
 let max_fuel = 1;
+
+const beamout_particle_config = JSON.parse("{\"alpha\":{\"start\":1,\"end\":1},\"scale\":{\"start\":2,\"end\":5,\"minimumScaleMultiplier\":1},\"color\":{\"start\":\"#ffffff\",\"end\":\"#5fcc4b\"},\"speed\":{\"start\":50,\"end\":25,\"minimumSpeedMultiplier\":3},\"acceleration\":{\"x\":-5,\"y\":-5},\"maxSpeed\":0,\"startRotation\":{\"min\":0,\"max\":360},\"noRotation\":false,\"rotationSpeed\":{\"min\":0,\"max\":0},\"lifetime\":{\"min\":1,\"max\":2},\"blendMode\":\"normal\",\"frequency\":0.001,\"emitterLifetime\":-1,\"maxParticles\":10,\"pos\":{\"x\":0,\"y\":0},\"addAtBack\":false,\"spawnType\":\"circle\",\"spawnCircle\":{\"x\":0,\"y\":0,\"r\":0}}");
+beamout_particle_config.scale.start /= 10;
+beamout_particle_config.scale.end /= 10;
+beamout_particle_config.speed.start /= 10;
+beamout_particle_config.speed.end /= 10;
+beamout_particle_config.acceleration.start /= 10;
+beamout_particle_config.acceleration.end /= 10;
+beamout_particle_config.emitterLifetime = 0.5;
 
 const PI_over_2 = Math.PI / 2;
 
@@ -329,7 +353,7 @@ new Promise(async (resolve, reject) => {
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
             max_fuel = msg.max_power;
-			global.beamout_button.set_can_beamout(msg.can_beamout);
+			global.beamout_button.set_can_beamout(msg.can_beamout && has_session);
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);
@@ -339,6 +363,43 @@ new Promise(async (resolve, reject) => {
 			}
 	    
         }
+		else if (msg instanceof ToClientMsg.BeamOutAnimation) {
+			const player = global.players.get(msg.player_id);
+			if (player !== null) {
+				const opacity_aniamtion_constant = 0.001;
+				for (const part of player.parts) {
+					const my_config = Object.create(beamout_particle_config);
+					my_config.pos.x = part.sprite.x;
+					my_config.pos.y = part.sprite.y;
+					const particles = new Particles.Emitter(global.connector_sprites, global.white_box, my_config);
+					global.parts.delete(part.id);
+					global.thrust_sprites.removeChild(part.thrust_sprites);
+					global.connector_sprites.removeChild(part.connector_sprite);
+					let onframe = (delta_ms: number) => {
+						particles.update(delta_ms * 0.001);
+						part.sprite.alpha -= opacity_aniamtion_constant * delta_ms;
+						if (part.sprite.alpha <= 0) {
+							global.part_sprites.removeChild(part.sprite);
+						}
+						if (particles.emit === false && particles.particleCount <= 0) {
+							global.onframe.delete(onframe);
+							if (part === player.core && player.id === global.my_id) {
+								(window as any).location = "/";
+							}
+						}
+					};
+					global.onframe.add(onframe);
+				}
+				const name_onframe = (delta_ms: number) => {
+					player.name_sprite.alpha -= opacity_aniamtion_constant * delta_ms;
+					if (player.name_sprite.alpha <= 0) {
+						global.connector_sprites.removeChild(player.name_sprite);
+						global.onframe.delete(name_onframe);
+					}
+				};
+				global.onframe.add(name_onframe);
+			}
+		}
 
 
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
@@ -405,9 +466,9 @@ new Promise(async (resolve, reject) => {
                 part.connector_sprite.rotation = rotation;
                 part.thrust_sprites.position.set(x, y);
                 part.thrust_sprites.rotation = rotation;
-		if (part.kind === PartKind.Core && part.owning_player !== null) {
-			part.owning_player.name_sprite.position.set(x, y - 0.85);
-		}
+				if (part.kind === PartKind.Core && part.owning_player !== null) {
+					part.owning_player.name_sprite.position.set(x, y - 0.85);
+				}
             }
 
             if (global.my_core != null) {
@@ -423,9 +484,10 @@ new Promise(async (resolve, reject) => {
             }
 
             for (const player of global.players.values()) player.update_grabbing_sprite();
-            global.starguide_button.pre_render(delta_ms);
+			for (const f of global.onframe) f(delta_ms);
+            /*global.starguide_button.pre_render(delta_ms);
             global.starguide.pre_render(delta_ms);
-			global.beamout_button.pre_render(delta_ms);
+			global.beamout_button.pre_render(delta_ms);*/
             pixi.render();
             requestAnimationFrame(render);
         }
