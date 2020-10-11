@@ -5,6 +5,7 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
+import { ChatInit, RecieveMessage } from './chat';
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -54,7 +55,7 @@ export interface GlobalData {
     scale_up: number;
     destination_hologram: PIXI.TilingSprite;
     heading_hologram: PIXI.Sprite;
-	onframe: Set<Function>;
+    onframe: Set<Function>;
 
 	socket: WebSocket;
     my_core: PartMeta;
@@ -169,8 +170,8 @@ function resize() {
     global.starguide_button.container.scale.set(main_hud_height);
     global.starguide.update_sprites(main_hud_width, window.innerHeight - main_hud_height - 20, (window.innerWidth - main_hud_width) * 0.5, 10);
 	global.beamout_button.container.position.set(window.innerWidth, 0);
-    global.beamout_button.container.scale.set(global.starguide_button.container.scale.y);
-    
+	global.beamout_button.container.scale.set(global.starguide_button.container.scale.y);
+
     global.heading_hologram.height = window.innerHeight * 0.75 / global.scaling.scale.y;
     global.heading_hologram.width = global.heading_hologram.height / global.heading_hologram.texture.height * global.heading_hologram.texture.width
 }
@@ -238,7 +239,7 @@ new Promise(async (resolve, reject) => {
     };
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
-        if (message instanceof ToClientMsg.HandshakeAccepted) {
+        if (message instanceof ToClientMsg.HandshakeAccepted) { //Authentication completed
             console.log("Handshake Accepted");
             console.log(message);
             global.my_id = message.id;
@@ -250,6 +251,7 @@ new Promise(async (resolve, reject) => {
             global.scaling.on("mousedown", world_mouse_down);
             global.scaling.on("mousemove", world_mouse_move);
             global.scaling.on("mouseup", world_mouse_up);
+            ChatInit();
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
