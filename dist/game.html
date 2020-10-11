@@ -12,8 +12,39 @@
                 top: 0;
             }
             #connecting_msg { display: flex; align-items: center; justify-content: center; }
+
+            #chat_root {
+                position: fixed;
+                left: 0; bottom: 0;
+                z-index: 5;
+                background-color: #5e007870;
+                height: 16em;
+                display: flex;
+                flex-flow: column nowrap;
+                overflow: hidden auto;
+                justify-content: flex-end;
+                padding: 6px;
+                border-top-right-radius: 20px;
+            }
+
+            #message_button, #message_box {
+                background-color: transparent; /* #e88cff88; */
+                color: #dd55ff;
+                outline: none;
+                border-radius: 3px;
+                border: 2px solid #dd55ff;
+            }
         </style>
         <div id="connecting_msg"><span>Connecting...</span></div>
         <script src="./bundle.js"></script>
+        <div id=chat_root>
+            <div id="messages">
+                <p>message pog</p>
+            </div>
+            <span>
+                <input type="text" placeholder="message" id="message_box">
+                <input type="button" value="Send" id="message_button">
+            </span>
+        </div>
     </body>
 </html>

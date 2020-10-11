@@ -154,8 +154,8 @@ function resize() {
     global.starguide_button.container.scale.set(main_hud_height);
     global.starguide.update_sprites(main_hud_width, window.innerHeight - main_hud_height - 20, (window.innerWidth - main_hud_width) * 0.5, 10);
 	global.beamout_button.container.position.set(window.innerWidth, 0);
-	global.beamout_button.container.scale.set(global.starguide_button.container.scale.y);
-
+    global.beamout_button.container.scale.set(global.starguide_button.container.scale.y);
+    
     global.heading_hologram.height = window.innerHeight * 0.75 / global.scaling.scale.y;
     global.heading_hologram.width = global.heading_hologram.height / global.heading_hologram.texture.height * global.heading_hologram.texture.width
 }
