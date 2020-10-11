@@ -402,7 +402,7 @@ new Promise(async (resolve, reject) => {
 				global.onframe.add(name_onframe);
 			}
 		} else if(msg instanceof ToClientMsg.ChatMessage) {
-            ReceiveMessage(msg.msg, msg.username);
+            ReceiveMessage(msg.msg, msg.username, msg.color);
         }
 
 
