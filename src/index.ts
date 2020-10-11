@@ -4,6 +4,7 @@ import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
 import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_mask } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
+import { validate as lib_uuid_validate } from "uuid";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -28,7 +29,7 @@ let session: string;
 	}
 	session = getCookie("session") as string;
 }
-console.log(session);
+const has_session = session !== "" && lib_uuid_validate(session);
 
 export interface GlobalData {
     pixi: PIXI.Application;
@@ -352,7 +353,7 @@ new Promise(async (resolve, reject) => {
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
             max_fuel = msg.max_power;
-			global.beamout_button.set_can_beamout(msg.can_beamout && session != "");
+			global.beamout_button.set_can_beamout(msg.can_beamout && has_session);
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);

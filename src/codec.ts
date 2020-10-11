@@ -158,6 +158,18 @@ class ToServerMsg_BeamOut {
 		return new Uint8Array(out);
 	}
 }
+class ToServerMsg_SendChatMessage {
+	static readonly id = 6;
+	msg: string;
+	constructor(msg: string,) {
+		this.msg = msg;
+	}
+	serialize(): Uint8Array
+		{let out = [6];
+		type_string_serialize(out, this.msg);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -190,12 +202,16 @@ function deserialize_ToServerMsg(buf: Uint8Array, index: Box<number>) {
 		}; break;		case 5: {
 			
 			return new ToServerMsg_BeamOut();
+		}; break;		case 6: {
+			let msg: string;
+			msg = type_string_deserialize(buf, index);
+			return new ToServerMsg_SendChatMessage(msg);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToServerMsg = {
 	deserialize: deserialize_ToServerMsg,
-	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters, CommitGrab: ToServerMsg_CommitGrab, MoveGrab: ToServerMsg_MoveGrab, ReleaseGrab: ToServerMsg_ReleaseGrab, BeamOut: ToServerMsg_BeamOut
+	Handshake: ToServerMsg_Handshake, SetThrusters: ToServerMsg_SetThrusters, CommitGrab: ToServerMsg_CommitGrab, MoveGrab: ToServerMsg_MoveGrab, ReleaseGrab: ToServerMsg_ReleaseGrab, BeamOut: ToServerMsg_BeamOut, SendChatMessage: ToServerMsg_SendChatMessage
 };
 
 class ToClientMsg_HandshakeAccepted {
@@ -362,6 +378,20 @@ class ToClientMsg_BeamOutAnimation {
 		return new Uint8Array(out);
 	}
 }
+class ToClientMsg_ChatMessage {
+	static readonly id = 12;
+	username: string; msg: string; color: string;
+	constructor(username: string, msg: string, color: string,) {
+		this.username = username; this.msg = msg; this.color = color;
+	}
+	serialize(): Uint8Array
+		{let out = [12];
+		type_string_serialize(out, this.username);
+		type_string_serialize(out, this.msg);
+		type_string_serialize(out, this.color);
+		return new Uint8Array(out);
+	}
+}
 function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 	switch (buf[index.v++]) {
 		case 0: {
@@ -432,11 +462,17 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			let player_id: number;
 			player_id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_BeamOutAnimation(player_id);
+		}; break;		case 12: {
+			let username: string; let msg: string; let color: string;
+			username = type_string_deserialize(buf, index);
+			msg = type_string_deserialize(buf, index);
+			color = type_string_deserialize(buf, index);
+			return new ToClientMsg_ChatMessage(username, msg, color);
 		}; break;		default: throw new Error();
 	}
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation
+	HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, ChatMessage: ToClientMsg_ChatMessage
 };
 
