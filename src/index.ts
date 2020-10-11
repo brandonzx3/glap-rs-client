@@ -5,7 +5,7 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
-import { ChatInit, RecieveMessage } from './chat';
+import { ChatInit, ReceiveMessage } from './chat';
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -401,7 +401,9 @@ new Promise(async (resolve, reject) => {
 				};
 				global.onframe.add(name_onframe);
 			}
-		}
+		} else if(msg instanceof ToClientMsg.ChatMessage) {
+            ReceiveMessage(msg.msg, msg.username);
+        }
 
 
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
