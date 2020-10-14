@@ -21,7 +21,7 @@ document.addEventListener("keydown", key => {
 message_button.onclick = function() { SendMessage(message_box.value); }
 
 function SendMessage(content: string) {
-    if(!message_box.value.replace(/\s/g, '').length) {
+    if(message_box.value.replace(/\s/g, '').length) {
         if(message_box.value.length <= 255) {
             global.socket.send(new ToServerMsg.SendChatMessage(content).serialize());
             message_box.value = "";
