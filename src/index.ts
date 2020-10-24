@@ -5,6 +5,7 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
+import { ChatInit, ReceiveMessage } from './chat';
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -54,7 +55,7 @@ export interface GlobalData {
     scale_up: number;
     destination_hologram: PIXI.TilingSprite;
     heading_hologram: PIXI.Sprite;
-	onframe: Set<Function>;
+    onframe: Set<Function>;
 
 	socket: WebSocket;
     my_core: PartMeta;
@@ -238,7 +239,7 @@ new Promise(async (resolve, reject) => {
     };
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
-        if (message instanceof ToClientMsg.HandshakeAccepted) {
+        if (message instanceof ToClientMsg.HandshakeAccepted) { //Authentication completed
             console.log("Handshake Accepted");
             console.log(message);
             global.my_id = message.id;
@@ -250,6 +251,7 @@ new Promise(async (resolve, reject) => {
             global.scaling.on("mousedown", world_mouse_down);
             global.scaling.on("mousemove", world_mouse_move);
             global.scaling.on("mouseup", world_mouse_up);
+            ChatInit();
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
@@ -399,7 +401,9 @@ new Promise(async (resolve, reject) => {
 				};
 				global.onframe.add(name_onframe);
 			}
-		}
+		} else if(msg instanceof ToClientMsg.ChatMessage) {
+            ReceiveMessage(msg.msg, msg.username, msg.color);
+        }
 
 
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
@@ -499,28 +503,30 @@ new Promise(async (resolve, reject) => {
     function key_down(e: KeyboardEvent) {
         if (keys_down.has(e.keyCode)) return;
         keys_down.add(e.keyCode);
-        switch (e.keyCode) {
-            case 87: //w
-                my_thrusters.forward = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 83: //s
-                my_thrusters.backward = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 65: //a
-                my_thrusters.counter_clockwise = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 68: //d
-                my_thrusters.clockwise = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 77: //m
-                if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
-                break;
-
-        };
+        let message_box = (document.querySelector("#message_box") as HTMLInputElement);
+        if(message_box != document.activeElement) {
+            switch (e.keyCode) {
+                case 87: //w
+                    my_thrusters.forward = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 83: //s
+                    my_thrusters.backward = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 65: //a
+                    my_thrusters.counter_clockwise = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 68: //d
+                    my_thrusters.clockwise = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 77: //m
+                    if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
+                    break;
+            };
+        }
     }
     function key_up(e: KeyboardEvent) {
         if (keys_down.delete(e.keyCode)) {
