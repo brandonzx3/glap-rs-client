@@ -399,7 +399,7 @@ export class MainHud {
         this.fuel.position.x = 0.047274295458486;
         this.container.addChild(this.fuel);
 
-        this.fuel_text = new PIXI.Text("Energy: 0/0", text_style);
+        this.fuel_text = new PIXI.Text("Energy: 0/0 Kw", text_style);
         this.fuel_text.position.set(0.048566785594363, 0.261918570054953);
         this.fuel_text.width = 0.078612775037128; this.fuel_text.height = 0.204358823718318;
         this.container.addChild(this.fuel_text);
@@ -437,7 +437,7 @@ export class MainHud {
 
     public set_fuel(fuel: number, max_fuel: number) {
         this.fuel.width = (fuel/max_fuel) * 0.526532575319202;
-        this.fuel_text.text = `Energy: ${fuel}/${max_fuel}`;
+        this.fuel_text.text = `Energy: ${fuel}/${max_fuel} Kw`;
         this.fuel_text.width = (this.fuel_text.texture.width / this.fuel_text.texture.height) * this.fuel_text.height * 0.1;
     }
 }
