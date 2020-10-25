@@ -9,6 +9,8 @@ let message_button = (document.querySelector("#message_button") as HTMLInputElem
 let message_box = (document.querySelector("#message_box") as HTMLInputElement);
 let message_root = (document.querySelector("#messages") as HTMLDivElement);
 let root = (document.querySelector("#chat_root") as HTMLDivElement);
+let notification_root = (document.querySelector("#notification_root") as HTMLDivElement);
+notification_root.style.visibility = "hidden";
 
 document.addEventListener("keydown", key => {
     if(key.keyCode == 13) {
@@ -28,6 +30,7 @@ export class Chat {
         this.is_open = true;
         root.style.position = "fixed";
         root.style.bottom = "0px";
+        notification_root.style.visibility = "hidden";
     }
 
     Close() {
@@ -35,6 +38,7 @@ export class Chat {
         this.is_open = false;
         root.style.position = "fixed";
         root.style.bottom = "-17em";
+        notification_root.style.visibility = "visible";
     }
 
     ReceiveMessage(content: string, username: string, color: string) {
@@ -45,6 +49,20 @@ export class Chat {
         message.style.color = color;
         message_root.appendChild(clone);
         message_root.scrollTop = message_root.offsetTop + message_root.scrollHeight;
+        if(this.is_open) {
+            let temp = (document.querySelector("#notification_template") as HTMLTemplateElement);
+            let clone = (temp.content.cloneNode(true) as HTMLDivElement);
+            let notification = (clone.firstElementChild as HTMLDivElement);
+            let name = (notification.firstElementChild as HTMLParagraphElement);
+            let message = (notification.lastElementChild as HTMLParagraphElement);
+            notification.style.backgroundColor = "#5e007870";
+            notification.style.padding = "5px";
+            notification.style.margin = "10px";
+            notification.style.borderRadius = "10px";
+            name.innerHTML = username;
+            message.innerHTML = content;
+            notification_root.appendChild(clone);
+        }
     }
 
     SendMessage(content: string) {

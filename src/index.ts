@@ -535,7 +535,7 @@ new Promise(async (resolve, reject) => {
         }
         if(e.keyCode == 27) {
             if(global.starguide.is_open) global.starguide.close();
-            if(global.chat.is_open) global.chat.Close();
+            if(global.chat.is_open) global.chat.Close(); message_box.blur();
         }
     }
     function key_up(e: KeyboardEvent) {
