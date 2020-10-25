@@ -10,7 +10,7 @@
    inkscape:export-ydpi="79.781677"
    inkscape:export-xdpi="79.781677"
    inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\Cargo.png"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    sodipodi:docname="battery.svg"
    viewBox="0 0 180.70096 174.47614"
    height="174.47615"
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,16 +59,16 @@
      fit-margin-top="0"
      inkscape:current-layer="g925"
      inkscape:window-maximized="0"
-     inkscape:window-y="89"
-     inkscape:window-x="-14"
+     inkscape:window-y="0"
+     inkscape:window-x="0"
      inkscape:cy="88.203169"
      inkscape:cx="-5.1704983"
      inkscape:zoom="2.609375"
      inkscape:document-rotation="0"
      showgrid="false"
      id="namedview919"
-     inkscape:window-height="982"
-     inkscape:window-width="1810"
+     inkscape:window-height="864"
+     inkscape:window-width="1536"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      guidetolerance="10"
@@ -92,13 +92,13 @@
        style="display:inline;fill:#383536;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000" />
     <path
        d="M 168.95865,54.508454 V -0.02452954 -1.8970317 h -0.0532 a 68.166038,49.186537 0 0 0 -68.113,-47.3146873 68.166038,49.186537 0 0 0 -68.118972,47.3146873 h -0.04727 V -0.02452954 54.508454 Z"
-       style="display:inline;fill:#6e6a6a;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000"
+       style="display:inline;fill:#333333;fill-opacity:1;stroke:none;stroke-width:11.9622;stop-color:#000000"
        id="path937" />
     <path
        sodipodi:nodetypes="sssssssss"
        d="m -146.78411,-107.43681 h 91.965892 c 12.487526,0 22.540661,10.053131 22.540661,22.540658 v 41.444856 c 0,12.487526 -10.053135,22.540661 -22.540661,22.540661 h -91.965892 c -12.48752,0 -22.54066,-10.053135 -22.54066,-22.540661 v -41.444856 c 0,-12.487527 10.05314,-22.540658 22.54066,-22.540658 z"
        transform="scale(-1)"
-       style="fill:#333333;fill-opacity:1;stroke-width:11.9622;stop-color:#000000"
+       style="fill:#6e6a6a;fill-opacity:1;stroke-width:11.9622;stop-color:#000000"
        id="rect929" />
     <g
        style="stroke-width:0.334616"
@@ -129,9 +129,10 @@
     </g>
     <g
        transform="translate(0.38323353,-27.736355)"
-       id="g912">
+       id="g912"
+       style="fill:#333333;fill-opacity:1">
       <rect
-         style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#6e6a6a;fill-opacity:1;stroke:none;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
+         style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#333333;fill-opacity:1;stroke:none;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
          id="rect886"
          width="5.4197397"
          height="26.014753"
@@ -143,12 +144,12 @@
          height="26.014753"
          width="5.4197397"
          id="rect888"
-         style="fill:#6e6a6a;fill-opacity:1;stroke:none;stroke-width:5;stop-color:#000000"
+         style="fill:#333333;fill-opacity:1;stroke:none;stroke-width:5;stop-color:#000000"
          transform="rotate(90)" />
     </g>
     <rect
        transform="rotate(90)"
-       style="fill:#333333;fill-opacity:1;stroke:none;stroke-width:5;stop-color:#000000"
+       style="fill:#6e6a6a;fill-opacity:1;stroke:none;stroke-width:5;stop-color:#000000"
        id="rect888-8"
        width="5.4197397"
        height="19.499783"

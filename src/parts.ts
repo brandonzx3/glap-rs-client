@@ -1,24 +1,31 @@
 import { PartKind } from "./codec";
 import { PlayerMeta, global } from "./index";
 import * as PIXI from 'pixi.js';
+import * as Particles from 'pixi-particles';
+import { ParticleManager, ThrusterParticleConfig, CoreParticleConfig } from "./particles";
 
 export class PartMeta {
     id: number;
     sprite: PIXI.Sprite;
     connector_sprite: PIXI.Sprite = null;
     kind: PartKind;
-    thrust_sprites = new PIXI.Container();
+	thrust_particles: ParticleManager;
     constructor(id: number, kind: PartKind) {
         this.id = id;
         this.kind = kind;
         this.sprite = new PIXI.Sprite();
         this.sprite.width = 1; this.sprite.height = 1;
-        this.init_thruster_sprites();
         this.update_sprites();
-        if (kind === PartKind.Core) this.sprite.anchor.set(0.5,0.5);
-        else this.sprite.anchor.set(0.5,1);
+        if (kind === PartKind.Core) {
+			this.sprite.anchor.set(0.5,0.5);
+			this.thrust_particles = new CoreParticleManager(this);
+		} else {
+			this.sprite.anchor.set(0.5,1);
+			switch (kind) {
+				case PartKind.LandingThruster: this.thrust_particles = new ThrustParticleManager(this); break;
+			}
+		}
         global.part_sprites.addChild(this.sprite);
-        global.thrust_sprites.addChild(this.thrust_sprites);
 
         this.connector_sprite = new PIXI.Sprite(global.spritesheet.textures["connector.png"]);
         this.connector_sprite.width = 0.333; this.connector_sprite.height = 0.15;
@@ -39,6 +46,7 @@ export class PartMeta {
     inter_rot_delta = 0;
     inter_rot_positive = true;
     inter_rot_dest = 0;
+	particle_speed = 0;
 
     update_sprites() {
         switch (this.kind) {
@@ -53,7 +61,7 @@ export class PartMeta {
         if (this.owning_player !== null && this.kind !== PartKind.Core) global.connector_sprites.addChild(this.connector_sprite);
     }
 
-    init_thruster_sprites() {
+/*    init_thruster_sprites() {
         switch (this.kind) {
             case PartKind.Core: {
                 //Height = width * 4.00552486
@@ -88,30 +96,118 @@ export class PartMeta {
                 this.thrust_sprites.addChild(thrust_sprite);
             }; break;
         }
-    }
+    }*/
     update_thruster_sprites(thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean) {     
-        let am_i_thrusting;
-        switch (this.thrust_mode.horizontal) {
-            case HorizontalThrustMode.Clockwise: am_i_thrusting = thrust_clockwise; break;
-            case HorizontalThrustMode.CounterClockwise: am_i_thrusting = thrust_counter_clockwise; break;
-            case HorizontalThrustMode.Either: am_i_thrusting = false; break;
-        }
-        switch (this.thrust_mode.vertical) {
-            case VerticalThrustMode.Forwards: am_i_thrusting = am_i_thrusting || thrust_forward; break;
-            case VerticalThrustMode.Backwards: am_i_thrusting = am_i_thrusting || thrust_backward; break;
-            //case VerticalThrustMode.None: break;
-        }
-        switch (this.kind) {
-            case PartKind.Core: {
-                this.thrust_sprites.children[0].visible = thrust_forward || thrust_clockwise
-                this.thrust_sprites.children[1].visible = thrust_forward || thrust_counter_clockwise;
-                this.thrust_sprites.children[2].visible = thrust_backward || thrust_counter_clockwise;
-                this.thrust_sprites.children[3].visible = thrust_backward || thrust_clockwise;
-            }; break;
+		let am_i_thrusting;
+		switch (this.thrust_mode.horizontal) {
+			case HorizontalThrustMode.Clockwise: am_i_thrusting = thrust_clockwise; break;
+			case HorizontalThrustMode.CounterClockwise: am_i_thrusting = thrust_counter_clockwise; break;
+			case HorizontalThrustMode.Either: am_i_thrusting = false; break;
+		}
+		switch (this.thrust_mode.vertical) {
+			case VerticalThrustMode.Forwards: am_i_thrusting = am_i_thrusting || thrust_forward; break;
+			case VerticalThrustMode.Backwards: am_i_thrusting = am_i_thrusting || thrust_backward; break;
+			//case VerticalThrustMode.None: break;
+		}
+		/*switch (this.kind) {
+			case PartKind.Core: {
+				this.thrust_sprites.children[0].visible = thrust_forward || thrust_clockwise
+				this.thrust_sprites.children[1].visible = thrust_forward || thrust_counter_clockwise;
+				this.thrust_sprites.children[2].visible = thrust_backward || thrust_counter_clockwise;
+				this.thrust_sprites.children[3].visible = thrust_backward || thrust_clockwise;
+			}; break;
 
-            case PartKind.LandingThruster: this.thrust_sprites.children[0].visible = am_i_thrusting; break;
-        }
+			case PartKind.LandingThruster: this.thrust_sprites.children[0].visible = am_i_thrusting; break;
+		}*/
+		switch (this.kind) {
+			case PartKind.LandingThruster:
+				(this.thrust_particles as ThrustParticleManager).emitter.emit = am_i_thrusting; 
+				global.emitters.add(this.thrust_particles);
+				break;
+			case PartKind.Core:
+				const particles = this.thrust_particles as CoreParticleManager;
+				particles.bottom_left.emit = thrust_forward || thrust_clockwise;
+				particles.bottom_right.emit = thrust_forward || thrust_counter_clockwise;
+				particles.top_left.emit = thrust_backward || thrust_counter_clockwise;
+				particles.top_right.emit = thrust_backward || thrust_clockwise;
+				global.emitters.add(this.thrust_particles);
+				break;
+		}
     }
+}
+
+class ThrustParticleManager implements ParticleManager {
+	parent: PartMeta;
+	emitter = new Particles.Emitter(global.thrust_particles, global.white_box, ThrusterParticleConfig);
+	offset: PIXI.Point;
+	rotation_offset: number;
+
+	constructor(parent: PartMeta) {
+		this.parent = parent;
+		switch (parent.kind) {
+			case PartKind.LandingThruster: {
+				this.offset = new PIXI.Point(0, -1);
+				this.rotation_offset = 180;
+			}; break;
+
+			case PartKind.Core: throw new Error("Didn't use CoreParticleManager");
+		}
+	}
+
+	update_particles(delta_seconds: number): boolean {
+		const spawn_pos = this.offset.clone();
+		const matrix = (new PIXI.Matrix()).rotate(this.parent.sprite.rotation).translate(this.parent.x, this.parent.y);
+		matrix.apply(spawn_pos, spawn_pos);
+		this.emitter.updateSpawnPos(spawn_pos.x, spawn_pos.y);
+		this.emitter.rotate(this.parent.sprite.angle - 90);
+		this.emitter.startSpeed = Particles.PropertyNode.createList({ list: [
+			{ time: 0, value: 2.5 + this.parent.particle_speed },
+			{ time: 1, value: 0 }
+		] });
+		this.emitter.update(delta_seconds);
+		return this.emitter.particleCount < 1;
+	}
+}
+
+
+export class CoreParticleManager implements ParticleManager {
+	parent: PartMeta;
+	bottom_left = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
+	bottom_right = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
+	top_left = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
+	top_right = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
+
+	constructor(parent: PartMeta) {
+		this.parent = parent;
+	}
+
+	update_particles(delta_seconds: number): boolean {
+		const rotation = this.parent.sprite.angle - 90;
+		
+		const self = this;
+		const matrix = (new PIXI.Matrix()).rotate(self.parent.sprite.rotation).translate(self.parent.x, self.parent.y);
+		function update_emitter(emitter: Particles.Emitter, offset: PIXI.Point) {
+			if (emitter.emit) {
+				emitter.rotate(offset.y > 0 ? rotation + 180 : rotation);
+				matrix.apply(offset, offset);
+				emitter.updateSpawnPos(offset.x, offset.y);
+				emitter.startSpeed = Particles.PropertyNode.createList({ list: [
+					{ time: 0, value: 2.5 + self.parent.particle_speed },
+					{ time: 1, value: 0 }
+				] });
+			}
+			emitter.update(delta_seconds);
+		}
+
+		update_emitter(this.bottom_left, new PIXI.Point(-0.4, 0.5));
+		update_emitter(this.bottom_right, new PIXI.Point(0.4, 0.5));
+		update_emitter(this.top_left, new PIXI.Point(-0.4, -0.5));
+		update_emitter(this.top_right, new PIXI.Point(0.4, -0.5));
+		return this.bottom_left.particleCount < 1
+			&& this.bottom_right.particleCount < 1
+			&& this.top_left.particleCount < 1
+			&& this.top_right.particleCount < 1;
+	}
 }
 
 export enum HorizontalThrustMode { Clockwise, CounterClockwise, Either }
