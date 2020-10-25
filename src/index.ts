@@ -6,6 +6,7 @@ import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
 import { ChatInit, Chat, ChatButton } from './chat';
+import { BeamoutParticleConfig, ParticleManager } from "./particles";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -34,10 +35,11 @@ const has_session = session !== "" && lib_uuid_validate(session);
 
 export interface GlobalData {
     pixi: PIXI.Application;
+	emitters: Set<ParticleManager>;
     scaling: PIXI.Container;
     world: PIXI.Container;
     holograms: PIXI.Container;
-    thrust_sprites: PIXI.Container;
+    thrust_particles: PIXI.Container;
     planet_sprites: PIXI.Container;
     part_sprites: PIXI.Container;
     connector_sprites: PIXI.Container;
@@ -70,10 +72,11 @@ export interface GlobalData {
 
 export const global: GlobalData = {
     pixi: null,
+	emitters: new Set(),
     scaling: new PIXI.Container(),
     world: new PIXI.Container(),
     holograms: new PIXI.Container(),
-    thrust_sprites: new PIXI.Container(),
+    thrust_particles: new PIXI.Container(),
     planet_sprites: new PIXI.Container(),
     part_sprites: new PIXI.Container(),
     connector_sprites: new PIXI.Container(),
@@ -116,7 +119,7 @@ background.zIndex = -100;
 
 global.scaling.addChild(background);
 global.world.addChild(global.holograms);
-global.world.addChild(global.thrust_sprites);
+global.world.addChild(global.thrust_particles);
 global.world.addChild(global.part_sprites);
 global.world.addChild(global.planet_sprites);
 global.world.addChild(global.connector_sprites);
@@ -182,15 +185,6 @@ function resize() {
 
 let my_core_id: number = null;
 let max_fuel = 1;
-
-const beamout_particle_config = JSON.parse("{\"alpha\":{\"start\":1,\"end\":1},\"scale\":{\"start\":2,\"end\":5,\"minimumScaleMultiplier\":1},\"color\":{\"start\":\"#ffffff\",\"end\":\"#5fcc4b\"},\"speed\":{\"start\":50,\"end\":25,\"minimumSpeedMultiplier\":3},\"acceleration\":{\"x\":-5,\"y\":-5},\"maxSpeed\":0,\"startRotation\":{\"min\":0,\"max\":360},\"noRotation\":false,\"rotationSpeed\":{\"min\":0,\"max\":0},\"lifetime\":{\"min\":1,\"max\":2},\"blendMode\":\"normal\",\"frequency\":0.001,\"emitterLifetime\":-1,\"maxParticles\":10,\"pos\":{\"x\":0,\"y\":0},\"addAtBack\":false,\"spawnType\":\"circle\",\"spawnCircle\":{\"x\":0,\"y\":0,\"r\":0}}");
-beamout_particle_config.scale.start /= 10;
-beamout_particle_config.scale.end /= 10;
-beamout_particle_config.speed.start /= 10;
-beamout_particle_config.speed.end /= 10;
-beamout_particle_config.acceleration.start /= 10;
-beamout_particle_config.acceleration.end /= 10;
-beamout_particle_config.emitterLifetime = 0.5;
 
 const PI_over_2 = Math.PI / 2;
 
@@ -319,7 +313,6 @@ new Promise(async (resolve, reject) => {
             if (part !== null) {
                 global.parts.delete(msg.id);
                 global.part_sprites.removeChild(part.sprite);
-                global.thrust_sprites.removeChild(part.thrust_sprites);
                 global.connector_sprites.removeChild(part.connector_sprite);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
@@ -374,12 +367,11 @@ new Promise(async (resolve, reject) => {
 			if (player !== null) {
 				const opacity_aniamtion_constant = 0.001;
 				for (const part of player.parts) {
-					const my_config = Object.create(beamout_particle_config);
+					const my_config = Object.create(BeamoutParticleConfig);
 					my_config.pos.x = part.sprite.x;
 					my_config.pos.y = part.sprite.y;
 					const particles = new Particles.Emitter(global.connector_sprites, global.white_box, my_config);
 					global.parts.delete(part.id);
-					global.thrust_sprites.removeChild(part.thrust_sprites);
 					global.connector_sprites.removeChild(part.connector_sprite);
 					let onframe = (delta_ms: number) => {
 						particles.update(delta_ms * 0.001);
@@ -440,6 +432,7 @@ new Promise(async (resolve, reject) => {
                 part.inter_x_positive = part.inter_x_delta >= 0;
                 part.inter_y_dest = part.y;
                 part.inter_y_delta = (part.inter_y_dest - part.sprite.y) / average_server_tick_time;
+				part.particle_speed = Math.sqrt(Math.pow(part.inter_x_delta * 1000, 2) + Math.pow(part.inter_y_delta * 1000, 2));
                 part.inter_y_positive = part.inter_y_delta >= 0;
                 part.inter_rot_dest = part.rot;
                 let sprite_rot = part.sprite.rotation;
@@ -472,12 +465,15 @@ new Promise(async (resolve, reject) => {
                 part.sprite.rotation = rotation;
                 part.connector_sprite.position.set(x, y);
                 part.connector_sprite.rotation = rotation;
-                part.thrust_sprites.position.set(x, y);
-                part.thrust_sprites.rotation = rotation;
 				if (part.kind === PartKind.Core && part.owning_player !== null) {
 					part.owning_player.name_sprite.position.set(x, y - 0.85);
 				}
             }
+
+			const delta_seconds = delta_ms * 0.001;
+			for (const particle of global.emitters) {
+				if (particle.update_particles(delta_seconds)) global.emitters.delete(particle);
+			}
 
             if (global.my_core != null) {
                 global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
@@ -573,6 +569,8 @@ new Promise(async (resolve, reject) => {
     });
 
     (window as any)["dev"] = global;
+	(window as any)["PIXI"] = PIXI;
+	(window as any)["resize"] = resize;
 
     let am_grabbing = false;
     function world_mouse_down(event: PIXI.InteractionEvent) {
