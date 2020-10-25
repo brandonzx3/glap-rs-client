@@ -24,6 +24,7 @@ message_button.onclick = function() { global.chat.SendMessage(message_box.value)
 
 export class Chat {
     is_open = true;
+    notification_count = 0;
 
     Open() {
         if(this.is_open) return;
@@ -49,7 +50,8 @@ export class Chat {
         message.style.color = color;
         message_root.appendChild(clone);
         message_root.scrollTop = message_root.offsetTop + message_root.scrollHeight;
-        if(this.is_open) {
+        if(!this.is_open) {
+            this.notification_count += 1;
             let temp = (document.querySelector("#notification_template") as HTMLTemplateElement);
             let clone = (temp.content.cloneNode(true) as HTMLDivElement);
             let notification = (clone.firstElementChild as HTMLDivElement);
@@ -62,6 +64,13 @@ export class Chat {
             name.innerHTML = username;
             message.innerHTML = content;
             notification_root.appendChild(clone);
+            if(this.notification_count > 3) {
+                notification_root.removeChild(notification_root.children[1]);
+            }
+            setTimeout(() => {
+                notification_root.removeChild(notification_root.children[1]);
+                this.notification_count -= 1;
+            }, 10000);
         }
     }
 
