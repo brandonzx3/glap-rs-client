@@ -5,7 +5,7 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
-import { ChatInit, Chat } from './chat';
+import { ChatInit, Chat, ChatButton } from './chat';
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -44,6 +44,7 @@ export interface GlobalData {
     main_hud: MainHud;
     starguide: Starguide;
     chat: Chat;
+    chat_button: ChatButton;
 	beamout_button: BeamOutButton;
     starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
@@ -82,6 +83,7 @@ export const global: GlobalData = {
     main_hud: null,
     starguide: null,
     chat: new Chat,
+    chat_button: null,
 	beamout_button: null,
     starguide_button: null,
     rendering: true,
@@ -533,6 +535,7 @@ new Promise(async (resolve, reject) => {
         }
         if(e.keyCode == 27) {
             if(global.starguide.is_open) global.starguide.close();
+            if(global.chat.is_open) global.chat.Close();
         }
     }
     function key_up(e: KeyboardEvent) {

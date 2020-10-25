@@ -21,14 +21,20 @@ document.addEventListener("keydown", key => {
 message_button.onclick = function() { global.chat.SendMessage(message_box.value); }
 
 export class Chat {
-    is_open = false
+    is_open = true;
 
     Open() {
         if(this.is_open) return;
+        this.is_open = true;
+        root.style.position = "fixed";
+        root.style.bottom = "0px";
     }
 
     Close() {
         if(!this.is_open) return;
+        this.is_open = false;
+        root.style.position = "fixed";
+        root.style.bottom = "-17em";
     }
 
     ReceiveMessage(content: string, username: string, color: string) {
@@ -51,4 +57,8 @@ export class Chat {
             }
         }
     }
+}
+
+export class ChatButton {
+    //stuff
 }
