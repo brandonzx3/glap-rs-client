@@ -65,6 +65,7 @@ export class Chat {
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
                 notification_root.removeChild(notification_root.children[1]);
+                this.notification_count -= 1;
             }
             setTimeout(() => {
                 notification_root.removeChild(notification_root.children[1]);
