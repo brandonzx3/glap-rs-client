@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -14,8 +12,8 @@
    width="1000"
    height="1000"
    viewBox="0 0 1000 1000"
-   sodipodi:docname="Venus.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+   sodipodi:docname="venus.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata821">
     <rdf:RDF>
@@ -24,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -39,25 +37,21 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1536"
+     inkscape:window-height="822"
      id="namedview817"
      showgrid="false"
      inkscape:zoom="0.1767767"
      inkscape:cx="396.31734"
      inkscape:cy="1246.2872"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg815" />
+     inkscape:current-layer="svg815"
+     inkscape:document-rotation="0" />
   <g
      id="g825"
      transform="matrix(0.49372204,0,0,0.49666416,0.0846066,0.06490967)">
-    <path
-       style="fill:#fefefe"
-       d="M 0,1006.5 V 0 H 1012.5 2025 V 1006.5 2013 H 1012.5 0 Z"
-       id="path841"
-       inkscape:connector-curvature="0" />
     <path
        style="fill:#dcd4c2"
        d="M 839.5,2009.953 C 575.59787,1962.4412 345.08632,1817.7888 190.99992,1603.0011 99.470378,1475.4142 38.793161,1329.2753 13.500383,1175.5 c -1.990193,-12.1 -4.0376386,-23.35 -4.5498782,-25 -1.7755852,-5.7194 -6.0232725,-45.0973 -7.0115443,-65 -2.65701747,-53.5094 -2.14966755,-124.49352 1.1721691,-164 C 6.9416048,875.94431 17.488052,814.7846 29.953778,765.83728 48.325556,693.69954 69.958681,634.28269 101.43837,569.5 155.23971,458.78111 236.02406,350.32478 326.03538,267.96921 434.72446,168.5245 558.00559,95.764534 694.6265,50.428415 766.65304,26.527217 850.21825,9.0983118 921.5,3.1102038 c 56.46685,-4.7435647 156.9674,-3.59013062 206,2.3642404 108.6411,13.1930368 211.7825,42.3661298 309.5,87.5407208 7.425,3.432561 14.625,7.028055 16,7.989995 1.375,0.96194 7.675,4.33484 14,7.49534 113.5912,56.7597 221.4046,139.96368 305.1537,235.4995 102.926,117.41175 178.6427,258.93626 218.283,408 1.9745,7.425 4.2359,15.075 5.0253,17 4.9657,12.10899 16.5193,71.07984 21.9432,112 9.8813,74.54953 10.2967,181.6143 0.9912,255.5 -17.4022,138.1745 -65.348,277.2226 -136.3928,395.5541 -80.2429,133.6519 -183.9762,241.9957 -312.5036,326.3932 -84.2748,55.3391 -182.1597,100.4702 -277.6935,128.0342 -35.801,10.3295 -88.6399,22.3559 -108.8065,24.7649 -5.3192,0.6354 -68.187,1.1224 -168,1.3013 l -159.5,0.2858 z"

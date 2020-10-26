@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -14,8 +12,11 @@
    width="1000"
    height="1000"
    viewBox="0 0 1000 1000"
-   sodipodi:docname="Pluto.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+   sodipodi:docname="pluto.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets_rs/pluto.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <metadata
      id="metadata821">
     <rdf:RDF>
@@ -24,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -39,25 +40,21 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1536"
+     inkscape:window-height="822"
      id="namedview817"
      showgrid="false"
      inkscape:zoom="0.1767767"
      inkscape:cx="-581.32234"
      inkscape:cy="967.47727"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg815" />
+     inkscape:current-layer="svg815"
+     inkscape:document-rotation="0" />
   <g
      id="g845"
      transform="matrix(0.49743216,0,0,0.4974888,0.16578754,0.05285051)">
-    <path
-       style="fill:#fefefe"
-       d="M 0,1005 V 0 H 1005 2010 V 1005 2010 H 1005 0 Z"
-       id="path865"
-       inkscape:connector-curvature="0" />
     <path
        style="fill:#ecdcc9"
        d="m 951.5,2008.9136 c -157.95676,-9.6731 -307.97591,-54.0139 -443,-130.9364 -42.96374,-24.4761 -81.16819,-50.1366 -126.35041,-84.8647 -2.94273,-2.2619 -5.79921,-4.1125 -6.34774,-4.1125 -3.13553,0 -48.79963,-40.1168 -75.68207,-66.4882 C 187.47187,1612.0054 101.07607,1473.5924 50.436977,1322.5 23.685527,1242.6814 4.5053235,1147.6612 1.891115,1082 -0.84953956,1013.1629 -0.3062763,960.30539 3.5869665,917 20.196078,732.25321 87.931551,554.44716 198.1963,406.14925 267.64915,312.74032 346.19135,237.56728 442.14925,172.66093 515.74571,122.87996 588.91038,86.38009 679.5,54.253076 691.05,50.156944 703.425,45.754665 707,44.470234 737.89091,33.371701 807.02023,17.260541 854.5,10.094142 905.00644,2.4709087 935.69793,0.51805521 1005,0.51805521 c 51.0091,0 85.8339,1.38456959 112.5,4.47277939 108.4385,12.5583164 211.8615,41.9045444 313.5,88.9554074 18.9581,8.776158 51.7699,25.618748 54.5,27.975358 1.1,0.94951 8.3,5.25669 16,9.57152 51.9041,29.0854 107.4487,68.03573 157.4795,110.43175 85.2976,72.28091 161.5786,164.78566 218.9977,265.57513 67.11,117.80003 109.8254,248.01439 125.9669,384 1.1098,9.35 2.422,19.025 2.9159,21.5 2.4277,12.16518 3.5186,107.6993 1.8043,158 -2.764,81.098 -25.1563,187.9013 -58.1804,277.5 -9.5541,25.9217 -16.372,42.6294 -18.9749,46.5 -1.2946,1.925 -5.6247,10.925 -9.6225,20 -15.3258,34.7898 -41.3348,83.8007 -63.1505,119 -123.909,199.9248 -312.7259,349.1024 -536.736,424.0562 -86.6281,28.9857 -171.7459,45.2875 -266,50.9442 -19.0252,1.1419 -85.33683,1.0868 -104.5,-0.087 z"

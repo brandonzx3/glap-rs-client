@@ -184,14 +184,18 @@ let max_fuel = 1;
 
 const PI_over_2 = Math.PI / 2;
 
+const spritesheet_url_base = "spritesheet" in params ? params["spritesheet"] : "./spritesheet_io";
+console.log("spritesheet" in params);
+console.log(params["spritesheet"]);
+
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
-        image.src = "./spritesheet.png";
+        image.src = spritesheet_url_base + ".png";
         image.onload = () => { resolve(image); }
         image.onerror = err => reject(err);
     });
-    const dat_promise: Promise<Object> = fetch("./spritesheet.json").then(res => res.json());
+    const dat_promise: Promise<Object> = fetch(spritesheet_url_base + ".json").then(res => res.json());
     const image = await image_promise;
     const dat = await dat_promise;
     const texture = PIXI.Texture.from(image);
