@@ -1,5 +1,6 @@
 import { global } from "./index";
 import { ToServerMsg } from "./codec";
+import * as PIXI from 'pixi.js';
 
 export function ChatInit() {
     console.log("chat pog");
@@ -87,5 +88,52 @@ export class Chat {
 }
 
 export class ChatButton {
-    //stuff
+    sprite: PIXI.Sprite;
+    container: PIXI.Container = new PIXI.Container();
+    pre_render: Function;
+    private open: boolean;
+    constructor() {
+        this.sprite = new PIXI.Sprite;
+        this.update_sprite_texture(false);
+        this.sprite.anchor.set(1,1);
+        this.sprite.position.set(0,0);
+        this.sprite.height = 1; this.sprite.width = this.sprite.height * 1.38987342;
+        this.container.addChild(this.sprite);
+        
+        this.pre_render = () => {};
+        this.sprite.interactive = true;
+        this.sprite.addListener("mouseover", () => {
+            global.pixi.view.style.cursor = "pointer";
+			global.onframe.delete(this.pre_render);
+            this.pre_render = (delta_ms: number) => {
+                this.sprite.height += /*0.25 / 250 */ 0.001 *  delta_ms;
+                if (this.sprite.height >= 1.15) {
+                    this.sprite.height = 1.15;
+					global.onframe.delete(this.pre_render);
+                }
+                this.sprite.width = this.sprite.height * 1.38987342;
+            };
+			global.onframe.add(this.pre_render);
+        });
+        this.sprite.addListener("mouseout", () => {
+            global.pixi.view.style.cursor = "default";
+			global.onframe.delete(this.pre_render);
+            this.pre_render = (delta_ms: number) => {
+                this.sprite.height -= /*0.25 / 250 */ 0.001 *  delta_ms;
+                if (this.sprite.height <= 1) {
+                    this.sprite.height = 1;
+					global.onframe.delete(this.pre_render);
+                }
+                this.sprite.width = this.sprite.height * 1.38987342;
+            };
+			global.onframe.add(this.pre_render);
+        });
+        this.sprite.addListener("click", () => {
+            if(!global.chat.is_open) global.chat.Open(); else global.chat.Close();
+        });
+    }
+    update_sprite_texture(is_menu_open: boolean) {
+        this.open = is_menu_open;
+        this.sprite.texture = global.spritesheet.textures["starguide_close_icon.png"];
+    }
 }
