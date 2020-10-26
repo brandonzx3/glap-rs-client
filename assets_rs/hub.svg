@@ -16,8 +16,8 @@
    id="svg106"
    sodipodi:docname="hub.svg"
    inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets_rs/hub.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
+   inkscape:export-xdpi="128"
+   inkscape:export-ydpi="128"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata112">
@@ -42,16 +42,17 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1536"
-     inkscape:window-height="792"
+     inkscape:window-height="822"
      id="namedview108"
      showgrid="false"
      inkscape:zoom="4.3666667"
-     inkscape:cx="75"
-     inkscape:cy="75"
+     inkscape:cx="-5.7911254"
+     inkscape:cy="18.501256"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg106" />
+     inkscape:current-layer="svg106"
+     inkscape:document-rotation="0" />
   <clipPath
      id="p.0">
     <path
@@ -102,7 +103,8 @@
        stroke-linecap="butt"
        d="m-0.01312021 23.886955l0 0c0 -13.192402 10.694554 -23.886955 23.886955 -23.886955l102.147354 0l0 0c6.3352127 0 12.410957 2.516654 16.890633 6.996327c4.47966 4.479673 6.9963226 10.555414 6.9963226 16.890629l0 102.21034c0 13.192406 -10.69455 23.886955 -23.886955 23.886955l-102.147354 0l0 0c-13.192401 0 -23.886955 -10.69455 -23.886955 -23.886955z"
        fill-rule="evenodd"
-       id="path16" />
+       id="path16"
+       style="stroke:none" />
     <defs
        id="defs23">
       <linearGradient

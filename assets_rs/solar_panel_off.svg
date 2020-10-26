@@ -17,8 +17,8 @@
    sodipodi:docname="solar_panel_off.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets_rs/solar_panel_off.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
+   inkscape:export-xdpi="128"
+   inkscape:export-ydpi="128">
   <metadata
      id="metadata51">
     <rdf:RDF>
@@ -31,7 +31,19 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs49" />
+     id="defs49">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath38">
+      <rect
+         style="fill:#550000;stroke:none;stroke-width:1.08518;stroke-linejoin:round;stroke-miterlimit:10;stop-color:#000000"
+         id="rect40"
+         width="85.484039"
+         height="16.717937"
+         x="32.261948"
+         y="133.28204" />
+    </clipPath>
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -42,16 +54,17 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1536"
-     inkscape:window-height="792"
+     inkscape:window-height="822"
      id="namedview47"
      showgrid="false"
-     inkscape:zoom="1.5438498"
-     inkscape:cx="72.121526"
-     inkscape:cy="58.22215"
+     inkscape:zoom="8.7333333"
+     inkscape:cx="99.054848"
+     inkscape:cy="131.15402"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg45" />
+     inkscape:current-layer="g43"
+     inkscape:document-rotation="0" />
   <clipPath
      id="p.0">
     <path
@@ -84,7 +97,8 @@
        stroke-linecap="butt"
        d="m 48.269703,59.29239 h 53.441407 v 0 c 4.24444,0 8.31504,1.6861 11.31632,4.687378 3.00128,3.001274 4.68738,7.071884 4.68738,11.31633 v 74.484482 c 0,3.9e-4 -3.2e-4,7.2e-4 -7.1e-4,7.2e-4 l -85.448109,-7.2e-4 v 0 c -3.93e-4,0 -7.1e-4,-3.2e-4 -7.1e-4,-7.2e-4 l 7.1e-4,-74.483764 v 0 c 0,-8.838608 7.165104,-16.003708 16.003712,-16.003708 z"
        fill-rule="evenodd"
-       id="path9" />
+       id="path9"
+       style="stroke:none" />
     <defs
        id="defs16">
       <linearGradient
@@ -106,38 +120,43 @@
            id="stop13" />
       </linearGradient>
     </defs>
-    <path
-       fill="url(#p.1)"
-       d="M 117.74599,149.99998 H 32.261945 v -16.71794 h 85.484045 z"
-       fill-rule="evenodd"
-       id="path18"
-       style="fill:url(#p.1);stroke-width:1.06878" />
-    <path
-       stroke="#000000"
-       stroke-width="1.04172"
-       stroke-linejoin="round"
-       stroke-linecap="butt"
-       d="M 117.74599,149.99998 H 32.261945 v -16.71794 h 85.484045 z"
-       fill-rule="evenodd"
-       id="path20" />
-    <path
-       fill="#232323"
-       d="M 90.00915,132.91089 74.471056,149.98384 H 59.998793 L 75.53689,132.91089 Z"
-       fill-rule="evenodd"
-       id="path22"
-       style="stroke-width:1.06878" />
-    <path
-       fill="#232323"
-       d="m 117.74599,132.92702 -15.5381,17.07297 H 87.735635 l 15.538095,-17.07297 z"
-       fill-rule="evenodd"
-       id="path24"
-       style="stroke-width:1.06878" />
-    <path
-       fill="#232323"
-       d="M 62.272305,132.91089 46.734208,149.98384 H 32.261949 l 15.538094,-17.07295 z"
-       fill-rule="evenodd"
-       id="path26"
-       style="stroke-width:1.06878" />
+    <g
+       id="g34"
+       clip-path="url(#clipPath38)">
+      <path
+         fill="url(#p.1)"
+         d="M 117.74599,149.99998 H 32.261945 v -16.71794 h 85.484045 z"
+         fill-rule="evenodd"
+         id="path18"
+         style="fill:url(#p.1);stroke-width:1.06878" />
+      <path
+         stroke="#000000"
+         stroke-width="1.04172"
+         stroke-linejoin="round"
+         stroke-linecap="butt"
+         d="M 117.74599,149.99998 H 32.261945 v -16.71794 h 85.484045 z"
+         fill-rule="evenodd"
+         id="path20"
+         style="stroke:none" />
+      <path
+         fill="#232323"
+         d="M 90.00915,132.91089 74.471056,149.98384 H 59.998793 L 75.53689,132.91089 Z"
+         fill-rule="evenodd"
+         id="path22"
+         style="stroke-width:1.06878" />
+      <path
+         fill="#232323"
+         d="m 117.74599,132.92702 -15.5381,17.07297 H 87.735635 l 15.538095,-17.07297 z"
+         fill-rule="evenodd"
+         id="path24"
+         style="stroke-width:1.06878" />
+      <path
+         fill="#232323"
+         d="M 62.272305,132.91089 46.734208,149.98384 H 32.261949 l 15.538094,-17.07295 z"
+         fill-rule="evenodd"
+         id="path26"
+         style="stroke-width:1.06878" />
+    </g>
     <path
        fill="#666666"
        d="m 52.421425,96.101074 v 0 c 0,-12.463371 10.103558,-22.566933 22.566925,-22.566933 v 0 c 5.985123,0 11.725113,2.377586 15.95723,6.609703 4.232124,4.232117 6.609703,9.972107 6.609703,15.95723 v 0 c 0,12.463366 -10.103561,22.566926 -22.566933,22.566926 v 0 c -12.463367,0 -22.566925,-10.10356 -22.566925,-22.566926 z"
@@ -157,7 +176,8 @@
        stroke-linecap="butt"
        d="m 58.156055,49.71968 h 33.700787 v 9.574806 H 58.156055 Z"
        fill-rule="evenodd"
-       id="path32" />
+       id="path32"
+       style="stroke:none" />
     <defs
        id="defs39">
       <radialGradient

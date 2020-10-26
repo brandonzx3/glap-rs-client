@@ -430,10 +430,11 @@ new Promise(async (resolve, reject) => {
                 part.inter_x_dest = part.x;
                 part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
                 part.inter_x_positive = part.inter_x_delta >= 0;
+				part.particle_speed_x = part.inter_x_delta * 1000;
                 part.inter_y_dest = part.y;
                 part.inter_y_delta = (part.inter_y_dest - part.sprite.y) / average_server_tick_time;
-				part.particle_speed = Math.sqrt(Math.pow(part.inter_x_delta * 1000, 2) + Math.pow(part.inter_y_delta * 1000, 2));
                 part.inter_y_positive = part.inter_y_delta >= 0;
+				part.particle_speed_y = part.inter_y_delta * 1000;
                 part.inter_rot_dest = part.rot;
                 let sprite_rot = part.sprite.rotation;
                 const dif = part.sprite.rotation - part.rot;

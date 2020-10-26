@@ -2,7 +2,8 @@ import { PartKind } from "./codec";
 import { PlayerMeta, global } from "./index";
 import * as PIXI from 'pixi.js';
 import * as Particles from 'pixi-particles';
-import { ParticleManager, ThrusterParticleConfig, CoreParticleConfig } from "./particles";
+import { ParticleManager, ParticleHookFactory, ThrusterEmitter, ThrusterParticleConfig, CoreParticleConfig } from "./particles";
+import { Box } from "./codec";
 
 export class PartMeta {
     id: number;
@@ -40,13 +41,14 @@ export class PartMeta {
     inter_x_delta = 0;
     inter_x_positive = true;
     inter_x_dest = 0;
+	particle_speed_x = 0;
     inter_y_delta = 0;
     inter_y_positive = true;
     inter_y_dest = 0;
+	particle_speed_y = 0;
     inter_rot_delta = 0;
     inter_rot_positive = true;
     inter_rot_dest = 0;
-	particle_speed = 0;
 
     update_sprites() {
         switch (this.kind) {
@@ -136,77 +138,79 @@ export class PartMeta {
     }
 }
 
+export function ThrusterParticleEmit(part: PartMeta, _offset: PIXI.Point, particle: Particles.Particle) {
+	const offset = _offset.clone();
+	const matrix = (new PIXI.Matrix()).rotate(this.parent.sprite.rotation);
+	matrix.apply(offset, offset);
+	console.log(offset);
+	particle.velocity.x = offset.x + part.particle_speed_x;
+	particle.velocity.y = offset.y + part.particle_speed_y;
+	matrix.translate(part.sprite.x, part.sprite.y);
+	matrix.apply(offset, offset);
+	console.log(offset);
+	particle.x = offset.x;
+	particle.y = offset.y;
+}
+
 class ThrustParticleManager implements ParticleManager {
 	parent: PartMeta;
-	emitter = new Particles.Emitter(global.thrust_particles, global.white_box, ThrusterParticleConfig);
-	offset: PIXI.Point;
-	rotation_offset: number;
+	emitter: ThrusterEmitter;
 
 	constructor(parent: PartMeta) {
 		this.parent = parent;
+		let offset;
+		let vel_multiplier;
 		switch (parent.kind) {
 			case PartKind.LandingThruster: {
-				this.offset = new PIXI.Point(0, -1);
-				this.rotation_offset = 180;
+				offset = new PIXI.Point(0, -1);
+				vel_multiplier = 3;
 			}; break;
 
 			case PartKind.Core: throw new Error("Didn't use CoreParticleManager");
 		}
+		this.emitter = new ThrusterEmitter(this.parent, offset, vel_multiplier, global.thrust_particles, global.white_box, ThrusterParticleConfig);
 	}
 
 	update_particles(delta_seconds: number): boolean {
-		const spawn_pos = this.offset.clone();
-		const matrix = (new PIXI.Matrix()).rotate(this.parent.sprite.rotation).translate(this.parent.x, this.parent.y);
-		matrix.apply(spawn_pos, spawn_pos);
-		this.emitter.updateSpawnPos(spawn_pos.x, spawn_pos.y);
-		this.emitter.rotate(this.parent.sprite.angle - 90);
-		this.emitter.startSpeed = Particles.PropertyNode.createList({ list: [
-			{ time: 0, value: 2.5 + this.parent.particle_speed },
-			{ time: 1, value: 0 }
-		] });
+		this.emitter.updateSpawnPos(this.parent.sprite.x, this.parent.sprite.y);
 		this.emitter.update(delta_seconds);
-		return this.emitter.particleCount < 1;
+		return !this.emitter.emit && this.emitter.particleCount < 1;
 	}
 }
 
 
 export class CoreParticleManager implements ParticleManager {
 	parent: PartMeta;
-	bottom_left = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
-	bottom_right = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
-	top_left = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
-	top_right = new Particles.Emitter(global.thrust_particles, global.white_box, CoreParticleConfig);
+	bottom_left: ThrusterEmitter;
+	bottom_right: ThrusterEmitter;
+	top_left: ThrusterEmitter;
+	top_right: ThrusterEmitter;
 
 	constructor(parent: PartMeta) {
 		this.parent = parent;
+		this.bottom_left = new ThrusterEmitter(this.parent, new PIXI.Point(-0.4, 0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
+		this.bottom_right = new ThrusterEmitter(this.parent, new PIXI.Point(0.4, 0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
+		this.top_left = new ThrusterEmitter(this.parent, new PIXI.Point(-0.4, -0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
+		this.top_right = new ThrusterEmitter(this.parent, new PIXI.Point(0.4, -0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
 	}
 
 	update_particles(delta_seconds: number): boolean {
-		const rotation = this.parent.sprite.angle - 90;
-		
 		const self = this;
-		const matrix = (new PIXI.Matrix()).rotate(self.parent.sprite.rotation).translate(self.parent.x, self.parent.y);
-		function update_emitter(emitter: Particles.Emitter, offset: PIXI.Point) {
+		function update_emitter(emitter: Particles.Emitter) {
 			if (emitter.emit) {
-				emitter.rotate(offset.y > 0 ? rotation + 180 : rotation);
-				matrix.apply(offset, offset);
-				emitter.updateSpawnPos(offset.x, offset.y);
-				emitter.startSpeed = Particles.PropertyNode.createList({ list: [
-					{ time: 0, value: 2.5 + self.parent.particle_speed },
-					{ time: 1, value: 0 }
-				] });
+				emitter.updateSpawnPos(self.parent.sprite.x, self.parent.sprite.y);
 			}
 			emitter.update(delta_seconds);
 		}
 
-		update_emitter(this.bottom_left, new PIXI.Point(-0.4, 0.5));
-		update_emitter(this.bottom_right, new PIXI.Point(0.4, 0.5));
-		update_emitter(this.top_left, new PIXI.Point(-0.4, -0.5));
-		update_emitter(this.top_right, new PIXI.Point(0.4, -0.5));
-		return this.bottom_left.particleCount < 1
-			&& this.bottom_right.particleCount < 1
-			&& this.top_left.particleCount < 1
-			&& this.top_right.particleCount < 1;
+		update_emitter(this.bottom_left);
+		update_emitter(this.bottom_right);
+		update_emitter(this.top_left);
+		update_emitter(this.top_right);
+		return !this.bottom_left.emit && this.bottom_left.particleCount < 1
+			&& !this.bottom_right.emit && this.bottom_right.particleCount < 1
+			&& !this.top_left.emit && this.top_left.particleCount < 1
+			&& !this.top_right.emit && this.top_right.particleCount < 1;
 	}
 }
 

@@ -16,8 +16,8 @@
    id="svg45"
    sodipodi:docname="cargo_off.svg"
    inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets_rs/cargo_off.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
+   inkscape:export-xdpi="128"
+   inkscape:export-ydpi="128"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata51">
@@ -42,16 +42,17 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1536"
-     inkscape:window-height="792"
+     inkscape:window-height="822"
      id="namedview47"
      showgrid="false"
-     inkscape:zoom="4.3666667"
-     inkscape:cx="75"
-     inkscape:cy="75"
+     inkscape:zoom="6.1753993"
+     inkscape:cx="121.62481"
+     inkscape:cy="114.50327"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg45" />
+     inkscape:current-layer="g43"
+     inkscape:document-rotation="0" />
   <clipPath
      id="p.0">
     <path
@@ -67,7 +68,8 @@
        fill-opacity="0.0"
        d="m0 0l150.0 0l0 150.0l-150.0 0z"
        fill-rule="evenodd"
-       id="path5" />
+       id="path5"
+       style="stroke:none" />
     <defs
        id="defs12">
       <linearGradient
@@ -93,7 +95,8 @@
        fill="url(#p.1)"
        d="m115.14082 150.00119l-80.50182 0l0 -15.369751l80.50182 0z"
        fill-rule="evenodd"
-       id="path14" />
+       id="path14"
+       style="stroke:none" />
     <path
        stroke="#000000"
        stroke-width="1.0"
@@ -101,22 +104,26 @@
        stroke-linecap="butt"
        d="m115.14082 150.00119l-80.50182 0l0 -15.369751l80.50182 0z"
        fill-rule="evenodd"
-       id="path16" />
+       id="path16"
+       style="stroke:none" />
     <path
        fill="#232323"
        d="m89.01874 134.2979l-14.278084 15.688477l-13.984619 0l14.278084 -15.688477z"
        fill-rule="evenodd"
-       id="path18" />
+       id="path18"
+       style="stroke:none" />
     <path
        fill="#232323"
        d="m115.14082 134.31271l-14.278084 15.688477l-13.984619 0l14.278084 -15.688477z"
        fill-rule="evenodd"
-       id="path20" />
+       id="path20"
+       style="stroke:none" />
     <path
        fill="#232323"
        d="m62.896656 134.2979l-14.278084 15.688477l-13.984619 0l14.278084 -15.688477z"
        fill-rule="evenodd"
-       id="path22" />
+       id="path22"
+       style="stroke:none" />
     <defs
        id="defs29">
       <linearGradient
@@ -142,18 +149,21 @@
        fill="url(#p.2)"
        d="m67.611534 5.0433073l14.574837 0l0 0c13.061386 0 25.587807 5.188615 34.8236 14.424409c9.235794 9.235796 14.424416 21.762222 14.424416 34.82361l0 64.13458c0 8.751366 -7.094391 15.845749 -15.845757 15.845749l-81.379364 0c-8.751366 0 -15.845749 -7.0943832 -15.845749 -15.845749l0 -64.13458l0 0c0 -27.19893 22.049088 -49.248016 49.248016 -49.248016z"
        fill-rule="evenodd"
-       id="path31" />
+       id="path31"
+       style="stroke:none" />
     <path
        fill="#4f4f4f"
-       d="m18.363518 62.876667l0 0c0 -7.894497 6.3997536 -14.2942505 14.294247 -14.2942505l84.482376 0c3.791069 0 7.4268646 1.5059967 10.107559 4.1866913c2.6806946 2.6806908 4.1866913 6.3164864 4.1866913 10.107559l0 57.17528c0 7.894493 -6.3997574 14.294243 -14.2942505 14.294243l-84.482376 0l0 0c-7.894493 0 -14.294247 -6.3997498 -14.294247 -14.294243z"
+       d="m 18.363518,62.929802 v 0 c 0,-7.923841 6.399754,-14.347384 14.294247,-14.347384 h 84.482375 c 3.79107,0 7.42687,1.511594 10.10756,4.202255 2.68069,2.690655 4.18669,6.339965 4.18669,10.145129 v 57.387808 c 0,7.92384 -6.39976,14.34737 -14.29425,14.34737 H 32.657765 v 0 c -7.894493,0 -14.294247,-6.42353 -14.294247,-14.34737 z"
        fill-rule="evenodd"
-       id="path33" />
+       id="path33"
+       style="stroke:none;stroke-width:1" />
     <path
        fill="#000000"
        fill-opacity="0.0"
        d="m67.813095 5.0433073l14.574837 0l0 0c13.061386 0 25.587807 5.188615 34.8236 14.424409c9.235802 9.235796 14.424408 21.762222 14.424408 34.82361l0 64.13458c0 8.751366 -7.0943756 15.845749 -15.845749 15.845749l-81.379364 0c-8.751368 0 -15.845751 -7.0943832 -15.845751 -15.845749l0 -64.13458l0 0c0 -27.19893 22.049086 -49.248016 49.248016 -49.248016z"
        fill-rule="evenodd"
-       id="path35" />
+       id="path35"
+       style="stroke:none" />
     <path
        stroke="#000000"
        stroke-width="1.0"
@@ -161,17 +171,20 @@
        stroke-linecap="butt"
        d="m67.813095 5.0433073l14.574837 0l0 0c13.061386 0 25.587807 5.188615 34.8236 14.424409c9.235802 9.235796 14.424408 21.762222 14.424408 34.82361l0 64.13458c0 8.751366 -7.0943756 15.845749 -15.845749 15.845749l-81.379364 0c-8.751368 0 -15.845751 -7.0943832 -15.845751 -15.845749l0 -64.13458l0 0c0 -27.19893 22.049086 -49.248016 49.248016 -49.248016z"
        fill-rule="evenodd"
-       id="path37" />
+       id="path37"
+       style="stroke:none" />
     <path
        fill="#000000"
        fill-opacity="0.0"
        d="m18.56508 15.295367l113.07086 0l0 108.72441l-113.07086 0z"
        fill-rule="evenodd"
-       id="path39" />
+       id="path39"
+       style="stroke:none" />
     <path
        fill="#666666"
        d="m93.77597 57.585987l13.796875 13.796871l0 11.984375l-13.796875 13.859375l-9.90625 0l0 6.453125l-23.109379 0l0 -6.453125l13.843754 -13.859375l9.953125 0l0 -11.984375l-18.90625 0l0 6.9375l-23.078129 0l0 -6.828125l13.859375 -13.906246l37.343754 0zm-33.01563 53.01562l23.109379 0l0 16.09375l-23.109379 0l0 -16.09375z"
        fill-rule="nonzero"
-       id="path41" />
+       id="path41"
+       style="stroke:none" />
   </g>
 </svg>

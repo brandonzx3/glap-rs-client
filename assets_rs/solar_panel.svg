@@ -31,7 +31,19 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs63" />
+     id="defs63">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath61">
+      <rect
+         style="fill:#333333;stroke:none;stroke-width:1.09276;stroke-linejoin:round;stroke-miterlimit:10;stop-color:#000000"
+         id="rect63"
+         width="85.475739"
+         height="16.717941"
+         x="32.276161"
+         y="133.27977" />
+    </clipPath>
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -42,16 +54,17 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1536"
-     inkscape:window-height="792"
+     inkscape:window-height="822"
      id="namedview61"
      showgrid="false"
-     inkscape:zoom="2.1833333"
-     inkscape:cx="3.1062255"
-     inkscape:cy="106.13309"
+     inkscape:zoom="8.7333332"
+     inkscape:cx="66.469568"
+     inkscape:cy="133.53306"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg59" />
+     inkscape:current-layer="g57"
+     inkscape:document-rotation="0" />
   <clipPath
      id="p.0">
     <path
@@ -98,7 +111,7 @@
        d="m 48.282063,59.290344 h 53.441407 v 0 c 4.24444,0 8.31505,1.6861 11.31632,4.687378 3.00128,3.001274 4.68738,7.071884 4.68738,11.31633 v 74.452988 c 0,3.8e-4 -3.2e-4,7e-4 -7.1e-4,7e-4 l -85.448102,-7e-4 v 0 c -3.92e-4,0 -7.13e-4,-3.2e-4 -7.13e-4,-7.2e-4 l 7.13e-4,-74.452265 v 0 c 0,-8.838608 7.165104,-16.003708 16.003708,-16.003708 z"
        fill-rule="evenodd"
        id="path14"
-       style="fill:url(#p.1);stroke-width:1.0744" />
+       style="fill:url(#p.1);stroke-width:1.0744;stroke:none" />
     <path
        stroke="#000000"
        stroke-width="1.04535"
@@ -106,7 +119,8 @@
        stroke-linecap="butt"
        d="m 48.282063,59.290344 h 53.441407 v 0 c 4.24444,0 8.31505,1.6861 11.31632,4.687378 3.00128,3.001274 4.68738,7.071884 4.68738,11.31633 v 74.452988 c 0,3.8e-4 -3.2e-4,7e-4 -7.1e-4,7e-4 l -85.448102,-7e-4 v 0 c -3.92e-4,0 -7.13e-4,-3.2e-4 -7.13e-4,-7.2e-4 l 7.13e-4,-74.452265 v 0 c 0,-8.838608 7.165104,-16.003708 16.003708,-16.003708 z"
        fill-rule="evenodd"
-       id="path16" />
+       id="path16"
+       style="stroke:none" />
     <defs
        id="defs23">
       <linearGradient
@@ -128,38 +142,43 @@
            id="stop20" />
       </linearGradient>
     </defs>
-    <path
-       fill="url(#p.2)"
-       d="M 117.75191,149.99771 H 32.276165 v -16.71794 h 85.475745 z"
-       fill-rule="evenodd"
-       id="path25"
-       style="fill:url(#p.2);stroke-width:1.0744" />
-    <path
-       stroke="#000000"
-       stroke-width="1.04535"
-       stroke-linejoin="round"
-       stroke-linecap="butt"
-       d="M 117.75191,149.99771 H 32.276165 v -16.71794 h 85.475745 z"
-       fill-rule="evenodd"
-       id="path27" />
-    <path
-       fill="#232323"
-       d="M 90.01776,132.90862 74.479659,149.98157 H 60.01031 l 15.538097,-17.07295 z"
-       fill-rule="evenodd"
-       id="path29"
-       style="stroke-width:1.0744" />
-    <path
-       fill="#232323"
-       d="m 117.75191,132.92476 -15.5381,17.07295 H 87.744469 l 15.538091,-17.07295 z"
-       fill-rule="evenodd"
-       id="path31"
-       style="stroke-width:1.0744" />
-    <path
-       fill="#232323"
-       d="M 62.283604,132.90862 46.745507,149.98157 H 32.276158 l 15.538097,-17.07295 z"
-       fill-rule="evenodd"
-       id="path33"
-       style="stroke-width:1.0744" />
+    <g
+       id="g53"
+       clip-path="url(#clipPath61)">
+      <path
+         fill="url(#p.2)"
+         d="M 117.75191,149.99771 H 32.276165 v -16.71794 h 85.475745 z"
+         fill-rule="evenodd"
+         id="path25"
+         style="fill:url(#p.2);stroke-width:1.0744" />
+      <path
+         stroke="#000000"
+         stroke-width="1.04535"
+         stroke-linejoin="round"
+         stroke-linecap="butt"
+         d="M 117.75191,149.99771 H 32.276165 v -16.71794 h 85.475745 z"
+         fill-rule="evenodd"
+         id="path27"
+         style="stroke:none" />
+      <path
+         fill="#232323"
+         d="M 90.01776,132.90862 74.479659,149.98157 H 60.01031 l 15.538097,-17.07295 z"
+         fill-rule="evenodd"
+         id="path29"
+         style="stroke-width:1.0744" />
+      <path
+         fill="#232323"
+         d="m 117.75191,132.92476 -15.5381,17.07295 H 87.744469 l 15.538091,-17.07295 z"
+         fill-rule="evenodd"
+         id="path31"
+         style="stroke-width:1.0744" />
+      <path
+         fill="#232323"
+         d="M 62.283604,132.90862 46.745507,149.98157 H 32.276158 l 15.538097,-17.07295 z"
+         fill-rule="evenodd"
+         id="path33"
+         style="stroke-width:1.0744" />
+    </g>
     <defs
        id="defs40">
       <radialGradient
@@ -193,7 +212,7 @@
        d="m 58.1657,49.71754 h 33.700787 v 9.574802 H 58.1657 Z"
        fill-rule="evenodd"
        id="path44"
-       style="stroke-width:1.0744" />
+       style="stroke-width:1.0744;stroke:none" />
     <path
        stroke="#000000"
        stroke-width="1.04535"
@@ -201,7 +220,8 @@
        stroke-linecap="butt"
        d="m 58.1657,49.71754 h 33.700787 v 9.574802 H 58.1657 Z"
        fill-rule="evenodd"
-       id="path46" />
+       id="path46"
+       style="stroke:none" />
     <defs
        id="defs53">
       <radialGradient
