@@ -55,14 +55,13 @@ export class Chat {
             let temp = (document.querySelector("#notification_template") as HTMLTemplateElement);
             let clone = (temp.content.cloneNode(true) as HTMLDivElement);
             let notification = (clone.firstElementChild as HTMLDivElement);
-            let name = (notification.firstElementChild as HTMLParagraphElement);
             let message = (notification.lastElementChild as HTMLParagraphElement);
             notification.style.backgroundColor = "#5e007870";
             notification.style.padding = "5px";
             notification.style.margin = "10px";
-            notification.style.borderRadius = "10px";
-            name.innerHTML = username;
-            message.innerHTML = content;
+            notification.style.borderRadius = "15px";
+            message.innerHTML = `${username}: ${content}`;
+            message.style.color = color;
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
                 notification_root.removeChild(notification_root.children[1]);
@@ -76,11 +75,11 @@ export class Chat {
 
     SendMessage(content: string) {
         if(message_box.value.replace(/\s/g, '').length) {
-            if(message_box.value.length <= 255) {
+            if(message_box.value.length <= 200) {
                 global.socket.send(new ToServerMsg.SendChatMessage(content).serialize());
                 message_box.value = "";
             } else {
-                alert("you cannot send a message over 255 characters");
+                alert("you cannot send a message over 200 characters");
             }
         }
     }
