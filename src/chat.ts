@@ -32,6 +32,10 @@ export class Chat {
         root.style.position = "fixed";
         root.style.bottom = "0px";
         notification_root.style.visibility = "hidden";
+        for(var i = 1; i < this.notification_count + 1; i++) {
+            if(notification_root.children[1] == null) return;
+            notification_root.removeChild(notification_root.children[1]);
+        }
     }
 
     Close() {
@@ -67,6 +71,7 @@ export class Chat {
                 notification_root.removeChild(notification_root.children[1]);
             }
             setTimeout(() => {
+                if(notification_root.children[1] == null) return;
                 notification_root.removeChild(notification_root.children[1]);
                 this.notification_count -= 1;
             }, 10000);
