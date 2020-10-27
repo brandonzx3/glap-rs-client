@@ -26,6 +26,7 @@ document.addEventListener("keydown", key => {
 function clear_notification(anim_time: Number) {
 	notification_root.children[1].style.left = "-100";
         setTimeout(() => notification_root.removeChild(notification_root.children[1]), animation_time);
+	global.chat.notification_count -= 1;
 }
 
 message_button.onclick = function() { global.chat.SendMessage(message_box.value); }
@@ -77,11 +78,9 @@ export class Chat {
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
 		clear_notification(animation_time);
-                this.notification_count -= 1;
             }
             setTimeout(() => {
 		clear_notification(animation_time);
-                this.notification_count -= 1;
             }, 10000);
         }
     }
