@@ -61,6 +61,9 @@ export class Chat {
             notification.style.padding = "5px";
             notification.style.margin = "10px";
             notification.style.borderRadius = "15px";
+	    notification.style.left = -100;
+	    notification.classList.add("animation");
+	    notification.style.left = 0;
             message.innerHTML = `${username}: ${content}`;
             message.style.color = color;
             notification_root.appendChild(clone);
