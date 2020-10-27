@@ -61,18 +61,20 @@ export class Chat {
             notification.style.padding = "5px";
             notification.style.margin = "10px";
             notification.style.borderRadius = "15px";
-	    notification.style.left = -100;
+	    notification.style.left = "-100";
 	    notification.classList.add("animation");
-	    notification.style.left = 0;
+	    notification.style.left = "0";
             message.innerHTML = `${username}: ${content}`;
             message.style.color = color;
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
-                notification_root.removeChild(notification_root.children[1]);
+		notification.style.left = "-100";
+		setTimeout(() => notification_root.removeChild(notification_root.children[1]), 5000);
                 this.notification_count -= 1;
             }
             setTimeout(() => {
-                notification_root.removeChild(notification_root.children[1]);
+		notification_root.children[1].style.left = "-100";
+                setTimeout(() => notification_root.removeChild(notification_root.children[1]), 5000);
                 this.notification_count -= 1;
             }, 10000);
         }
