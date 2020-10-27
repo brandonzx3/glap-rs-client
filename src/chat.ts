@@ -11,6 +11,7 @@ let message_box = (document.querySelector("#message_box") as HTMLInputElement);
 let message_root = (document.querySelector("#messages") as HTMLDivElement);
 let root = (document.querySelector("#chat_root") as HTMLDivElement);
 let notification_root = (document.querySelector("#notification_root") as HTMLDivElement);
+let animation_time = 5000;
 notification_root.style.visibility = "hidden";
 
 document.addEventListener("keydown", key => {
@@ -20,6 +21,13 @@ document.addEventListener("keydown", key => {
         }
     }
 });
+
+
+function clear_notification(anim_time: Number) {
+	(notification_root.children[1] as HTMLDivElement).style.left = "-100";
+    setTimeout(() => notification_root.removeChild(notification_root.children[1]), animation_time);
+	global.chat.notification_count -= 1;
+}
 
 message_button.onclick = function() { global.chat.SendMessage(message_box.value); }
 
@@ -34,8 +42,7 @@ export class Chat {
         root.style.bottom = "0px";
         notification_root.style.visibility = "hidden";
         for(var i = 1; i < this.notification_count + 1; i++) {
-            if(notification_root.children[1] == null) return;
-            notification_root.removeChild(notification_root.children[1]);
+            clear_notification(animation_time);
         }
     }
 
@@ -65,17 +72,17 @@ export class Chat {
             notification.style.padding = "5px";
             notification.style.margin = "10px";
             notification.style.borderRadius = "15px";
+	        notification.style.left = "-100";
+	        notification.classList.add("animation");
+	        notification.style.left = "0";
             message.innerHTML = `${username}: ${content}`;
             message.style.color = color;
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
-                notification_root.removeChild(notification_root.children[1]);
-                this.notification_count -= 1;
+		        clear_notification(animation_time);
             }
             setTimeout(() => {
-                if(notification_root.children[1] == null) return;
-                notification_root.removeChild(notification_root.children[1]);
-                this.notification_count -= 1;
+		        clear_notification(animation_time);
             }, 10000);
         }
     }
