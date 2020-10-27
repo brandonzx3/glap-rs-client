@@ -11,7 +11,7 @@ let message_box = (document.querySelector("#message_box") as HTMLInputElement);
 let message_root = (document.querySelector("#messages") as HTMLDivElement);
 let root = (document.querySelector("#chat_root") as HTMLDivElement);
 let notification_root = (document.querySelector("#notification_root") as HTMLDivElement);
-let animation_time = 5000;
+let animation_time = 500;
 notification_root.style.visibility = "hidden";
 
 document.addEventListener("keydown", key => {
@@ -24,7 +24,7 @@ document.addEventListener("keydown", key => {
 
 
 function clear_notification(anim_time: Number) {
-	(notification_root.children[1] as HTMLDivElement).style.left = "-100";
+	(notification_root.children[1] as HTMLDivElement).style.opacity = "0%";
     setTimeout(() => notification_root.removeChild(notification_root.children[1]), animation_time);
 	global.chat.notification_count -= 1;
 }
@@ -68,13 +68,13 @@ export class Chat {
             let clone = (temp.content.cloneNode(true) as HTMLDivElement);
             let notification = (clone.firstElementChild as HTMLDivElement);
             let message = (notification.lastElementChild as HTMLParagraphElement);
+            notification.style.opacity = "0%";
+            notification.style.transitionDuration = "0.5s";
             notification.style.backgroundColor = "#5e007870";
             notification.style.padding = "5px";
             notification.style.margin = "10px";
             notification.style.borderRadius = "15px";
-	        notification.style.left = "-100";
-	        notification.classList.add("animation");
-	        notification.style.left = "0";
+	        setTimeout(() => notification.style.opacity = "100%", 50); //wait for transitionDuration because its bad
             message.innerHTML = `${username}: ${content}`;
             message.style.color = color;
             notification_root.appendChild(clone);
@@ -83,7 +83,7 @@ export class Chat {
             }
             setTimeout(() => {
 		        clear_notification(animation_time);
-            }, 10000);
+            }, 9500);
         }
     }
 
