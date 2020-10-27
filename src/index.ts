@@ -85,7 +85,7 @@ export const global: GlobalData = {
     screen_to_player_space: null,
     main_hud: null,
     starguide: null,
-    chat: new Chat,
+    chat: null,
     chat_button: null,
 	beamout_button: null,
     starguide_button: null,
@@ -209,6 +209,8 @@ new Promise(async (resolve, reject) => {
 	global.beamout_button = new BeamOutButton();
 	pixi.stage.addChild(global.beamout_button.container);
     global.starguide = new Starguide();
+    global.chat = new Chat();
+    global.chat_button = new ChatButton;
     pixi.stage.addChild(global.starguide.container);
     global.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["destination_hologram.png"], 2, 2);
     global.destination_hologram.anchor.set(1,0.5);

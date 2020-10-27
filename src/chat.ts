@@ -100,7 +100,7 @@ export class ChatButton {
     constructor() {
         this.sprite = new PIXI.Sprite;
         this.update_sprite_texture(false);
-        this.sprite.anchor.set(1,1);
+        this.sprite.anchor.set(0,1);
         this.sprite.position.set(0,0);
         this.sprite.height = 1; this.sprite.width = this.sprite.height * 1.38987342;
         this.container.addChild(this.sprite);
