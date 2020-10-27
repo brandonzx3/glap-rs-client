@@ -108,6 +108,15 @@ export class ThrusterEmitter extends Particles.Emitter {
 			//if (!this.part.inter_y_positive) particle.acceleration.y *= -1;
 		}
 		this.new_particles = [];
+		//Copied from Emitter source
+		let particle: Particles.Particle;
+		let next: Particles.Particle;
+		for (particle = this._activeParticlesFirst; particle; particle = next)
+        {
+            next = particle.next;
+			particle.velocity.x *= 0.95;
+			particle.velocity.y *= 0.95;
+        }
 	}
 
 	on_emit(particle: Particles.Particle, emit_x: number, emit_y: number) {
