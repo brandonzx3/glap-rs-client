@@ -11,6 +11,7 @@ let message_box = (document.querySelector("#message_box") as HTMLInputElement);
 let message_root = (document.querySelector("#messages") as HTMLDivElement);
 let root = (document.querySelector("#chat_root") as HTMLDivElement);
 let notification_root = (document.querySelector("#notification_root") as HTMLDivElement);
+let animation_time = 5000;
 notification_root.style.visibility = "hidden";
 
 document.addEventListener("keydown", key => {
@@ -20,6 +21,12 @@ document.addEventListener("keydown", key => {
         }
     }
 });
+
+
+function clear_notification(anim_time: Number) {
+	notification_root.children[1].style.left = "-100";
+        setTimeout(() => notification_root.removeChild(notification_root.children[1]), animation_time);
+}
 
 message_button.onclick = function() { global.chat.SendMessage(message_box.value); }
 
@@ -33,6 +40,7 @@ export class Chat {
         root.style.position = "fixed";
         root.style.bottom = "0px";
         notification_root.style.visibility = "hidden";
+	clear_notification(animation_time);
     }
 
     Close() {
@@ -68,13 +76,11 @@ export class Chat {
             message.style.color = color;
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
-		notification.style.left = "-100";
-		setTimeout(() => notification_root.removeChild(notification_root.children[1]), 5000);
+		clear_notification(animation_time);
                 this.notification_count -= 1;
             }
             setTimeout(() => {
-		notification_root.children[1].style.left = "-100";
-                setTimeout(() => notification_root.removeChild(notification_root.children[1]), 5000);
+		clear_notification(animation_time);
                 this.notification_count -= 1;
             }, 10000);
         }
