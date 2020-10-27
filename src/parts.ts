@@ -159,16 +159,16 @@ class ThrustParticleManager implements ParticleManager {
 	constructor(parent: PartMeta) {
 		this.parent = parent;
 		let offset;
-		let vel_multiplier;
+		let vel;
 		switch (parent.kind) {
 			case PartKind.LandingThruster: {
 				offset = new PIXI.Point(0, -1);
-				vel_multiplier = 3;
+				vel = new PIXI.Point(0, -3);
 			}; break;
 
 			case PartKind.Core: throw new Error("Didn't use CoreParticleManager");
 		}
-		this.emitter = new ThrusterEmitter(this.parent, offset, vel_multiplier, global.thrust_particles, global.white_box, ThrusterParticleConfig);
+		this.emitter = new ThrusterEmitter(this.parent, offset, vel, global.thrust_particles, global.white_box, ThrusterParticleConfig);
 	}
 
 	update_particles(delta_seconds: number): boolean {
@@ -188,10 +188,11 @@ export class CoreParticleManager implements ParticleManager {
 
 	constructor(parent: PartMeta) {
 		this.parent = parent;
-		this.bottom_left = new ThrusterEmitter(this.parent, new PIXI.Point(-0.4, 0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
-		this.bottom_right = new ThrusterEmitter(this.parent, new PIXI.Point(0.4, 0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
-		this.top_left = new ThrusterEmitter(this.parent, new PIXI.Point(-0.4, -0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
-		this.top_right = new ThrusterEmitter(this.parent, new PIXI.Point(0.4, -0.5), 1.5, global.thrust_particles, global.white_box, CoreParticleConfig);
+		const magnitude = 1.5;
+		this.bottom_left = new ThrusterEmitter(this.parent, new PIXI.Point(-0.4, 0.5), new PIXI.Point(0, magnitude), global.thrust_particles, global.white_box, CoreParticleConfig);
+		this.bottom_right = new ThrusterEmitter(this.parent, new PIXI.Point(0.4, 0.5), new PIXI.Point(0, magnitude), global.thrust_particles, global.white_box, CoreParticleConfig);
+		this.top_left = new ThrusterEmitter(this.parent, new PIXI.Point(-0.4, -0.5), new PIXI.Point(0, -magnitude), global.thrust_particles, global.white_box, CoreParticleConfig);
+		this.top_right = new ThrusterEmitter(this.parent, new PIXI.Point(0.4, -0.5), new PIXI.Point(0, -magnitude), global.thrust_particles, global.white_box, CoreParticleConfig);
 	}
 
 	update_particles(delta_seconds: number): boolean {
