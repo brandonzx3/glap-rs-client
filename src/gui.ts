@@ -4,6 +4,7 @@ import * as PIXI from 'pixi.js';
 
 export class Starguide {
     background: PIXI.Graphics;
+	background_outline: PIXI.Graphics;
     public container: PIXI.Container = new PIXI.Container();
     is_open = false;
     animation_ms: number = 0;
@@ -31,6 +32,10 @@ export class Starguide {
     current_destination: CelestialObjectMeta = null;
     planets: Set<CelestialObjectMeta> = new Set();
     map_lines = new PIXI.Graphics();
+	static_effect = new PIXI.Container();
+	static_effect_onframe: Function = null;
+	static_effect_width: number;
+	static_effect_height: number;
 
     constructor() {
         this.container.visible = false;
@@ -47,7 +52,25 @@ export class Starguide {
         this.map_coordinate_space.addChild(this.destination_hologram);
         this.map_coordinate_space.addChild(this.destination_hologram_mask);
         this.destination_hologram_mask.addChild(this.destination_hologram_rectangle);
-        
+
+		//Do static effect
+		const static_texture = global.spritesheet.textures["static.png"];
+		const static_tiles_across = 2;
+		const static_tiles_down = 2;
+		const static_tile_width = 1 / static_tiles_across;
+		const static_tile_height = 1 / static_tiles_down;
+		for (let x = -1; x <= static_tiles_across; x++) {
+			for (let y = -1; y <= static_tiles_down; y++) {
+				const sprite = new PIXI.Sprite(static_texture);
+				sprite.x = static_tile_width * x;
+				sprite.y = static_tile_height * y;
+				sprite.width = static_tile_width;
+				sprite.height = static_tile_height;
+				this.static_effect.addChild(sprite);
+			}
+		}
+		this.static_effect_width = this.static_effect.width;
+		this.static_effect_height = this.static_effect.height;
 
         this.container.addListener("mouseover", () => {
             this.mouseover = true;
@@ -88,18 +111,32 @@ export class Starguide {
         this.width = width; this.height = height;
         this.center = [width / 2 + container_offset_x, height / 2 + container_offset_y];
 
-        this.background = new PIXI.Graphics();
-        this.background.beginFill(0xdd55ff);
         const background_border_radius = height * 0.05;
-        this.background.drawRoundedRect(0, 0, width, height, background_border_radius);
-        this.background.endFill();
-        this.background.beginHole();
-        this.background.drawRoundedRect(10, 10, width - 20, height - 20, background_border_radius - 10);
-        this.background.endHole();
+		this.background = new PIXI.Graphics();
         this.background.beginFill(0x5f0079, 0.69);
         this.background.drawRoundedRect(10, 10, width - 20, height - 20, background_border_radius - 10);
         this.background.endFill();
         this.container.addChild(this.background);
+
+		this.static_effect.visible = false;
+		this.static_effect.width = this.static_effect_width * width;
+		this.static_effect.height = this.static_effect_height * height;
+		this.container.addChild(this.static_effect);
+		const static_mask = new PIXI.Graphics();
+        static_mask.beginFill(0xffffff);
+        static_mask.drawRoundedRect(0, 0, width, height, background_border_radius);
+        static_mask.endFill();
+		this.container.addChild(static_mask);
+		this.static_effect.mask = static_mask;
+
+        this.background_outline = new PIXI.Graphics();
+        this.background_outline.beginFill(0xdd55ff);
+        this.background_outline.drawRoundedRect(0, 0, width, height, background_border_radius);
+        this.background_outline.endFill();
+        this.background_outline.beginHole();
+        this.background_outline.drawRoundedRect(10, 10, width - 20, height - 20, background_border_radius - 10);
+        this.background_outline.endHole();
+		this.container.addChild(this.background_outline);
 
         this.map_mask = new PIXI.Graphics();
         this.map_mask.beginFill(0xffffff);
@@ -312,6 +349,15 @@ export class Starguide {
             }
         }
     }
+
+	static_effect_on() {
+		this.background.visible = false;
+		this.static_effect.visible = true;
+
+	}
+	static_effect_off() {
+
+	}
 }
 
 export class StarguideButton {
