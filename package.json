@@ -7,7 +7,6 @@
     "build": "webpack --config webpack.config.js && webpack --config ship_editor.webpack.config.js"
   },
   "author": "Christian7573",
-  "license": "ISC",
   "dependencies": {
     "@types/uuid": "^8.3.0",
     "pixi-particles": "^4.3.0",
