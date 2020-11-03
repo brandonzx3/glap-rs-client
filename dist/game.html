@@ -22,13 +22,14 @@
                 z-index: 5;
                 background-color: #5e007870;
                 height: 16em;
-                width: 20em;
+                width: 25em;
                 display: flex;
                 flex-flow: column nowrap;
                 overflow: hidden auto;
                 justify-content: flex-end;
                 padding: 6px;
                 border-top-right-radius: 20px;
+                transition-duration: 1s;
             }
 
             #message_button, #message_box {
@@ -57,6 +58,23 @@
             #messages::-webkit-scrollbar {
                 display: none;
             }
+
+            #notification_root{
+                position: fixed;
+                left: 0; bottom: 0;
+                z-index: 4;
+                width: 25em;
+                height: 45%;
+                display: flex;
+                flex-flow: column nowrap;
+                overflow: hidden auto;
+                padding: 6px;
+                justify-content: flex-end;
+            }
+		
+	    .animation {
+		  transition: left 5s cubic-bezier(.5, -1, .5, 2);
+	    }
         </style>
         <div id="connecting_msg"><span>Connecting...</span></div>
         <div id=chat_root>
@@ -69,6 +87,13 @@
                 <input type="text" placeholder="message" id="message_box">
                 <input type="button" value="Send" id="message_button">
             </span>
+        </div>
+        <div id="notification_root">
+            <template id="notification_template">
+                <div>
+                    <p>message</p>
+                </div>
+            </template>
         </div>
         <script src="./bundle.js"></script>
     </body>
