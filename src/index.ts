@@ -5,7 +5,7 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
-import { ChatInit, Chat, ChatButton } from './chat';
+import { Chat, ChatButton } from './chat';
 import { BeamoutParticleConfig, ParticleManager } from "./particles";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
@@ -255,7 +255,6 @@ new Promise(async (resolve, reject) => {
             global.scaling.on("mousedown", world_mouse_down);
             global.scaling.on("mousemove", world_mouse_move);
             global.scaling.on("mouseup", world_mouse_up);
-            ChatInit();
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
