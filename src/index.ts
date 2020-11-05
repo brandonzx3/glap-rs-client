@@ -12,26 +12,9 @@ export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.l
 console.log("RE");
 console.log(params);
 
-let session: string; 
-{
-	function getCookie(cname: string) {
-		  var name = cname + "=";
-		    var decodedCookie = decodeURIComponent(document.cookie);
-			  var ca = decodedCookie.split(';');
-			    for(var i = 0; i <ca.length; i++) {
-					    var c = ca[i];
-						    while (c.charAt(0) == ' ') {
-								      c = c.substring(1);
-									      }
-										      if (c.indexOf(name) == 0) {
-												        return c.substring(name.length, c.length);
-														    }
-															  }
-															    return "";
-	}
-	session = getCookie("session") as string;
-}
-const has_session = session !== "" && lib_uuid_validate(session);
+let session: string = null; 
+if ("localStorage" in window) session = window.localStorage.getItem("session");
+const has_session = session !== null && lib_uuid_validate(session);
 
 export interface GlobalData {
     pixi: PIXI.Application;
