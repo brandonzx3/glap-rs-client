@@ -2,10 +2,6 @@ import { global } from "./index";
 import { ToServerMsg } from "./codec";
 import * as PIXI from 'pixi.js';
 
-export function ChatInit() {
-    console.log("chat pog");
-}
-
 let message_button = (document.querySelector("#message_button") as HTMLInputElement);
 let message_box = (document.querySelector("#message_box") as HTMLInputElement);
 let message_root = (document.querySelector("#messages") as HTMLDivElement);
