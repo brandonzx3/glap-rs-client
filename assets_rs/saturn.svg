@@ -13,7 +13,10 @@
    height="1000"
    viewBox="0 0 1000 1000"
    sodipodi:docname="saturn.svg"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets_rs/saturn.png"
+   inkscape:export-xdpi="144"
+   inkscape:export-ydpi="144">
   <metadata
      id="metadata821">
     <rdf:RDF>
@@ -37,13 +40,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1536"
-     inkscape:window-height="822"
+     inkscape:window-width="1633"
+     inkscape:window-height="873"
      id="namedview817"
      showgrid="false"
      inkscape:zoom="0.35355339"
      inkscape:cx="1232.3144"
-     inkscape:cy="893.4541"
+     inkscape:cy="384.33722"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
