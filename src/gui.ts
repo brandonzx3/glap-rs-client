@@ -310,24 +310,26 @@ export class Starguide {
         this.map_lines.lineStyle(3, 0xdd55ff);
         const pairs: [CelestialObjectMeta, CelestialObjectMeta][] = [];
         for (const obj of this.planets) {
+            if(obj.name === "moon") continue;
             let first: [number, CelestialObjectMeta] = [1000000000000, null];
             let second: [number, CelestialObjectMeta] = [1000000000000, null];
-            let third: [number, CelestialObjectMeta] = [1000000000000, null];
+            //let third: [number, CelestialObjectMeta] = [1000000000000, null];
             for (const obj2 of this.planets) {
                 if (obj2 === obj) continue;
+                if(obj2.name === "moon") continue;
                 const distance = Math.sqrt(Math.pow(obj.sprite.x - obj2.sprite.x, 2) + Math.pow(obj.sprite.y - obj2.sprite.y, 2));
                 if (distance <= first[0]) {
-                    third = second;
+                    //third = second;
                     second = first;
                     first = [distance, obj2];
                 } else if (distance <= second[0]) {
-                    third = second;
+                    //third = second;
                     second = [distance, obj2];
-                } else if (distance <= third[0]) {
-                    third = [distance, obj2];
-                }
+                } //else if (distance <= third[0]) {
+                    //third = [distance, obj2];
+                //}
             }
-            for (const [distance, obj2] of [first, second, third]) {
+            for (const [distance, obj2] of [first, second]) {
                 if (obj2 === null) continue;
                 let has_existed = false;
                 for (const pair of pairs) {
