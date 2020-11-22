@@ -35,7 +35,8 @@ export class Starguide {
 	static_effect = new PIXI.Container();
 	static_effect_onframe: Function = null;
 	static_effect_width: number;
-	static_effect_height: number;
+    static_effect_height: number;
+    planet_names: PIXI.Text[] = [];
 
     constructor() {
         this.container.visible = false;
@@ -245,11 +246,12 @@ export class Starguide {
         this.map_items.addChild(mask);
 
         let text = new PIXI.Text(celestial_object.display_name.toUpperCase(), {fontSize: 60, fill : 0xdd55ff, stroke: 'black', strokeThickness: 1});
-        text.height = 20;
+        text.height = 20 / this.map_zoom_factor;
         text.width = (text.texture.width / text.texture.height) * text.height * 0.75;
         text.position.copyFrom(celestial_object.sprite.position);
-        text.anchor.set(0.5);
+        text.anchor.set(0.5, 1);
         text.position.y -= (celestial_object.radius + 15);
+        this.planet_names.push(text);
 
         circle.interactive = true;
         circle.addListener("mousedown", event => {
@@ -278,6 +280,10 @@ export class Starguide {
         const new_unscaled = [scaled_space[0] * this.map_zoom_factor, scaled_space[1] * this.map_zoom_factor];
         this.map_coordinate_space.x -= new_unscaled[0] - unscaled_space[0];
         this.map_coordinate_space.y -= new_unscaled[1] - unscaled_space[1];
+        for(var i = 0; i < this.planet_names.length; i++) {
+            this.planet_names[i].height = 20 / this.map_zoom_factor;
+            this.planet_names[i].width = ((this.planet_names[i].texture.width / this.planet_names[i].texture.height) * this.planet_names[i].height * 0.75);
+        }
     }
 
     update_destination_hologram() {
