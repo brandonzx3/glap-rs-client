@@ -134,11 +134,6 @@ global.scaling.interactive = true;
 	global.white_box.defaultAnchor.set(0.5,0.5);
 }
 
-let hh_inter_delta = 0;
-let hh_inter_positive = true;
-let hh_inter_dest = 0;
-let hh_inter_next = 0;
-
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
     pixi.view.width = window.innerWidth;
@@ -232,7 +227,12 @@ new Promise(async (resolve, reject) => {
             global.my_id = message.id;
             my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
-            socket.addEventListener("message", on_message);
+            socket.addEventListener("message", e => {
+				const buf = new Uint8Array(e.data);
+				const i = new Box(0);
+				const msg = ToClientMsg.deserialize(buf, i);
+				on_message(msg, buf, i);
+			});
             window.addEventListener("keydown", key_down);
             window.addEventListener("keyup", key_up);
             global.scaling.on("mousedown", world_mouse_down);
@@ -241,7 +241,9 @@ new Promise(async (resolve, reject) => {
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
+	socket.addEventListener("close", () => { alert("Disconnected"); });
     socket.onerror = err => { throw err; };
+	(window as any).request_update = () => { socket.send((new ToServerMsg.RequestUpdate()).serialize()); };
 
     let prev_core_position = [0,0];
     const server_tick_times: number[] = [];
@@ -250,10 +252,13 @@ new Promise(async (resolve, reject) => {
     let previous_server_tick = performance.now();
     const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
 
-    function on_message(e: MessageEvent) {
-        const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
-
-        if (msg instanceof ToClientMsg.AddCelestialObject) {
+    function on_message(msg: object, buf: Uint8Array, buf_i: Box<number>) {
+		if (msg instanceof ToClientMsg.MessagePack) {
+			for (let i = 0; i < msg.count; i++) {
+				const msg = ToClientMsg.deserialize(buf, buf_i);
+				on_message(msg, buf, buf_i);
+			}
+		} else if (msg instanceof ToClientMsg.AddCelestialObject) {
             const celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
             celestial_object.width = msg.radius * 2;
             celestial_object.height = msg.radius * 2;
@@ -404,16 +409,6 @@ new Promise(async (resolve, reject) => {
             average_server_tick_time /= server_tick_times.length;
             average_server_tick_time += 100;
 		
-	    /*{
-		let sprite_rot = global.heading_hologram.rotation;
-                const dif = sprite_rot - hh_inter_next;
-                if (dif > Math.PI) sprite_rot -= PIXI.PI_2;
-                else if (dif < -Math.PI) sprite_rot += PIXI.PI_2;
-                global.heading_hologram.rotation = sprite_rot;
-		hh_inter_dest = hh_inter_next;
-                hh_inter_delta = (hh_inter_dest - sprite_rot) / average_server_tick_time;
-                hh_inter_positive = hh_inter_delta >= 0;
-	    }*/
             for (const part of global.parts.values()) {
                 part.inter_x_dest = part.x;
                 part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
@@ -432,6 +427,8 @@ new Promise(async (resolve, reject) => {
                 part.inter_rot_delta = (part.inter_rot_dest - sprite_rot) / average_server_tick_time;
                 part.inter_rot_positive = part.inter_rot_delta >= 0;             
             }
+
+			socket.send((new ToServerMsg.RequestUpdate()).serialize());
         }
     }
 
@@ -439,51 +436,44 @@ new Promise(async (resolve, reject) => {
     function render(now_time: DOMHighResTimeStamp) {
         const delta_ms = now_time - last_time;
         last_time = now_time;
-        if (global.rendering) {
-	    //global.heading_hologram.rotation += hh_inter_delta;
-	    //if (hh_inter_positive ? global.heading_hologram.rotation > hh_inter_dest : global.heading_hologram.rotation < hh_inter_dest) global.heading_hologram.rotation = hh_inter_dest;
-            for (const part of global.parts.values()) {
-                part.sprite.x += part.inter_x_delta * delta_ms;
-                if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
-                part.sprite.y += part.inter_y_delta * delta_ms;
-                if (part.inter_y_positive ? part.sprite.y > part.inter_y_dest : part.sprite.y < part.inter_y_dest) part.sprite.y = part.inter_y_dest;
-                part.sprite.rotation += part.inter_rot_delta * delta_ms;
-                if (part.inter_rot_positive ? part.sprite.rotation > part.inter_rot_dest : part.sprite.rotation < part.inter_rot_dest) part.sprite.rotation = part.inter_rot_dest;
+		for (const part of global.parts.values()) {
+			part.sprite.x += part.inter_x_delta * delta_ms;
+			if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
+			part.sprite.y += part.inter_y_delta * delta_ms;
+			if (part.inter_y_positive ? part.sprite.y > part.inter_y_dest : part.sprite.y < part.inter_y_dest) part.sprite.y = part.inter_y_dest;
+			part.sprite.rotation += part.inter_rot_delta * delta_ms;
+			if (part.inter_rot_positive ? part.sprite.rotation > part.inter_rot_dest : part.sprite.rotation < part.inter_rot_dest) part.sprite.rotation = part.inter_rot_dest;
 
-                const x = part.sprite.x; const y = part.sprite.y; const rotation = part.sprite.rotation;
-                part.sprite.rotation = rotation;
-                part.connector_sprite.position.set(x, y);
-                part.connector_sprite.rotation = rotation;
-				if (part.kind === PartKind.Core && part.owning_player !== null) {
-					part.owning_player.name_sprite.position.set(x, y - 0.85);
-				}
-            }
-
-			const delta_seconds = delta_ms * 0.001;
-			for (const particle of global.emitters) {
-				if (particle.update_particles(delta_seconds)) global.emitters.delete(particle);
+			const x = part.sprite.x; const y = part.sprite.y; const rotation = part.sprite.rotation;
+			part.sprite.rotation = rotation;
+			part.connector_sprite.position.set(x, y);
+			part.connector_sprite.rotation = rotation;
+			if (part.kind === PartKind.Core && part.owning_player !== null) {
+				part.owning_player.name_sprite.position.set(x, y - 0.85);
 			}
+		}
 
-            if (global.my_core != null) {
-                global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
-                background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
-                global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
+		const delta_seconds = delta_ms * 0.001;
+		for (const particle of global.emitters) {
+			if (particle.update_particles(delta_seconds)) global.emitters.delete(particle);
+		}
 
-                const distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
-                global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
-                global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
-                global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
-                global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
-            }
+		if (global.my_core != null) {
+			global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
+			background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
+			global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
 
-            for (const player of global.players.values()) player.update_grabbing_sprite();
-			for (const f of global.onframe) f(delta_ms);
-            /*global.starguide_button.pre_render(delta_ms);
-            global.starguide.pre_render(delta_ms);
-			global.beamout_button.pre_render(delta_ms);*/
-            pixi.render();
-            requestAnimationFrame(render);
-        }
+			const distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
+			global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
+			global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
+			global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
+			global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
+		}
+
+		for (const player of global.players.values()) player.update_grabbing_sprite();
+		for (const f of global.onframe) f(delta_ms);
+		pixi.render();
+		requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
 
