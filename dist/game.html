@@ -16,11 +16,21 @@
             }
             #connecting_msg { display: flex; align-items: center; justify-content: center; }
 
-            #chat_root {
+			#chat_root_root {
                 position: fixed;
-                left: 0; bottom: 0;
-                z-index: 5;
-                background-color: #5e007870;
+                left: 0; 
+				bottom: -17em;
+				z-index: 5;
+				display: flex;
+				flex-flow: column nowrap;
+                transition-duration: 1s;
+			}
+			.chat_toggle_button {
+				height: 2em;
+			}
+
+            #chat_root {
+                background-color: rgba(94, 0, 120, 69%);
                 height: 16em;
                 width: 25em;
                 display: flex;
@@ -29,7 +39,6 @@
                 justify-content: flex-end;
                 padding: 6px;
                 border-top-right-radius: 20px;
-                transition-duration: 1s;
             }
 
             #message_button, #message_box {
@@ -77,17 +86,21 @@
 	    }
         </style>
         <div id="connecting_msg"><span>Connecting...</span></div>
-        <div id=chat_root>
-            <div id="messages">
-                <template id="message_template">
-                    <p></p>
-                </template>
-            </div>
-            <span>
-                <input type="text" placeholder="message" id="message_box">
-                <input type="button" value="Send" id="message_button">
-            </span>
-        </div>
+		<div id=chat_root_root>
+			<div><img class="chat_toggle_button" id="chat_open_button" src="./chat_button_open.png" /></div>
+			<div><img class="chat_toggle_button" id="chat_close_button" src="./chat_button_close.png" style="display: none" /></div>
+			<div id=chat_root>
+				<div id="messages">
+					<template id="message_template">
+						<p></p>
+					</template>
+				</div>
+				<span>
+					<input type="text" placeholder="message" id="message_box">
+					<input type="button" value="Send" id="message_button">
+				</span>
+			</div>
+		</div>
         <div id="notification_root">
             <template id="notification_template">
                 <div>

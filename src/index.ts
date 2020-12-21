@@ -5,7 +5,7 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
-import { Chat, ChatButton } from './chat';
+import { Chat } from './chat';
 import { BeamoutParticleConfig, ParticleManager } from "./particles";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
@@ -29,7 +29,6 @@ export interface GlobalData {
     main_hud: MainHud;
     starguide: Starguide;
     chat: Chat;
-    chat_button: ChatButton;
 	beamout_button: BeamOutButton;
     starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
@@ -69,7 +68,6 @@ export const global: GlobalData = {
     main_hud: null,
     starguide: null,
     chat: null,
-    chat_button: null,
 	beamout_button: null,
     starguide_button: null,
     rendering: true,
@@ -192,7 +190,6 @@ new Promise(async (resolve, reject) => {
 	pixi.stage.addChild(global.beamout_button.container);
     global.starguide = new Starguide();
     global.chat = new Chat();
-    //global.chat_button = new ChatButton;
     pixi.stage.addChild(global.starguide.container);
     global.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["destination_hologram.png"], 2, 2);
     global.destination_hologram.anchor.set(1,0.5);
@@ -418,7 +415,7 @@ new Promise(async (resolve, reject) => {
                 part.inter_rot_positive = part.inter_rot_delta >= 0;             
             }
 
-			console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
+			//console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
 			{
 				const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
 				global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
