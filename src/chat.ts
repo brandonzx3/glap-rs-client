@@ -2,15 +2,12 @@ import { global } from "./index";
 import { ToServerMsg } from "./codec";
 import * as PIXI from 'pixi.js';
 
-export function ChatInit() {
-    console.log("chat pog");
-}
-
 let message_button = (document.querySelector("#message_button") as HTMLInputElement);
 let message_box = (document.querySelector("#message_box") as HTMLInputElement);
 let message_root = (document.querySelector("#messages") as HTMLDivElement);
 let root = (document.querySelector("#chat_root") as HTMLDivElement);
 let notification_root = (document.querySelector("#notification_root") as HTMLDivElement);
+let warning = (document.querySelector("#warning") as HTMLParagraphElement);
 let animation_time = 500;
 notification_root.style.visibility = "hidden";
 
