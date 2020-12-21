@@ -35,7 +35,8 @@ export class Starguide {
 	static_effect = new PIXI.Container();
 	static_effect_onframe: Function = null;
 	static_effect_width: number;
-	static_effect_height: number;
+    static_effect_height: number;
+    planet_names: PIXI.Text[] = [];
 
     constructor() {
         this.container.visible = false;
@@ -90,8 +91,8 @@ export class Starguide {
         });
         this.container.addListener("mousemove", e => {
             if (this.is_dragging) {
-                this.map_coordinate_space.position.x += (e.data.global.x - prev_location[0]) * 2.5;
-                this.map_coordinate_space.position.y += (e.data.global.y - prev_location[1]) * 2.5;
+                this.map_coordinate_space.position.x += (e.data.global.x - prev_location[0]);
+                this.map_coordinate_space.position.y += (e.data.global.y - prev_location[1]);
                 prev_location = [e.data.global.x, e.data.global.y];
             }
         });
@@ -245,11 +246,12 @@ export class Starguide {
         this.map_items.addChild(mask);
 
         let text = new PIXI.Text(celestial_object.display_name.toUpperCase(), {fontSize: 60, fill : 0xdd55ff, stroke: 'black', strokeThickness: 1});
-        text.height = 20;
+        text.height = 25 / this.map_zoom_factor;
         text.width = (text.texture.width / text.texture.height) * text.height * 0.75;
         text.position.copyFrom(celestial_object.sprite.position);
-        text.anchor.set(0.5);
+        text.anchor.set(0.5, 1);
         text.position.y -= (celestial_object.radius + 15);
+        this.planet_names.push(text);
 
         circle.interactive = true;
         circle.addListener("mousedown", event => {
@@ -278,6 +280,10 @@ export class Starguide {
         const new_unscaled = [scaled_space[0] * this.map_zoom_factor, scaled_space[1] * this.map_zoom_factor];
         this.map_coordinate_space.x -= new_unscaled[0] - unscaled_space[0];
         this.map_coordinate_space.y -= new_unscaled[1] - unscaled_space[1];
+        for(var i = 0; i < this.planet_names.length; i++) {
+            this.planet_names[i].height = 25 / this.map_zoom_factor;
+            this.planet_names[i].width = ((this.planet_names[i].texture.width / this.planet_names[i].texture.height) * this.planet_names[i].height * 0.75);
+        }
     }
 
     update_destination_hologram() {
@@ -307,27 +313,31 @@ export class Starguide {
 
     interplanetary_lines() {
         this.map_lines.clear();
-        this.map_lines.lineStyle(3, 0xdd55ff);
+        this.map_lines.lineStyle(7.5, 0xdd55ff);
         const pairs: [CelestialObjectMeta, CelestialObjectMeta][] = [];
         for (const obj of this.planets) {
+            if(obj.name === "moon") continue;
+            if(obj.name === "sun") continue;
             let first: [number, CelestialObjectMeta] = [1000000000000, null];
             let second: [number, CelestialObjectMeta] = [1000000000000, null];
-            let third: [number, CelestialObjectMeta] = [1000000000000, null];
+            //let third: [number, CelestialObjectMeta] = [1000000000000, null];
             for (const obj2 of this.planets) {
                 if (obj2 === obj) continue;
+                if(obj2.name === "moon" && obj.name != "earth") continue;
+                if(obj2.name == "sun") continue;
                 const distance = Math.sqrt(Math.pow(obj.sprite.x - obj2.sprite.x, 2) + Math.pow(obj.sprite.y - obj2.sprite.y, 2));
                 if (distance <= first[0]) {
-                    third = second;
+                    //third = second;
                     second = first;
                     first = [distance, obj2];
                 } else if (distance <= second[0]) {
-                    third = second;
+                    //third = second;
                     second = [distance, obj2];
-                } else if (distance <= third[0]) {
-                    third = [distance, obj2];
-                }
+                } //else if (distance <= third[0]) {
+                    //third = [distance, obj2];
+                //}
             }
-            for (const [distance, obj2] of [first, second, third]) {
+            for (const [distance, obj2] of [first, second]) {
                 if (obj2 === null) continue;
                 let has_existed = false;
                 for (const pair of pairs) {
