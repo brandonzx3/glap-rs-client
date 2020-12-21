@@ -56,7 +56,7 @@ export const ThrusterParticleConfig: Particles.EmitterConfig = {
 		{ time: 0, value: 1 },
 		{ time: 1, value: 0 },
 	] },*/
-    speed: { list: [ { time: 0, value: 1 } ] },
+    speed: { list: [ { time: 0, value: 1.5 } ] },
 	startRotation: { min: -8, max: 8 },
 //  acceleration: { x: 0.5, y: 0.5 },
 
@@ -114,8 +114,8 @@ export class ThrusterEmitter extends Particles.Emitter {
 		for (particle = this._activeParticlesFirst; particle; particle = next)
         {
             next = particle.next;
-			particle.velocity.x *= 0.95;
-			particle.velocity.y *= 0.95;
+			//particle.velocity.x *= 0.95;
+			//particle.velocity.y *= 0.95;
         }
 	}
 

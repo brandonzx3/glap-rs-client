@@ -289,18 +289,7 @@ new Promise(async (resolve, reject) => {
             part.rot = rotation;
 
             if (msg.id === my_core_id) {
-                const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
-                global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
-                global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
-
-                const delta_pos = [prev_core_position[0] - msg.x, prev_core_position[1] - msg.y];
-		if (Math.abs(delta_pos[0]) > 0.01 || Math.abs(delta_pos[1]) > 0.01) 
-			global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
-			//hh_inter_next = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
-                global.main_hud.velocity_text.text = `Vel: ${Math.round(delta_pos[0] * 20)}, ${Math.round(delta_pos[1] * 20)}`;
-                global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
-                prev_core_position = [msg.x, msg.y];
-            }
+			}
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = global.parts.get(msg.id);
             if (part !== null) {
@@ -408,6 +397,7 @@ new Promise(async (resolve, reject) => {
             server_tick_times.forEach(val => average_server_tick_time += val);
             average_server_tick_time /= server_tick_times.length;
             average_server_tick_time += 100;
+			const my_server_tick_time = delta_server_tick + 100;
 		
             for (const part of global.parts.values()) {
                 part.inter_x_dest = part.x;
@@ -427,6 +417,19 @@ new Promise(async (resolve, reject) => {
                 part.inter_rot_delta = (part.inter_rot_dest - sprite_rot) / average_server_tick_time;
                 part.inter_rot_positive = part.inter_rot_delta >= 0;             
             }
+
+			console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
+			{
+				const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
+				global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
+				global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
+
+				const delta_pos = [prev_core_position[0] - global.my_core.inter_x_dest, prev_core_position[1] - global.my_core.inter_y_dest];
+				if (Math.abs(delta_pos[0]) > 0.01 || Math.abs(delta_pos[1]) > 0.01) global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
+				global.main_hud.velocity_text.text = `Vel: ${Math.round(Math.sqrt(Math.pow(delta_pos[0] / average_server_tick_time * 1000, 2) + Math.pow(delta_pos[1] / average_server_tick_time * 1000, 2)))}`;
+				global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
+				prev_core_position = [global.my_core.inter_x_dest, global.my_core.inter_y_dest];
+			}
 
 			socket.send((new ToServerMsg.RequestUpdate()).serialize());
         }
@@ -453,11 +456,6 @@ new Promise(async (resolve, reject) => {
 			}
 		}
 
-		const delta_seconds = delta_ms * 0.001;
-		for (const particle of global.emitters) {
-			if (particle.update_particles(delta_seconds)) global.emitters.delete(particle);
-		}
-
 		if (global.my_core != null) {
 			global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
 			background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
@@ -468,6 +466,11 @@ new Promise(async (resolve, reject) => {
 			global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
 			global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
 			global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
+		}
+
+		const delta_seconds = delta_ms * 0.001;
+		for (const particle of global.emitters) {
+			if (particle.update_particles(delta_seconds)) global.emitters.delete(particle);
 		}
 
 		for (const player of global.players.values()) player.update_grabbing_sprite();

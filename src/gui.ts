@@ -445,7 +445,7 @@ export class MainHud {
         this.fuel.position.x = 0.047274295458486;
         this.container.addChild(this.fuel);
 
-        this.fuel_text = new PIXI.Text("Fuel: 0/0", text_style);
+        this.fuel_text = new PIXI.Text("Energy: 0/0", text_style);
         this.fuel_text.position.set(0.048566785594363, 0.261918570054953);
         this.fuel_text.width = 0.078612775037128; this.fuel_text.height = 0.204358823718318;
         this.container.addChild(this.fuel_text);
