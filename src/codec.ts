@@ -242,14 +242,15 @@ class ToClientMsg_MessagePack {
 }
 class ToClientMsg_HandshakeAccepted {
 	static readonly id = 1;
-	id: number; core_id: number;
-	constructor(id: number, core_id: number,) {
-		this.id = id; this.core_id = core_id;
+	id: number; core_id: number; can_beamout: boolean;
+	constructor(id: number, core_id: number, can_beamout: boolean,) {
+		this.id = id; this.core_id = core_id; this.can_beamout = can_beamout;
 	}
 	serialize(): Uint8Array
 		{let out = [1];
 		type_ushort_serialize(out, this.id);
 		type_ushort_serialize(out, this.core_id);
+		type_boolean_serialize(out, this.can_beamout);
 		return new Uint8Array(out);
 	}
 }
@@ -425,10 +426,11 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			count = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_MessagePack(count);
 		}; break;		case 1: {
-			let id: number; let core_id: number;
+			let id: number; let core_id: number; let can_beamout: boolean;
 			id = type_ushort_deserialize(buf, index);
 			core_id = type_ushort_deserialize(buf, index);
-			return new ToClientMsg_HandshakeAccepted(id, core_id);
+			can_beamout = type_boolean_deserialize(buf, index);
+			return new ToClientMsg_HandshakeAccepted(id, core_id, can_beamout);
 		}; break;		case 2: {
 			let name: string; let display_name: string; let radius: number; let id: number; let position: [number, number];
 			name = type_string_deserialize(buf, index);

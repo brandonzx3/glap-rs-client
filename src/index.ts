@@ -15,6 +15,7 @@ console.log(params);
 let session: string = null; 
 if ("localStorage" in window) session = window.localStorage.getItem("session");
 const has_session = session !== null && lib_uuid_validate(session);
+console.log("Has session: " + has_session);
 
 export interface GlobalData {
     pixi: PIXI.Application;
@@ -50,6 +51,7 @@ export interface GlobalData {
     celestial_objects: Map<number, CelestialObjectMeta>;
     players: Map<number, PlayerMeta>;
     server_tick_times: number[];
+	can_beamout: boolean;
 }
 
 export const global: GlobalData = {
@@ -86,11 +88,13 @@ export const global: GlobalData = {
     celestial_objects: new Map(),
     players: new Map(),
     server_tick_times: null,
+	can_beamout: false,
 };
 
 const pixi = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 global.pixi = pixi;
 document.body.appendChild(pixi.view);
+pixi.view.addEventListener("contextmenu", e => e.preventDefault());
 
 pixi.stage.addChild(global.scaling);
 const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 200, height: 150 }) as PIXI.TilingSprite;
@@ -222,6 +226,7 @@ new Promise(async (resolve, reject) => {
             console.log("Handshake Accepted");
             console.log(message);
             global.my_id = message.id;
+			global.can_beamout = message.can_beamout;
             my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
             socket.addEventListener("message", e => {
@@ -231,10 +236,12 @@ new Promise(async (resolve, reject) => {
 				on_message(msg, buf, i);
 			});
             window.addEventListener("keydown", key_down);
-            window.addEventListener("keyup", key_up);
+            window.addEventListener("keyup", key_up);			
             global.scaling.on("mousedown", world_mouse_down);
+			global.scaling.on("rightdown", world_mouse_down);
             global.scaling.on("mousemove", world_mouse_move);
             global.scaling.on("mouseup", world_mouse_up);
+			global.scaling.on("rightup", world_mouse_up);
         } else throw new Error();
     }
     socket.addEventListener("message", handshake_ing);
@@ -275,7 +282,8 @@ new Promise(async (resolve, reject) => {
 
         else if (msg instanceof ToClientMsg.AddPart) {
             const meta = new PartMeta(msg.id, msg.kind);
-            meta.sprite.on("mousedown", part_mouse_down.bind(null, msg.id));
+            meta.sprite.on("mousedown", part_mouse_down.bind(null, meta, false));
+			meta.sprite.on("rightdown", part_mouse_down.bind(null, meta, true));
             meta.sprite.interactive = true;
             global.parts.set(msg.id, meta);
             if (msg.id === my_core_id) global.my_core = meta;
@@ -331,7 +339,7 @@ new Promise(async (resolve, reject) => {
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
             max_fuel = msg.max_power;
-			global.beamout_button.set_can_beamout(msg.can_beamout && has_session);
+			global.beamout_button.set_can_beamout(msg.can_beamout && global.can_beamout);
         }
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);
@@ -558,12 +566,12 @@ new Promise(async (resolve, reject) => {
         // socket.send(new ToServerMsg.CommitGrab(scaled[0], scaled[1]).serialize());
         // am_grabbing = true;
     }
-    function part_mouse_down(part_id: number, event: PIXI.InteractionEvent) {
-        if (!am_grabbing) {
+    function part_mouse_down(part: PartMeta, is_right_click: boolean, event: PIXI.InteractionEvent) {
+        if (!am_grabbing && (part.owning_player === null || is_right_click)) {
             am_grabbing = true;
             const scaled = global.screen_to_player_space(event.data.global.x, event.data.global.y);
             //console.log(scaled);
-            socket.send(new ToServerMsg.CommitGrab(part_id, scaled[0], scaled[1]).serialize());
+            socket.send(new ToServerMsg.CommitGrab(part.id, scaled[0], scaled[1]).serialize());
             am_grabbing = true;
         }
     }
