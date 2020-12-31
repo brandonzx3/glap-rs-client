@@ -418,12 +418,13 @@ new Promise(async (resolve, reject) => {
             server_tick_times.forEach(val => average_server_tick_time += val);
             average_server_tick_time /= server_tick_times.length;
 
-			const server_tick_error = expected_server_tick - now;
+			/*const server_tick_error = expected_server_tick - now;
 			const correction = global.server_tick_pid.update(server_tick_error);
 			//if (num7573 < 0) console.log(num7573);
 			console.log([now, expected_server_tick, server_tick_error, correction]);
             average_server_tick_time += correction;
-			expected_server_tick = now + average_server_tick_time;
+			expected_server_tick = now + average_server_tick_time;*/
+		    average_server_tick_time += 200;
 		
             for (const part of global.parts.values()) {
                 part.inter_x_dest = part.x;
