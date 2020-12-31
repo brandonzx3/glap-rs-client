@@ -469,7 +469,7 @@ new Promise(async (resolve, reject) => {
 					part.particle_speed_y = part.owning_player.velocity[1];
 				}
             }
-			updated_parts.clear();
+			updated_players.clear();
 
 			//console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
 			{
