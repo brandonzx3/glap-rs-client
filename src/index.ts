@@ -255,15 +255,16 @@ new Promise(async (resolve, reject) => {
 	(window as any).request_update = () => { socket.send((new ToServerMsg.RequestUpdate()).serialize()); };
 	(window as any).redo_pid = (p: number, i: number, d: number) => { global.server_tick_pid = new PID(p, i, d); };
 
-    let prev_core_position = [0,0];
+    //let prev_core_position = [0,0];
     const server_tick_times: number[] = [];
     global.server_tick_times = server_tick_times;
     let next_server_tick_i = 0;
     let previous_server_tick = performance.now();
-	let expected_server_tick = performance.now();
+	/*let expected_server_tick = performance.now();
 	global.server_tick_pid = new PID(1.0, 0.00001, 0.0);
-	global.server_tick_pid.setTarget(0);
+	global.server_tick_pid.setTarget(0);*/
     //const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
+	const updated_players: Set<PlayerMeta> = new Set();
 
     function on_message(msg: object, buf: Uint8Array, buf_i: Box<number>) {
 		if (msg instanceof ToClientMsg.MessagePack) {
@@ -301,9 +302,6 @@ new Promise(async (resolve, reject) => {
             part.x = msg.x; part.y = msg.y;
             const rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
             part.rot = rotation;
-
-            if (msg.id === my_core_id) {
-			}
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = global.parts.get(msg.id);
             if (part !== null) {
@@ -356,6 +354,7 @@ new Promise(async (resolve, reject) => {
 			const meta = global.players.get(msg.id);
 			meta.velocity[0] = msg.vel_x;
 			meta.velocity[1] = msg.vel_y;
+			updated_players.add(meta);
 		}
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);
@@ -425,9 +424,30 @@ new Promise(async (resolve, reject) => {
             average_server_tick_time += correction;
 			expected_server_tick = now + average_server_tick_time;*/
 		    average_server_tick_time += 200;
+
+			for (const player of global.players.values()) {
+				const was_updated = updated_players.has(player);
+				if (was_updated && !player.visible) {
+					player.visible = true;
+					player.name_sprite.visible = true;
+					for (const part of player.parts.values()) {
+						part.sprite.visible = true;
+						part.connector_sprite.visible = true;
+					}
+				} else if (!was_updated && player.visible) {
+					player.visible = false;
+					player.name_sprite.visible = false;
+					for (const part of player.parts.values()) {
+						part.sprite.visible = false;
+						part.connector_sprite.visible = false;
+					}
+				}
+			}
 		
             for (const part of global.parts.values()) {
-                part.inter_x_dest = part.x;
+				if (!part.sprite.visible) continue;
+
+				part.inter_x_dest = part.x;
                 part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
                 part.inter_x_positive = part.inter_x_delta >= 0;
 				//part.particle_speed_x = part.inter_x_delta * 1000;
@@ -449,6 +469,7 @@ new Promise(async (resolve, reject) => {
 					part.particle_speed_y = part.owning_player.velocity[1];
 				}
             }
+			updated_parts.clear();
 
 			//console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
 			{
@@ -459,7 +480,7 @@ new Promise(async (resolve, reject) => {
 				if (Math.abs(global.my_player.velocity[0]) > 0.01 || Math.abs(global.my_player.velocity[1]) > 0.01) global.heading_hologram.rotation = Math.atan2(-global.my_player.velocity[1], -global.my_player.velocity[0]) - PI_over_2;
 				global.main_hud.velocity_text.text = `Vel: ${Math.round(Math.sqrt(Math.pow(global.my_player.velocity[0], 2) + Math.pow(global.my_player.velocity[1], 2)))}`;
 				global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
-				prev_core_position = [global.my_core.inter_x_dest, global.my_core.inter_y_dest];
+				//prev_core_position = [global.my_core.inter_x_dest, global.my_core.inter_y_dest];
 			}
 
 			socket.send((new ToServerMsg.RequestUpdate()).serialize());
@@ -643,6 +664,7 @@ export class PlayerMeta {
     parts = new Set<PartMeta>();
     grabbed_part: number = null;
     holographic_grab_sprite: PIXI.Sprite = null;
+	visible = true;
 
     update_thruster_sprites() {
         for (const part of this.parts) {
