@@ -63,7 +63,7 @@ export const global: GlobalData = {
     scaling: new PIXI.Container(),
     world: new PIXI.Container(),
     holograms: new PIXI.Container(),
-    thrust_particles: new PIXI.Container(),
+    thrust_particles: new PIXI.ParticleContainer(),
     planet_sprites: new PIXI.Container(),
     part_sprites: new PIXI.Container(),
     connector_sprites: new PIXI.Container(),
@@ -247,7 +247,15 @@ new Promise(async (resolve, reject) => {
             global.scaling.on("mousemove", world_mouse_move);
             global.scaling.on("mouseup", world_mouse_up);
 			global.scaling.on("rightup", world_mouse_up);
-        } else throw new Error();
+			socket.send(new ToServerMsg.RequestUpdate().serialize());
+        } 
+		else if (message instanceof ToClientMsg.ChatMessage) {
+            global.chat.ReceiveMessage(message.msg, message.username, message.color);
+		}
+		else {
+			console.error("Unexpected message before handshake");
+			console.error(message);
+		}
     }
     socket.addEventListener("message", handshake_ing);
 	socket.addEventListener("close", () => { alert("Disconnected"); });
