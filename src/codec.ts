@@ -356,63 +356,77 @@ class ToClientMsg_UpdatePlayerMeta {
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_RemovePlayer {
+class ToClientMsg_UpdatePlayerVelocity {
 	static readonly id = 9;
+	id: number; vel_x: number; vel_y: number;
+	constructor(id: number, vel_x: number, vel_y: number,) {
+		this.id = id; this.vel_x = vel_x; this.vel_y = vel_y;
+	}
+	serialize(): Uint8Array
+		{let out = [9];
+		type_ushort_serialize(out, this.id);
+		type_float_serialize(out, this.vel_x);
+		type_float_serialize(out, this.vel_y);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_RemovePlayer {
+	static readonly id = 10;
 	id: number;
 	constructor(id: number,) {
 		this.id = id;
 	}
 	serialize(): Uint8Array
-		{let out = [9];
+		{let out = [10];
 		type_ushort_serialize(out, this.id);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_PostSimulationTick {
-	static readonly id = 10;
+	static readonly id = 11;
 	your_power: number;
 	constructor(your_power: number,) {
 		this.your_power = your_power;
 	}
 	serialize(): Uint8Array
-		{let out = [10];
+		{let out = [11];
 		type_uint_serialize(out, this.your_power);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_UpdateMyMeta {
-	static readonly id = 11;
+	static readonly id = 12;
 	max_power: number; can_beamout: boolean;
 	constructor(max_power: number, can_beamout: boolean,) {
 		this.max_power = max_power; this.can_beamout = can_beamout;
 	}
 	serialize(): Uint8Array
-		{let out = [11];
+		{let out = [12];
 		type_uint_serialize(out, this.max_power);
 		type_boolean_serialize(out, this.can_beamout);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_BeamOutAnimation {
-	static readonly id = 12;
+	static readonly id = 13;
 	player_id: number;
 	constructor(player_id: number,) {
 		this.player_id = player_id;
 	}
 	serialize(): Uint8Array
-		{let out = [12];
+		{let out = [13];
 		type_ushort_serialize(out, this.player_id);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_ChatMessage {
-	static readonly id = 13;
+	static readonly id = 14;
 	username: string; msg: string; color: string;
 	constructor(username: string, msg: string, color: string,) {
 		this.username = username; this.msg = msg; this.color = color;
 	}
 	serialize(): Uint8Array
-		{let out = [13];
+		{let out = [14];
 		type_string_serialize(out, this.username);
 		type_string_serialize(out, this.msg);
 		type_string_serialize(out, this.color);
@@ -478,23 +492,29 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			if (buf[index.v++] > 0) {grabed_part = type_ushort_deserialize(buf, index);} else {grabed_part = null;}
 			return new ToClientMsg_UpdatePlayerMeta(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise, grabed_part);
 		}; break;		case 9: {
+			let id: number; let vel_x: number; let vel_y: number;
+			id = type_ushort_deserialize(buf, index);
+			vel_x = type_float_deserialize(buf, index);
+			vel_y = type_float_deserialize(buf, index);
+			return new ToClientMsg_UpdatePlayerVelocity(id, vel_x, vel_y);
+		}; break;		case 10: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePlayer(id);
-		}; break;		case 10: {
+		}; break;		case 11: {
 			let your_power: number;
 			your_power = type_uint_deserialize(buf, index);
 			return new ToClientMsg_PostSimulationTick(your_power);
-		}; break;		case 11: {
+		}; break;		case 12: {
 			let max_power: number; let can_beamout: boolean;
 			max_power = type_uint_deserialize(buf, index);
 			can_beamout = type_boolean_deserialize(buf, index);
 			return new ToClientMsg_UpdateMyMeta(max_power, can_beamout);
-		}; break;		case 12: {
+		}; break;		case 13: {
 			let player_id: number;
 			player_id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_BeamOutAnimation(player_id);
-		}; break;		case 13: {
+		}; break;		case 14: {
 			let username: string; let msg: string; let color: string;
 			username = type_string_deserialize(buf, index);
 			msg = type_string_deserialize(buf, index);
@@ -505,6 +525,6 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, ChatMessage: ToClientMsg_ChatMessage
+	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, ChatMessage: ToClientMsg_ChatMessage
 };
 

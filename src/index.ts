@@ -7,6 +7,7 @@ import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
 import { Chat } from './chat';
 import { BeamoutParticleConfig, ParticleManager } from "./particles";
+import PID from "node-pid-controller";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -46,11 +47,13 @@ export interface GlobalData {
 
 	socket: WebSocket;
     my_core: PartMeta;
+	my_player: PlayerMeta;
     my_id: number;
     parts: Map<number, PartMeta>;
     celestial_objects: Map<number, CelestialObjectMeta>;
     players: Map<number, PlayerMeta>;
     server_tick_times: number[];
+	server_tick_pid: PID;
 	can_beamout: boolean;
 }
 
@@ -83,11 +86,13 @@ export const global: GlobalData = {
 
 	socket: null,
     my_core: null,
+	my_player: null,
     my_id: null,
     parts: new Map(),
     celestial_objects: new Map(),
     players: new Map(),
     server_tick_times: null,
+	server_tick_pid: null,
 	can_beamout: false,
 };
 
@@ -248,13 +253,17 @@ new Promise(async (resolve, reject) => {
 	socket.addEventListener("close", () => { alert("Disconnected"); });
     socket.onerror = err => { throw err; };
 	(window as any).request_update = () => { socket.send((new ToServerMsg.RequestUpdate()).serialize()); };
+	(window as any).redo_pid = (p: number, i: number, d: number) => { global.server_tick_pid = new PID(p, i, d); };
 
     let prev_core_position = [0,0];
     const server_tick_times: number[] = [];
     global.server_tick_times = server_tick_times;
     let next_server_tick_i = 0;
     let previous_server_tick = performance.now();
-    const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
+	let expected_server_tick = performance.now();
+	global.server_tick_pid = new PID(1.0, 0.00001, 0.0);
+	global.server_tick_pid.setTarget(0);
+    //const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
 
     function on_message(msg: object, buf: Uint8Array, buf_i: Box<number>) {
 		if (msg instanceof ToClientMsg.MessagePack) {
@@ -322,7 +331,9 @@ new Promise(async (resolve, reject) => {
         }
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
-            global.players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
+			const player = new PlayerMeta(msg.id, msg.name, msg.core_id);
+            global.players.set(msg.id, player);
+			if (msg.id == global.my_id) global.my_player = player;
         }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
             const meta = global.players.get(msg.id);
@@ -341,6 +352,11 @@ new Promise(async (resolve, reject) => {
             max_fuel = msg.max_power;
 			global.beamout_button.set_can_beamout(msg.can_beamout && global.can_beamout);
         }
+		else if (msg instanceof ToClientMsg.UpdatePlayerVelocity) {
+			const meta = global.players.get(msg.id);
+			meta.velocity[0] = msg.vel_x;
+			meta.velocity[1] = msg.vel_y;
+		}
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);
 			if (player !== null) {
@@ -401,18 +417,23 @@ new Promise(async (resolve, reject) => {
             let average_server_tick_time = 0;
             server_tick_times.forEach(val => average_server_tick_time += val);
             average_server_tick_time /= server_tick_times.length;
-            average_server_tick_time += 100;
-			const my_server_tick_time = delta_server_tick + 100;
+
+			const server_tick_error = expected_server_tick - now;
+			const correction = global.server_tick_pid.update(server_tick_error);
+			//if (num7573 < 0) console.log(num7573);
+			console.log([now, expected_server_tick, server_tick_error, correction]);
+            average_server_tick_time += correction;
+			expected_server_tick = now + average_server_tick_time;
 		
             for (const part of global.parts.values()) {
                 part.inter_x_dest = part.x;
                 part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
                 part.inter_x_positive = part.inter_x_delta >= 0;
-				part.particle_speed_x = part.inter_x_delta * 1000;
+				//part.particle_speed_x = part.inter_x_delta * 1000;
                 part.inter_y_dest = part.y;
                 part.inter_y_delta = (part.inter_y_dest - part.sprite.y) / average_server_tick_time;
                 part.inter_y_positive = part.inter_y_delta >= 0;
-				part.particle_speed_y = part.inter_y_delta * 1000;
+				//part.particle_speed_y = part.inter_y_delta * 1000;
                 part.inter_rot_dest = part.rot;
                 let sprite_rot = part.sprite.rotation;
                 const dif = part.sprite.rotation - part.rot;
@@ -421,6 +442,11 @@ new Promise(async (resolve, reject) => {
                 part.sprite.rotation = sprite_rot;
                 part.inter_rot_delta = (part.inter_rot_dest - sprite_rot) / average_server_tick_time;
                 part.inter_rot_positive = part.inter_rot_delta >= 0;             
+
+				if (part.owning_player != null) {
+					part.particle_speed_x = part.owning_player.velocity[0];
+					part.particle_speed_y = part.owning_player.velocity[1];
+				}
             }
 
 			//console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
@@ -429,9 +455,8 @@ new Promise(async (resolve, reject) => {
 				global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
 				global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
 
-				const delta_pos = [prev_core_position[0] - global.my_core.inter_x_dest, prev_core_position[1] - global.my_core.inter_y_dest];
-				if (Math.abs(delta_pos[0]) > 0.01 || Math.abs(delta_pos[1]) > 0.01) global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
-				global.main_hud.velocity_text.text = `Vel: ${Math.round(Math.sqrt(Math.pow(delta_pos[0] / average_server_tick_time * 1000, 2) + Math.pow(delta_pos[1] / average_server_tick_time * 1000, 2)))}`;
+				if (Math.abs(global.my_player.velocity[0]) > 0.01 || Math.abs(global.my_player.velocity[1]) > 0.01) global.heading_hologram.rotation = Math.atan2(-global.my_player.velocity[1], -global.my_player.velocity[0]) - PI_over_2;
+				global.main_hud.velocity_text.text = `Vel: ${Math.round(Math.sqrt(Math.pow(global.my_player.velocity[0], 2) + Math.pow(global.my_player.velocity[1], 2)))}`;
 				global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
 				prev_core_position = [global.my_core.inter_x_dest, global.my_core.inter_y_dest];
 			}
@@ -600,18 +625,19 @@ export class PlayerMeta {
         this.name = name;
         this.core_id = core_id;
 
-	this.name_sprite = new PIXI.Text(this.name, name_text_style);
-	this.name_sprite.updateText(true);
-	console.log(this.name_sprite.texture.height);
-	this.name_sprite.width = 0.8 / this.name_sprite.texture.height * this.name_sprite.texture.width;
-	this.name_sprite.height = 0.8;
-	this.name_sprite.anchor.set(0.5,1);
-	global.connector_sprites.addChild(this.name_sprite);
+		this.name_sprite = new PIXI.Text(this.name, name_text_style);
+		this.name_sprite.updateText(true);
+		console.log(this.name_sprite.texture.height);
+		this.name_sprite.width = 0.8 / this.name_sprite.texture.height * this.name_sprite.texture.width;
+		this.name_sprite.height = 0.8;
+		this.name_sprite.anchor.set(0.5,1);
+		global.connector_sprites.addChild(this.name_sprite);
     }
     core: PartMeta = null;
     thrust_forward = false;
     thrust_backward = false;
     thrust_clockwise = false;
+	velocity: [number, number] = [0,0];
     thrust_counter_clockwise = false;
     parts = new Set<PartMeta>();
     grabbed_part: number = null;
