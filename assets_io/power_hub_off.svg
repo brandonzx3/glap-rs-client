@@ -13,9 +13,9 @@
    width="180.70096"
    height="174.47615"
    viewBox="0 0 180.70096 174.47614"
-   sodipodi:docname="hub_off.svg"
+   sodipodi:docname="power_hub_off.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
-   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\hub_off.png"
+   inkscape:export-filename="\\wsl$\Debian\home\christian7573\glap\glap-rs-client\assets\power_hub_off.png"
    inkscape:export-xdpi="82.532768"
    inkscape:export-ydpi="82.532768">
   <metadata
@@ -59,12 +59,12 @@
      showgrid="false"
      inkscape:document-rotation="0"
      inkscape:zoom="3.6902135"
-     inkscape:cx="69.575914"
-     inkscape:cy="86.115049"
+     inkscape:cx="69.519908"
+     inkscape:cy="86.060744"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g4560"
+     inkscape:current-layer="g925"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -82,7 +82,7 @@
        height="175.13773"
        width="181.26945"
        id="rect2149"
-       style="fill:#363636;fill-opacity:1;stroke-width:2.59418;stop-color:#000000" />
+       style="fill:#4c484a;fill-opacity:1;stroke-width:2.59419;stop-color:#000000;font-variation-settings:normal;opacity:1;vector-effect:none;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-opacity:1;stroke:none" />
     <g
        id="g2105">
       <rect

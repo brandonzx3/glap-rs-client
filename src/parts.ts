@@ -57,6 +57,11 @@ export class PartMeta {
             case PartKind.LandingThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "landing_thruster.png" : "landing_thruster_off.png"]; break;
             case PartKind.Hub: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "hub.png" : "hub_off.png"]; break;
             case PartKind.SolarPanel: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "solar_panel.png" : "solar_panel_off.png"]; break;
+			case PartKind.Thruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "thruster.png" : "thruster_off.png"]; break;
+			case PartKind.EcoThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "eco_thruster.png" : "eco_thruster_off.png"]; break;
+			case PartKind.SuperThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "super_thruster.png" : "super_thruster_off.png"]; break;
+			case PartKind.PowerHub: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "power_hub.png" : "power_hub_off.png"]; break;
+			
             default: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
         }
         global.connector_sprites.removeChild(this.connector_sprite);
