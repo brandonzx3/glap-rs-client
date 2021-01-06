@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1000"
+   height="1000"
+   viewBox="0 0 264.58333 264.58333"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="venus.svg">
+  <defs
+     id="defs2">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath945">
+      <circle
+         style="display:inline;fill:#bd926c;fill-opacity:1;stroke-width:0.686382;stop-color:#000000"
+         id="circle947"
+         cx="132.29167"
+         cy="132.29167"
+         r="132.29167" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="348.62185"
+     inkscape:cy="742.76006"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1669"
+     inkscape:window-height="864"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <image
+       sodipodi:absref="/home/christian7573/Documents/archive/glap-old/glap-io-client/static/venus.png"
+       xlink:href="../../../archive/glap-old/glap-io-client/static/venus.png"
+       y="0"
+       x="5.3828995e-14"
+       id="image893"
+       style="display:none;stroke-width:0.264;image-rendering:optimizeQuality"
+       preserveAspectRatio="none"
+       height="264.58334"
+       width="264.58334" />
+    <circle
+       style="display:inline;fill:#bd926c;fill-opacity:1;stroke-width:0.68638;stop-color:#000000"
+       id="path933"
+       cx="132.29167"
+       cy="132.29167"
+       r="132.29167" />
+    <g
+       id="g941"
+       clip-path="url(#clipPath945)">
+      <path
+         style="display:inline;fill:#b18054;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 112.06994,1.5119047 94.305058,-15.119047 172.73512,-10.772321 153.26934,1.8898809 C 131.18694,86.358225 71.207507,151.05383 48.56994,233.96726 l 2.267858,18.89881 -52.5386908,-54.61756 19.4657738,-0.18899 C 42.200363,130.28098 84.15451,87.290995 112.06994,1.5119047 Z"
+         id="path935"
+         sodipodi:nodetypes="ccccccccc" />
+      <path
+         style="display:inline;fill:#b18054;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 151.94643,261.55952 c 24.72523,-69.78514 62.8413,-128.37074 89.95833,-202.595236 l 20.78869,3.023809 -33.63988,-37.041665 -3.77976,13.98512 C 200.22611,121.2775 151.74813,188.39569 128.13393,263.07142 l -13.60715,7.9375 43.84524,5.66965 z"
+         id="path937"
+         sodipodi:nodetypes="ccccccccc" />
+    </g>
+  </g>
+</svg>
