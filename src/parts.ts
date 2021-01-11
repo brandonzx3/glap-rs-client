@@ -2,7 +2,7 @@ import { PartKind } from "./codec";
 import { PlayerMeta, global } from "./index";
 import * as PIXI from 'pixi.js';
 import * as Particles from 'pixi-particles';
-import { ParticleManager, ParticleHookFactory, ThrusterEmitter, ThrusterParticleConfig, CoreParticleConfig } from "./particles";
+import { ParticleManager, ParticleHookFactory, ThrusterEmitter, ThrusterParticleConfig, SuperThrusterParticleConfig, CoreParticleConfig } from "./particles";
 import { Box } from "./codec";
 
 export class PartMeta {
@@ -23,7 +23,12 @@ export class PartMeta {
 		} else {
 			this.sprite.anchor.set(0.5,1);
 			switch (kind) {
-				case PartKind.LandingThruster: this.thrust_particles = new ThrustParticleManager(this); break;
+				case PartKind.LandingThruster:
+				case PartKind.Thruster:
+				case PartKind.EcoThruster:
+				case PartKind.SuperThruster:
+				case PartKind.HubThruster:
+					this.thrust_particles = new ThrustParticleManager(this); break;
 			}
 		}
         global.part_sprites.addChild(this.sprite);
@@ -128,6 +133,10 @@ export class PartMeta {
 		}*/
 		switch (this.kind) {
 			case PartKind.LandingThruster:
+			case PartKind.Thruster:
+			case PartKind.EcoThruster:
+			case PartKind.HubThruster:
+			case PartKind.SuperThruster:
 				(this.thrust_particles as ThrustParticleManager).emitter.emit = am_i_thrusting; 
 				global.emitters.add(this.thrust_particles);
 				break;
@@ -166,14 +175,28 @@ class ThrustParticleManager implements ParticleManager {
 		let offset;
 		let vel;
 		switch (parent.kind) {
-			case PartKind.LandingThruster: {
+			case PartKind.LandingThruster: 
+			case PartKind.Thruster: 
+			case PartKind.EcoThruster:
+			case PartKind.HubThruster:
+			case PartKind.SuperThruster: {
 				offset = new PIXI.Point(0, -1);
 				vel = new PIXI.Point(0, -3);
 			}; break;
 
 			case PartKind.Core: throw new Error("Didn't use CoreParticleManager");
+		};
+
+		let config;
+		switch (parent.kind) {
+			case PartKind.SuperThruster:
+				config = SuperThrusterParticleConfig;
+				break;
+
+			default:
+				config = ThrusterParticleConfig;
 		}
-		this.emitter = new ThrusterEmitter(this.parent, offset, vel, global.thrust_particles, global.white_box, ThrusterParticleConfig);
+		this.emitter = new ThrusterEmitter(this.parent, offset, vel, global.thrust_particles, global.white_box, config);
 	}
 
 	update_particles(delta_seconds: number): boolean {

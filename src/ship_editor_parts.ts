@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { global } from "./ship_editor";
+import { global, SaveDataProviderRecursivePartDescription } from "./ship_editor";
 import { PartKind } from "./codec";
 
 export class Part {
@@ -93,13 +93,15 @@ export function AttachedPartFacing_GetActualRotation(my_attached_as: AttachedPar
 export class RecursivePartDescription {
 	kind: PartKind;
 	attachments: RecursivePartDescription[];
+	parent: RecursivePartDescription;
 
-	constructor(kind: PartKind, attachments: RecursivePartDescription[]) {
+	constructor(kind: PartKind, attachments: RecursivePartDescription[], parent: RecursivePartDescription) {
 		this.kind = kind;
 		this.attachments = attachments;
+		this.parent = parent;
 	}
-	static upgrade(source: any): RecursivePartDescription {
-		const attachments = (source.attachments as object[]).map(obj => obj === null ? null : RecursivePartDescription.upgrade(obj));
-		return new RecursivePartDescription(source.kind, source.dx);
+	static inflate(source: SaveDataProviderRecursivePartDescription): RecursivePartDescription {
+		const attachments = (source.attachments as any[]).map(obj => typeof obj === "object" && obj != null ? RecursivePartDescription.inflate(obj) : null);
+		return new RecursivePartDescription(source.kind, attachments);
 	}
 }

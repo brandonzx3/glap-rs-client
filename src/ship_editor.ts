@@ -2,11 +2,17 @@ import * as PIXI from "pixi.js";
 import { PartKind } from "./codec";
 import { parse as qs_parse } from "query-string";
 import { RecursivePartDescription, Part } from "./ship_editor_parts";
+import { validate as lib_uuid_validate } from "uuid";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
 console.log(params);
 export const never_promise = new Promise(() => {});
+
+let session: string = null; 
+if ("localStorage" in window) session = window.localStorage.getItem("session");
+const has_session = session !== null && lib_uuid_validate(session);
+console.log("Has session: " + has_session);
 
 export interface GlobalData {
 	scaling: PIXI.Container;
@@ -19,11 +25,15 @@ export interface GlobalData {
 	pane_background: PIXI.Graphics;
 	pane_border: PIXI.TilingSprite;
 
-	ship_dat: ShipDat;
 	pane_size: number;
 	zoom: number;
 	raw_scale_up: number;
 	scale_up: number;
+
+	save_data_provider: SaveDataProvider;
+	total_inventory: Map<PartKind, number>;
+	local_inventory: Map<PartKind, Box<number>>;
+	layout: RecursivePartDescription;
 }
 
 export const global: GlobalData = {
@@ -37,13 +47,32 @@ export const global: GlobalData = {
 	pane_background: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
 	pane_border: null,
 
-	ship_dat: null,
 	pane_size: 0,
 	zoom: 1,
 	raw_scale_up: 0,
 	scale_up: 0,
+
+	save_data_provider: null,
+	total_inventory: new Map(),
+	local_inventory: new Map(),
+	layout: null,
 };
-(window as any)["dev"] = global;
+(window as any)["global"] = global;
+
+export interface SaveDataProvider {
+	set_session(session: string): Promise<void>;
+	get_slots(): Promise<void>;
+	get_current_layout(): Promise<SaveDataProviderRecursivePartDescription>;
+	set_current_layout(layout: SaveDataProviderRecursivePartDescription): Promise<void>;
+	get_slot_layout(slot: string): Promise<SaveDataProviderRecursivePartDescription>;
+	set_slot_layout(slot: string, layout: SaveDataProviderRecursivePartDescription): Promise<void>;
+	get_inventory(): Promise<{ [key: number]: number }>;
+}
+
+export interface SaveDataProviderRecursivePartDescription {
+	kind: PartKind;
+	attachments: SaveDataProviderRecursivePartDescription[];
+}
 
 const app = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, });
 document.body.appendChild(app.view);
@@ -60,8 +89,9 @@ global.world.addChild(global.connector_sprites);
 app.stage.addChild(global.sidebar);
 global.sidebar.addChild(global.pane_background);
 
-if (typeof params["ship"] !== "string") { alert("Invalid ship url"); throw new Error("Invalid ship url"); }
-const ship_url = params["ship"] as string;
+if (typeof params["save_data_provider"] !== "string") { alert("Invalid save data provider url"); throw new Error("Invalid save data provider url"); }
+const save_data_provider_url = params["save_data_provider"] as string;
+const save_data_provider_is_module = "save_data_provider_is_module" in params ? params["save_data_provider_is_module"] == "true" : false;
 if (typeof params["spritesheet"] !== "string") { alert("Invalid spritesheet url"); throw new Error("Invalid spritesheet url"); }
 const spritesheet_url_base = params["spritesheet"] as string;
 
@@ -87,8 +117,18 @@ export function resize() {
 	global.pane_border.tileScale.x = global.pane_border.tileScale.y / global.pane_border.texture.height * global.pane_border.texture.width;
 }
 
+const save_data_provider = new Promise((resolve, reject) => {
+	const script_el = document.createElement("script");
+	script_el.setAttribute("src", save_data_provider_url);
+	if (save_data_provider_is_module) script_el.setAttribute("type", "module");
+	script_el.setAttribute("async", "");
+	(window as any).save_data_provider_hooks = [resolve, reject];
+	script_el.addEventListener("error", e => reject(e));
+	document.head.appendChild(script_el);
+});
+
 let spritesheet: PIXI.Spritesheet = null;
-new Promise(async (resolve, reject) => {
+new Promise(async (resolve, _reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
         image.src = `${spritesheet_url_base}.png`;
@@ -102,18 +142,19 @@ new Promise(async (resolve, reject) => {
     spritesheet = new PIXI.Spritesheet(texture, dat);
 	global.spritesheet = spritesheet;
     spritesheet.parse(resolve);
-}).then(() => fetch(ship_url).then(res => res.json()), err => { alert("Failed to load spritesheet"); console.error(err); return never_promise; })
-.then(save_data => {
-	if (!("layout_current" in save_data && 'inventory' in save_data)) throw new Error("Save data invalid");
-	const inventory: Map<PartKind, Box<number>> = new Map();
-	for (const [kind, count] of save_data.inventory) inventory.set(kind, new Box(count));
-	global.ship_dat = new ShipDat(inventory, RecursivePartDescription.upgrade(save_data.layout_current));
-	if ("layout_1" in save_data) global.ship_dat.layout_1 = RecursivePartDescription.upgrade(save_data.layout_1);
-	if ("layout_2" in save_data) global.ship_dat.layout_2 = RecursivePartDescription.upgrade(save_data.layout_2);
-	if ("layout_3" in save_data) global.ship_dat.layout_3 = RecursivePartDescription.upgrade(save_data.layout_3);
-	if ("layout_4" in save_data) global.ship_dat.layout_4 = RecursivePartDescription.upgrade(save_data.layout_4);
+}).then(() => save_data_provider)
+.then(async (save_data_provider: SaveDataProvider) => {
+	global.save_data_provider = save_data_provider;
 
-	empower_layout(global.ship_dat.inventory, global.ship_dat.layout_current);
+	await save_data_provider.set_session(session);
+	const inventory = await save_data_provider.get_inventory();
+	for (const key in inventory) {
+		const part_kind = parseInt(key);
+		global.total_inventory.set(part_kind, inventory[part_kind]);
+	}
+
+	global.layout = RecursivePartDescription.inflate(await save_data_provider.get_current_layout());
+
 }).catch(err => { alert("Failed to load save data"); console.error(err); return never_promise; })
 .then(() => {
 	global.pane_border = new PIXI.TilingSprite(global.spritesheet.textures["tiling_caution_border.png"], 1, 1);
@@ -131,18 +172,6 @@ new Promise(async (resolve, reject) => {
 });
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
-export class ShipDat {
-	layout_current: RecursivePartDescription;
-	layout_1: RecursivePartDescription = null;
-	layout_2: RecursivePartDescription = null;
-	layout_3: RecursivePartDescription = null;
-	layout_4: RecursivePartDescription = null;
-	inventory: Map<PartKind, Box<number>>; 
-	constructor(inventory: Map<PartKind, Box<number>>, current_layout: RecursivePartDescription) {
-		this.inventory = inventory;
-		this.layout_current = current_layout;
-	}
-}
 
 export function empower_layout(inventory: Map<PartKind, Box<number>>, layout: RecursivePartDescription) {
 	const my_inventory: Map<PartKind, Box<number>> = new Map();

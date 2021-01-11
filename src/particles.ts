@@ -78,6 +78,13 @@ CoreParticleConfig["scale"] = { list: [
 	{ time: 1, value: 0.5 },
 ] };
 
+export const SuperThrusterParticleConfig: Particles.EmitterConfig = Object.create(ThrusterParticleConfig);
+SuperThrusterParticleConfig["color"] = { list: [
+		{ time: 0.0, value: "#d10707" },
+		{ time: 0.2, value: "#D73502" },
+		{ time: 1.0, value: "#333333" }
+] };
+
 export class ThrusterEmitter extends Particles.Emitter {
 	offset: PIXI.Point;
 	vel: PIXI.Point;
