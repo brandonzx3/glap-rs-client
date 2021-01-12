@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { PartKind } from "./codec";
 import { parse as qs_parse } from "query-string";
-import { RecursivePartDescription, Part } from "./ship_editor_parts";
+import { RecursivePart } from "./ship_editor_parts";
 import { validate as lib_uuid_validate } from "uuid";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
@@ -17,8 +17,6 @@ console.log("Has session: " + has_session);
 export interface GlobalData {
 	scaling: PIXI.Container;
 	world: PIXI.Container;
-	part_sprites: PIXI.Container;
-	connector_sprites: PIXI.Container;
 	spritesheet: PIXI.Spritesheet;
 
 	sidebar: PIXI.Container;
@@ -33,14 +31,13 @@ export interface GlobalData {
 	save_data_provider: SaveDataProvider;
 	total_inventory: Map<PartKind, number>;
 	local_inventory: Map<PartKind, Box<number>>;
-	layout: RecursivePartDescription;
+	layout: RecursivePart;
+	dangling_pieces: RecursivePart[];
 }
 
 export const global: GlobalData = {
 	scaling: new PIXI.Container(),
 	world: new PIXI.Container(),
- 	part_sprites: new PIXI.Container(),
-	connector_sprites: new PIXI.Container(),
 	spritesheet: null,
 
 	sidebar: new PIXI.Container(),
@@ -56,6 +53,7 @@ export const global: GlobalData = {
 	total_inventory: new Map(),
 	local_inventory: new Map(),
 	layout: null,
+	dangling_pieces: [],
 };
 (window as any)["global"] = global;
 
@@ -83,8 +81,6 @@ blueprint.anchor.set(0.5,0.5);
 app.stage.addChild(global.scaling);
 global.scaling.addChild(blueprint);
 global.scaling.addChild(global.world);
-global.world.addChild(global.part_sprites);
-global.world.addChild(global.connector_sprites);
 
 app.stage.addChild(global.sidebar);
 global.sidebar.addChild(global.pane_background);
@@ -153,7 +149,7 @@ new Promise(async (resolve, _reject) => {
 		global.total_inventory.set(part_kind, inventory[part_kind]);
 	}
 
-	global.layout = RecursivePartDescription.inflate(await save_data_provider.get_current_layout());
+	global.layout = RecursivePart.inflate(await save_data_provider.get_current_layout());
 
 }).catch(err => { alert("Failed to load save data"); console.error(err); return never_promise; })
 .then(() => {
@@ -172,28 +168,3 @@ new Promise(async (resolve, _reject) => {
 });
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
-
-export function empower_layout(inventory: Map<PartKind, Box<number>>, layout: RecursivePartDescription) {
-	const my_inventory: Map<PartKind, Box<number>> = new Map();
-	for (const [kind, count] of inventory.entries()) my_inventory.set(kind, new Box(count.v));
-	const parts: Part[] = [];
-	function empower_part(part: RecursivePartDescription) {
-		let has_the_part = false;
-		if (part.kind === PartKind.Core) has_the_part = true;
-		else {
-			const part_count = my_inventory.get(part.kind);
-			if (part_count !== null && part_count.v > 0) {
-				has_the_part = true;
-				part_count.v--;
-			}
-		}
-
-		const new_part = new Part(part.kind, has_the_part);
-		//new_part.set_position(part.dx, part.dy);
-		//new_part.set_rotation(part.drot);
-		parts.push(new_part);
-
-		part.attachments.forEach(part => { if (part !== null) empower_part(part) } );
-	}
-	empower_part(layout);
-}
