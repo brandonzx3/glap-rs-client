@@ -23,9 +23,10 @@ export class RecursivePart {
 		this.container.addChild(this.sprite);
 
 		this.connector_sprite.texture = global.spritesheet.textures["connector.png"];
+        this.connector_sprite.width = 0.333; this.connector_sprite.height = 0.15;
 		this.connector_sprite.anchor.set(0.5,0);
-		this.connector_sprite.position.set(0,0.5);
-		this.connector_sprite.rotation = Math.PI;
+		this.connector_sprite.position.set(0,0);
+		//this.connector_sprite.rotation = Math.PI;
 		this.container.addChild(this.connector_sprite);
 
 		this.update_sprites();
@@ -38,6 +39,11 @@ export class RecursivePart {
 		[PartKind.LandingThruster, "landing_thruster.png"],
 		[PartKind.Hub, "hub.png"],
 		[PartKind.SolarPanel, "solar_panel.png"],
+		[PartKind.PowerHub, "power_hub.png"],
+		[PartKind.EcoThruster, "eco_thruster.png"],
+		[PartKind.SuperThruster, "super_thruster.png"],
+		[PartKind.Thruster, "thruster.png"],
+		[PartKind.HubThruster, "hub_thruster.png"],
 	]);
 
 	update_sprites() {
@@ -46,6 +52,7 @@ export class RecursivePart {
 				this.sprite.texture = global.spritesheet.textures[RecursivePart.sprites.get(this.kind)]; break;
 		}
 		this.connector_sprite.visible = this.connected;
+		//this.connector_sprite.visible = false;
 	}
 	update_attachments() {
 		for (let i = 0; i < this.attachments.length; i++) {
@@ -54,8 +61,10 @@ export class RecursivePart {
 				this.attachments_inner[i] = null;
 			} else if (this.attachments[i] != null && this.attachments_inner[i] == null) {
 				this.attachments_inner[i] = this.attachments[i].container;
+				const kind_info = part_kind_info.get(this.kind);
+				this.attachments_inner[i].position.set(kind_info.attachments[i].dx, -kind_info.attachments[i].dy);
+				this.attachments_inner[i].rotation = AttachedPartFacing_PartRotation(kind_info.attachments[i].facing) - Math.PI;
 				this.container.addChild(this.attachments_inner[i]);
-
 			}
 		}
 	}
@@ -107,10 +116,10 @@ export class AttachmentInfo {
 export enum AttachedPartFacing { Up, Right, Down, Left }
 export function AttachedPartFacing_PartRotation(facing: AttachedPartFacing): number {
 	switch (facing) {
-		case AttachedPartFacing.Up: return 0;
-		case AttachedPartFacing.Right: return PIXI.PI_2;
-		case AttachedPartFacing.Down: return Math.PI;
-		case AttachedPartFacing.Left: return -PIXI.PI_2;
+		case AttachedPartFacing.Up: return Math.PI;
+		case AttachedPartFacing.Right: return 0.5 * Math.PI;
+		case AttachedPartFacing.Down: return 0;
+		case AttachedPartFacing.Left: return -0.5 * Math.PI;
 	}
 }
 export function AttachedPartFacing_GetActualRotation(my_attached_as: AttachedPartFacing, parent_actual_rotation: AttachedPartFacing): AttachedPartFacing {

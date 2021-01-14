@@ -112,7 +112,7 @@ export function resize() {
 	global.pane_border.height = pane_border_size;
 	global.pane_border.width = window.innerHeight;
 	global.pane_border.x = global.pane_size;
-	global.pane_border.tileScale.y = 0.75 / pane_border_size;
+	global.pane_border.tileScale.y = 2 / pane_border_size;
 	global.pane_border.tileScale.x = global.pane_border.tileScale.y / global.pane_border.texture.height * global.pane_border.texture.width;
 }
 
@@ -160,6 +160,10 @@ new Promise(async (resolve, _reject) => {
 	global.sidebar.addChild(global.pane_border);
 	global.pane_border.rotation = Math.PI / 2;
 
+	reset_local_inventory();
+	inventory_take_parts(global.layout, true);
+	global.world.addChild(global.layout.container);
+
 	resize();
 	window.addEventListener("resize", resize);
 	
@@ -169,5 +173,39 @@ new Promise(async (resolve, _reject) => {
 	}
 	requestAnimationFrame(render);
 });
+
+function reset_local_inventory() {
+	global.local_inventory.clear();
+	for (const [kind, count] of global.total_inventory) {
+		global.local_inventory.set(kind, new Box(count));
+	}
+
+}
+function inventory_take_parts(parts: RecursivePart, recurse: boolean) {
+	function do_recurse(part: RecursivePart) {
+		if (!global.local_inventory.has(part.kind)) global.local_inventory.set(part.kind, new Box(0));
+		global.local_inventory.get(part.kind).v -= 1;
+		if (recurse) {
+			for (const attachment of part.attachments) {
+				if (attachment != null) do_recurse(attachment);
+			}
+		}
+	}
+	do_recurse(parts);
+	//TODO update inventory text
+}
+function inventory_return_parts(parts: RecursivePart, recurse: boolean) {
+	function do_recurse(part: RecursivePart) {
+		const inv = global.local_inventory.get(part.kind);
+		if (inv != null) inv.v += 1;
+		if (recurse) {
+			for (const attachment of part.attachments) {
+				if (attachment != null) do_recurse(attachment);
+			}
+		}
+	}
+	do_recurse(parts);
+	//TODO update inventory text
+}
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
