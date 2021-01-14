@@ -59,14 +59,17 @@ export const global: GlobalData = {
 
 export interface SaveDataProvider {
 	set_session(session: string): Promise<void>;
-	get_slots(): Promise<void>;
+	get_slots(): Promise<SaveDataSlot[]>;
 	get_current_layout(): Promise<SaveDataProviderRecursivePartDescription>;
 	set_current_layout(layout: SaveDataProviderRecursivePartDescription): Promise<void>;
 	get_slot_layout(slot: string): Promise<SaveDataProviderRecursivePartDescription>;
 	set_slot_layout(slot: string, layout: SaveDataProviderRecursivePartDescription): Promise<void>;
 	get_inventory(): Promise<{ [key: number]: number }>;
 }
-
+export interface SaveDataSlot {
+	id: string;
+	display_name: string;
+}
 export interface SaveDataProviderRecursivePartDescription {
 	kind: PartKind;
 	attachments: SaveDataProviderRecursivePartDescription[];
@@ -114,11 +117,11 @@ export function resize() {
 }
 
 const save_data_provider = new Promise((resolve, reject) => {
+	(window as any).save_data_provider_hooks = [resolve, reject];
 	const script_el = document.createElement("script");
 	script_el.setAttribute("src", save_data_provider_url);
 	if (save_data_provider_is_module) script_el.setAttribute("type", "module");
 	script_el.setAttribute("async", "");
-	(window as any).save_data_provider_hooks = [resolve, reject];
 	script_el.addEventListener("error", e => reject(e));
 	document.head.appendChild(script_el);
 });

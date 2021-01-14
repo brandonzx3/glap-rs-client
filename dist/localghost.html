@@ -9,8 +9,8 @@
 		</form>
 		<form action="./ship_editor.html" method="GET">
 			<h1>Ship editor</h1>
-			<label for=ship>Ship Address: </label><input name=ship type=text value="/api/test_ship_address" /><br>
-			<label for=spritesheet>Spritesheet: </label><input name=spritesheet type=text value="./spritesheet" /><br>
+			<label for=spritesheet>Spritesheet: </label><input name=spritesheet type=text value="./spritesheet_io" /><br>
+			<label for=savedata>Save Data Provider: </label><input name=save_data_provider type=text value="/save_data_provider.js" /><br>
 			<input type=submit />
 		</form>
 		<label for=session>Session: </label><input name=session id=session type=text value=dev_christian7573 /><br>
@@ -18,7 +18,8 @@
         <script>
 			document.querySelector("#server").value = `ws://${window.location.hostname}:8081/`;
 			function set_session() {
-				setCookie("session", document.querySelector("#session").value, 365);
+				localStorage.setItem("session", document.querySelector("#session").value);
+				//setCookie("session", document.querySelector("#session").value, 365);
 			}
 
 			function setCookie(cname, cvalue, exdays) {
