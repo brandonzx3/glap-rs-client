@@ -20,6 +20,8 @@ export class RecursivePart {
 		this.sprite.width = 1; this.sprite.height = 1;
 		if (kind === PartKind.Core) this.sprite.anchor.set(0.5, 0.5);
 		else this.sprite.anchor.set(0.5, 1);
+		this.sprite.interactive = true;
+		this.sprite.on("pointerdown", (e: PIXI.InteractionEvent) => global.on_part_grab(this, e));
 		this.container.addChild(this.sprite);
 
 		this.connector_sprite.texture = global.spritesheet.textures["connector.png"];

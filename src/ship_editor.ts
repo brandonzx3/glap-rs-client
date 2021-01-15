@@ -18,6 +18,7 @@ export interface GlobalData {
 	scaling: PIXI.Container;
 	world: PIXI.Container;
 	spritesheet: PIXI.Spritesheet;
+	on_part_grab: ((part: RecursivePart, e: PIXI.InteractionEvent) => void);
 
 	sidebar: PIXI.Container;
 	pane_background: PIXI.Graphics;
@@ -32,13 +33,14 @@ export interface GlobalData {
 	total_inventory: Map<PartKind, number>;
 	local_inventory: Map<PartKind, Box<number>>;
 	layout: RecursivePart;
-	dangling_pieces: RecursivePart[];
+	all_roots: RecursivePart[];
 }
 
 export const global: GlobalData = {
 	scaling: new PIXI.Container(),
 	world: new PIXI.Container(),
 	spritesheet: null,
+	on_part_grab: null,
 
 	sidebar: new PIXI.Container(),
 	pane_background: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
@@ -53,7 +55,7 @@ export const global: GlobalData = {
 	total_inventory: new Map(),
 	local_inventory: new Map(),
 	layout: null,
-	dangling_pieces: [],
+	all_roots: [],
 };
 (window as any)["global"] = global;
 
@@ -157,6 +159,7 @@ new Promise(async (resolve, _reject) => {
 	}
 
 	global.layout = RecursivePart.inflate(await save_data_provider.get_current_layout());
+	global.all_roots.push(global.layout);
 
 }).catch(err => { alert("Failed to load save data"); console.error(err); return never_promise; })
 .then(() => {
@@ -170,6 +173,58 @@ new Promise(async (resolve, _reject) => {
 
 	resize();
 	window.addEventListener("resize", resize);
+
+	global.world.interactive = true;
+	let grabbed_part: RecursivePart = null;
+	function on_part_grab(part_grabbed: RecursivePart, e: PIXI.InteractionEvent) {
+		for (const root of global.all_roots) {
+			if (root === part_grabbed && root.kind != PartKind.Core) {
+				grabbed_part = root;
+				break;
+			} else {
+				const transforms: PIXI.Matrix[] = [];
+				function recursive_search(part: RecursivePart): boolean {
+					for (let i = 0; i < part.attachments.length; i++) {
+						const attachment = part.attachments[i];
+						if (attachment != null) {
+							transforms.push(attachment.container.localTransform);
+							if (attachment === part_grabbed) {
+								grabbed_part = attachment;
+								part.attachments[i] = null;
+								part.update_attachments();
+								return true;
+							}
+							if (recursive_search(attachment)) return true;
+							transforms.pop();
+						}
+					}
+				}
+				if (recursive_search(root)) {
+					const transform = PIXI.Matrix.IDENTITY;
+					while (transforms.length > 0) { 
+						const my_transform = transforms.pop();
+						transform.append(my_transform);
+						//pixi_matrix_mult(my_transform, transform, transform);
+						console.log(my_transform);
+						console.log(transform);
+					} 
+					grabbed_part.container.localTransform.copyFrom(transform);
+					global.world.addChild(grabbed_part.container);
+					break;
+				}
+			}
+		}
+		(window as any).grabbed_part = grabbed_part;
+	};
+	global.on_part_grab = on_part_grab;
+	global.world.on("pointermove", (e: PIXI.InteractionEvent) => {
+		if (grabbed_part == null) return;
+
+	});
+	global.world.on("pointerup", (e: PIXI.InteractionEvent) => {
+		if (grabbed_part == null) return;
+
+	});
 	
 	function render() {
 		app.render();	
@@ -183,7 +238,6 @@ function reset_local_inventory() {
 	for (const [kind, count] of global.total_inventory) {
 		global.local_inventory.set(kind, new Box(count));
 	}
-
 }
 function inventory_take_parts(parts: RecursivePart, recurse: boolean) {
 	function do_recurse(part: RecursivePart) {
@@ -210,6 +264,16 @@ function inventory_return_parts(parts: RecursivePart, recurse: boolean) {
 	}
 	do_recurse(parts);
 	//TODO update inventory text
+}
+
+export function pixi_matrix_mult(transform: PIXI.Matrix, my_transform: PIXI.Matrix, out: PIXI.Matrix) {
+	const na = (transform.a * my_transform.a) + (transform.b * my_transform.c);
+	const nb = (transform.a * my_transform.b) + (transform.b * my_transform.d);
+	const nc = (transform.c * my_transform.a) + (transform.d * my_transform.c);
+	const nd = (transform.c * my_transform.b) + (transform.d * my_transform.d);
+	const nx = (transform.a * my_transform.tx) + (transform.b * my_transform.ty) + (transform.tx * 1);
+	const ny = (transform.c * my_transform.tx) + (transform.d * my_transform.ty) + (transform.ty * 1);
+	out.set(na, nb, nc, nd, nx, ny);
 }
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
