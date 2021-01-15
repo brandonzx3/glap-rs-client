@@ -176,7 +176,9 @@ new Promise(async (resolve, _reject) => {
 
 	global.world.interactive = true;
 	let grabbed_part: RecursivePart = null;
+	let prev_coordinates: [number, number] = [0, 0];
 	function on_part_grab(part_grabbed: RecursivePart, e: PIXI.InteractionEvent) {
+		prev_coordinates = [e.data.global.x, e.data.global.y];
 		for (const root of global.all_roots) {
 			if (root === part_grabbed && root.kind != PartKind.Core) {
 				grabbed_part = root;
@@ -187,7 +189,7 @@ new Promise(async (resolve, _reject) => {
 					for (let i = 0; i < part.attachments.length; i++) {
 						const attachment = part.attachments[i];
 						if (attachment != null) {
-							transforms.push(attachment.container.localTransform);
+							transforms.push(attachment.container.localTransform.clone());
 							if (attachment === part_grabbed) {
 								grabbed_part = attachment;
 								part.attachments[i] = null;
@@ -204,13 +206,8 @@ new Promise(async (resolve, _reject) => {
 					const transform = PIXI.Matrix.IDENTITY;
 					while (transforms.length > 0) { 
 						const my_transform = transforms.pop();
-						//transform.append(my_transform);
 						my_transform.append(transform).copyTo(transform);
-						//pixi_matrix_mult(my_transform, transform, transform);
-						//console.log(my_transform);
-						//console.log(transform);
 					} 
-					//grabbed_part.container.localTransform.copyFrom(transform);
 					grabbed_part.container.transform.setFromMatrix(transform);
 					global.world.addChild(grabbed_part.container);
 					break;
@@ -222,7 +219,10 @@ new Promise(async (resolve, _reject) => {
 	global.on_part_grab = on_part_grab;
 	global.world.on("pointermove", (e: PIXI.InteractionEvent) => {
 		if (grabbed_part == null) return;
-
+		const coords: [number, number] = [e.data.global.x, e.data.global.y];
+		grabbed_part.container.position.x += (coords[0] - prev_coordinates[0]) / global.scale_up;
+		grabbed_part.container.position.y += (coords[1] - prev_coordinates[1]) / global.scale_up;
+		prev_coordinates = coords;
 	});
 	global.world.on("pointerup", (e: PIXI.InteractionEvent) => {
 		if (grabbed_part == null) return;
