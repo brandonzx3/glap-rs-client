@@ -58,7 +58,7 @@ export class RecursivePart {
 	}
 	update_attachments() {
 		for (let i = 0; i < this.attachments.length; i++) {
-			if (this.attachments[i] == null || this.attachments_inner[i] != null) {
+			if (this.attachments[i] == null && this.attachments_inner[i] != null) {
 				this.container.removeChild(this.attachments_inner[i]);
 				this.attachments_inner[i] = null;
 			} else if (this.attachments[i] != null && this.attachments_inner[i] == null) {

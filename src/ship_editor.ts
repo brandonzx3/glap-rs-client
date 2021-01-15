@@ -185,11 +185,13 @@ new Promise(async (resolve, _reject) => {
 				const transforms: PIXI.Matrix[] = [];
 				function recursive_search(part: RecursivePart): boolean {
 					for (let i = 0; i < part.attachments.length; i++) {
+						console.log(i);
 						const attachment = part.attachments[i];
 						if (attachment != null) {
 							transforms.push(attachment.container.localTransform);
 							if (attachment === part_grabbed) {
 								grabbed_part = attachment;
+								console.log(i);
 								part.attachments[i] = null;
 								part.update_attachments();
 								return true;
@@ -198,6 +200,7 @@ new Promise(async (resolve, _reject) => {
 							transforms.pop();
 						}
 					}
+					return false;
 				}
 				if (recursive_search(root)) {
 					const transform = PIXI.Matrix.IDENTITY;
