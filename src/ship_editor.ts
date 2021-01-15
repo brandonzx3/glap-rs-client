@@ -78,8 +78,12 @@ export interface SaveDataProviderRecursivePartDescription {
 const app = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, });
 document.body.appendChild(app.view);
 
-const blueprint = new PIXI.TilingSprite(PIXI.Texture.from("./blueprint.png"), 150, 150);
+const blueprint_texture = PIXI.Texture.from("./blueprint.png");
+//blueprint_texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+const blueprint = new PIXI.TilingSprite(blueprint_texture, 100, 100);
 blueprint.anchor.set(0.5,0.5);
+blueprint.tileScale.set(1/80);
+blueprint.tilePosition.set(-1.2,-1.2);
 
 app.stage.addChild(global.scaling);
 global.scaling.addChild(blueprint);
@@ -106,7 +110,7 @@ export function resize() {
     global.scale_up = global.raw_scale_up * global.zoom;
     global.scaling.scale.set(global.scale_up, global.scale_up);
 
-	blueprint.tileScale.set(2 / global.scale_up);
+	//blueprint.tileScale.set(2 / global.scale_up);
 	global.pane_background.width = global.pane_size;
 	global.pane_background.height = window.innerHeight;
 	global.pane_border.height = pane_border_size;
