@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { PartKind } from "./codec";
 import { parse as qs_parse } from "query-string";
-import { RecursivePart } from "./ship_editor_parts";
+import { RecursivePart, part_kind_info } from "./ship_editor_parts";
 import { validate as lib_uuid_validate } from "uuid";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
@@ -79,6 +79,7 @@ export interface SaveDataProviderRecursivePartDescription {
 
 const app = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, });
 document.body.appendChild(app.view);
+app.view.setAttribute("draggable", "false");
 
 const blueprint_texture = PIXI.Texture.from("./blueprint.png");
 //blueprint_texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
@@ -178,13 +179,17 @@ new Promise(async (resolve, _reject) => {
 	let grabbed_part: RecursivePart = null;
 	let prev_coordinates: [number, number] = [0, 0];
 	function on_part_grab(part_grabbed: RecursivePart, e: PIXI.InteractionEvent) {
+		if (grabbed_part != null) return;
 		prev_coordinates = [e.data.global.x, e.data.global.y];
-		for (const root of global.all_roots) {
+		for (let i = 0; i < global.all_roots.length; i++) {
+			const root = global.all_roots[i];
 			if (root === part_grabbed && root.kind != PartKind.Core) {
 				grabbed_part = root;
+				global.all_roots.splice(i,1);
+				//global.world.removeChild(grabbed_part.container);
 				break;
 			} else {
-				const transforms: PIXI.Matrix[] = [];
+				const transforms: PIXI.Matrix[] = [root.container.localTransform.clone()];
 				function recursive_search(part: RecursivePart): boolean {
 					for (let i = 0; i < part.attachments.length; i++) {
 						const attachment = part.attachments[i];
@@ -206,7 +211,8 @@ new Promise(async (resolve, _reject) => {
 					const transform = PIXI.Matrix.IDENTITY;
 					while (transforms.length > 0) { 
 						const my_transform = transforms.pop();
-						my_transform.append(transform).copyTo(transform);
+						transform.prepend(my_transform);
+						//my_transform.append(transform).copyTo(transform);
 					} 
 					grabbed_part.container.transform.setFromMatrix(transform);
 					global.world.addChild(grabbed_part.container);
@@ -215,6 +221,7 @@ new Promise(async (resolve, _reject) => {
 			}
 		}
 		(window as any).grabbed_part = grabbed_part;
+		//grabbed_part.container.once("pointerup", pointer_up);
 	};
 	global.on_part_grab = on_part_grab;
 	global.world.on("pointermove", (e: PIXI.InteractionEvent) => {
@@ -224,10 +231,46 @@ new Promise(async (resolve, _reject) => {
 		grabbed_part.container.position.y += (coords[1] - prev_coordinates[1]) / global.scale_up;
 		prev_coordinates = coords;
 	});
-	global.world.on("pointerup", (e: PIXI.InteractionEvent) => {
+	const pointer_up =  (_e: PIXI.InteractionEvent) => {
 		if (grabbed_part == null) return;
+		const attach_threshold = 0.4;// * global.scale_up;
+		function recursive_attach(part: RecursivePart, transform: PIXI.Matrix): boolean {
+			const attach_info = part_kind_info.get(part.kind).attachments;
+			for (let i = 0; i < attach_info.length; i++) {
+				if (attach_info[i] == null) continue;
+				const transformed_attach_point = new PIXI.Point(attach_info[i].dx, attach_info[i].dy);								
+				transform.apply(transformed_attach_point, transformed_attach_point);
+				if (
+					Math.abs(transformed_attach_point.x - grabbed_part.container.x) < attach_threshold
+				 && Math.abs(transformed_attach_point.y - grabbed_part.container.y) < attach_threshold
+				 && part.attachments[i] == null
+				) {
+					global.world.removeChild(grabbed_part.container);
+					part.attachments[i] = grabbed_part;
+					part.update_attachments();
+					grabbed_part = null
+					return true;
+				}
 
-	});
+				if (part.attachments[i] != null) {
+					const new_transform = transform.clone();
+					new_transform.append(part.attachments[i].container.localTransform);
+					if (recursive_attach(part.attachments[i], new_transform)) return true;
+				}
+			}
+			return false;
+		}
+		let attached = false;
+		for (const root of global.all_roots) {
+			if (recursive_attach(root, root.container.localTransform.clone())) { attached = true; break; }
+		}
+		if (!attached) {
+			global.all_roots.push(grabbed_part);
+			grabbed_part = null;
+		}
+	};
+	global.world.on("pointerup", pointer_up);
+	global.world.on("mouseup", pointer_up);
 	
 	function render() {
 		app.render();	

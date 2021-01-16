@@ -64,7 +64,7 @@ export class RecursivePart {
 			} else if (this.attachments[i] != null && this.attachments_inner[i] == null) {
 				this.attachments_inner[i] = this.attachments[i].container;
 				const kind_info = part_kind_info.get(this.kind);
-				this.attachments_inner[i].position.set(kind_info.attachments[i].dx, -kind_info.attachments[i].dy);
+				this.attachments_inner[i].position.set(kind_info.attachments[i].dx, kind_info.attachments[i].dy);
 				this.attachments_inner[i].rotation = AttachedPartFacing_PartRotation(kind_info.attachments[i].facing) - Math.PI;
 				this.container.addChild(this.attachments_inner[i]);
 			}
@@ -111,7 +111,7 @@ export class AttachmentInfo {
 	dy: number;
 	facing: AttachedPartFacing;
 	constructor(dx: number, dy: number, facing: AttachedPartFacing) {
-		this.dx = dx; this.dy = dy; this.facing = facing;
+		this.dx = dx; this.dy = -dy; this.facing = facing;
 	}
 }
 
