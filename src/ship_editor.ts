@@ -22,6 +22,8 @@ export interface GlobalData {
 
 	sidebar: PIXI.Container;
 	pane_background: PIXI.Graphics;
+	pane_background_again: PIXI.Graphics;
+	pane_background_separator: PIXI.Graphics;
 	pane_border: PIXI.TilingSprite;
 
 	pane_size: number;
@@ -43,7 +45,9 @@ export const global: GlobalData = {
 	on_part_grab: null,
 
 	sidebar: new PIXI.Container(),
-	pane_background: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
+	pane_background: new PIXI.Graphics().beginFill(0x6e6a6a).drawRect(0,0,1,1).endFill(),
+	pane_background_again: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
+	pane_background_separator: new PIXI.Graphics().beginFill(0x4c484a).drawRect(0,0,1,1).endFill(),
 	pane_border: null,
 
 	pane_size: 0,
@@ -94,6 +98,8 @@ global.scaling.addChild(global.world);
 
 app.stage.addChild(global.sidebar);
 global.sidebar.addChild(global.pane_background);
+global.sidebar.addChild(global.pane_background_again);
+global.sidebar.addChild(global.pane_background_separator);
 
 if (typeof params["save_data_provider"] !== "string") { alert("Invalid save data provider url"); throw new Error("Invalid save data provider url"); }
 const save_data_provider_url = params["save_data_provider"] as string;
@@ -106,8 +112,8 @@ export function resize() {
 	app.view.width = window.innerWidth;
 	app.view.height = window.innerHeight;
     app.renderer.resize(window.innerWidth, window.innerHeight);
-	global.pane_size = Math.max(window.innerWidth * 0.07, 100);
-	const pane_border_size = global.pane_size * 0.1;
+	global.pane_size = Math.max(window.innerWidth * 0.14, 200);
+	const pane_border_size = global.pane_size * 0.1 * 0.5;
     global.scaling.position.set(app.view.width / 2 + global.pane_size + pane_border_size, app.view.height / 2);
     global.raw_scale_up = Math.max(window_size * (0.045545023696682464), 30);
     global.scale_up = global.raw_scale_up * global.zoom;
@@ -116,6 +122,12 @@ export function resize() {
 	//blueprint.tileScale.set(2 / global.scale_up);
 	global.pane_background.width = global.pane_size;
 	global.pane_background.height = window.innerHeight;
+	global.pane_background_again.width = global.pane_size;
+	global.pane_background_again.height = window.innerHeight - global.pane_size;
+	global.pane_background_again.y = global.pane_size;
+	global.pane_background_separator.width = global.pane_size;
+	global.pane_background_separator.height = 8;
+	global.pane_background_separator.y = global.pane_size;
 	global.pane_border.height = pane_border_size;
 	global.pane_border.width = window.innerHeight;
 	global.pane_border.x = global.pane_size;
@@ -175,7 +187,28 @@ new Promise(async (resolve, _reject) => {
 	resize();
 	window.addEventListener("resize", resize);
 
-	global.world.interactive = true;
+	blueprint.interactive = true;
+	let blueprint_dragging = false;
+	let prev_blueprint_coords: [number, number] = [0, 0];
+	blueprint.on("pointerdown", (e: PIXI.InteractionEvent) => {
+		prev_blueprint_coords = [e.data.global.x, e.data.global.y];
+		blueprint_dragging = true;
+	});
+	blueprint.on("pointermove", (e: PIXI.InteractionEvent) => {
+		if (!blueprint_dragging) return;
+		const coords = [e.data.global.x, e.data.global.y];
+		const dx = (coords[0] - prev_blueprint_coords[0]) / global.scale_up;
+		const dy = (coords[1] - prev_blueprint_coords[1]) / global.scale_up;
+		global.world.x += dx;
+		global.world.y += dy;
+		blueprint.tilePosition.x += dx;
+		blueprint.tilePosition.y += dy;
+		prev_blueprint_coords = coords as [number, number];
+	});
+	blueprint.on("mouseup", (_e: PIXI.InteractionEvent) => {
+		blueprint_dragging = false;
+	});
+
 	let grabbed_part: RecursivePart = null;
 	let prev_coordinates: [number, number] = [0, 0];
 	function on_part_grab(part_grabbed: RecursivePart, e: PIXI.InteractionEvent) {
@@ -224,14 +257,15 @@ new Promise(async (resolve, _reject) => {
 		//grabbed_part.container.once("pointerup", pointer_up);
 	};
 	global.on_part_grab = on_part_grab;
-	global.world.on("pointermove", (e: PIXI.InteractionEvent) => {
+	const pointer_move = (e: MouseEvent) => {
 		if (grabbed_part == null) return;
-		const coords: [number, number] = [e.data.global.x, e.data.global.y];
+		const coords: [number, number] = [e.x, e.y];
 		grabbed_part.container.position.x += (coords[0] - prev_coordinates[0]) / global.scale_up;
 		grabbed_part.container.position.y += (coords[1] - prev_coordinates[1]) / global.scale_up;
 		prev_coordinates = coords;
-	});
-	const pointer_up =  (_e: PIXI.InteractionEvent) => {
+	};
+	window.addEventListener("mousemove", pointer_move);
+	const pointer_up =  (_e: MouseEvent) => {
 		if (grabbed_part == null) return;
 		const attach_threshold = 0.4;// * global.scale_up;
 		function recursive_attach(part: RecursivePart, transform: PIXI.Matrix): boolean {
@@ -269,8 +303,7 @@ new Promise(async (resolve, _reject) => {
 			grabbed_part = null;
 		}
 	};
-	global.world.on("pointerup", pointer_up);
-	global.world.on("mouseup", pointer_up);
+	window.addEventListener("mouseup", pointer_up);
 	
 	function render() {
 		app.render();	
