@@ -87,10 +87,10 @@ app.view.setAttribute("draggable", "false");
 
 const blueprint_texture = PIXI.Texture.from("./blueprint.png");
 //blueprint_texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-const blueprint = new PIXI.TilingSprite(blueprint_texture, 100, 100);
+const blueprint = new PIXI.TilingSprite(blueprint_texture, 300, 300);
 blueprint.anchor.set(0.5,0.5);
 blueprint.tileScale.set(1/80);
-blueprint.tilePosition.set(-1.2,-1.2);
+blueprint.tilePosition.set(-2.45, -2.45);
 
 app.stage.addChild(global.scaling);
 global.scaling.addChild(blueprint);
@@ -207,6 +207,39 @@ new Promise(async (resolve, _reject) => {
 	});
 	blueprint.on("mouseup", (_e: PIXI.InteractionEvent) => {
 		blueprint_dragging = false;
+	});
+
+    app.view.addEventListener("wheel", event => {
+		const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
+		/*const cursor_at: [number, number] = [event.x, event.y];
+		const unscaled_space =  [cursor_at[0] - global.pane_size - global.world.position.x, cursor_at[1] - global.world.position.y];
+		const scaled_space = [unscaled_space[0] / global.scale_up, unscaled_space[1] / global.scale_up];*/
+	    const origional_position = new PIXI.Point(event.x, event.y);
+		global.world.worldTransform.applyInverse(origional_position, origional_position);
+
+		global.zoom -= deltaY * 0.01;
+		if (global.zoom > 1.25) global.zoom = 1.25;
+		else if (global.zoom < 0.4) global.zoom = 0.4;
+		resize();
+		global.scaling.transform.updateTransform(global.scaling.parent.transform);
+		global.world.transform.updateTransform(global.world.parent.transform);
+
+		const new_position = new PIXI.Point(event.x, event.y);
+		global.world.worldTransform.applyInverse(new_position, new_position);
+		const dx = new_position.x - origional_position.x;
+		const dy = new_position.y - origional_position.y;
+		global.world.x += dx;
+		global.world.y += dy;
+		blueprint.tilePosition.x += dx;
+		blueprint.tilePosition.y += dy;
+
+		/*const new_unscaled = [scaled_space[0] * global.scale_up, scaled_space[1] * global.scale_up];
+		//global.world.x -= new_unscaled[0] - unscaled_space[0];
+		//global.world.y -= new_unscaled[1] - unscaled_space[1];
+		global.world.x = new_unscaled[0];
+		global.world.y = new_unscaled[1];
+		blueprint.tilePosition.x = global.world.x; //+ (-1.2 * global.zoom)
+		blueprint.tilePosition.y = global.world.y;*/
 	});
 
 	let grabbed_part: RecursivePart = null;

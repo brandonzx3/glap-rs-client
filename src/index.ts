@@ -600,7 +600,7 @@ new Promise(async (resolve, reject) => {
     }
 
     pixi.view.addEventListener("wheel", event => {
-	const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
+		const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
         if (global.starguide.mouseover) global.starguide.on_wheel(event, deltaY);
         else {
             global.zoom -= deltaY * 0.01;
