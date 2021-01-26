@@ -273,6 +273,7 @@ new Promise(async (resolve, _reject) => {
 					}
 					return false;
 				}
+				transforms.push(global.world.localTransform.clone());
 				if (recursive_search(root)) {
 					const transform = PIXI.Matrix.IDENTITY;
 					while (transforms.length > 0) { 
@@ -281,7 +282,7 @@ new Promise(async (resolve, _reject) => {
 						//my_transform.append(transform).copyTo(transform);
 					} 
 					grabbed_part.container.transform.setFromMatrix(transform);
-					global.world.addChild(grabbed_part.container);
+					global.world.parent.addChild(grabbed_part.container);
 					break;
 				}
 			}
