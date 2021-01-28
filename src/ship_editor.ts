@@ -17,6 +17,7 @@ console.log("Has session: " + has_session);
 export interface GlobalData {
 	scaling: PIXI.Container;
 	world: PIXI.Container;
+	grabbed_container: PIXI.Container;
 	spritesheet: PIXI.Spritesheet;
 	on_part_grab: ((part: RecursivePart, e: PIXI.InteractionEvent) => void);
 
@@ -41,6 +42,7 @@ export interface GlobalData {
 export const global: GlobalData = {
 	scaling: new PIXI.Container(),
 	world: new PIXI.Container(),
+	grabbed_container: new PIXI.Container(),
 	spritesheet: null,
 	on_part_grab: null,
 
@@ -101,6 +103,8 @@ global.sidebar.addChild(global.pane_background);
 global.sidebar.addChild(global.pane_background_again);
 global.sidebar.addChild(global.pane_background_separator);
 
+app.stage.addChild(global.grabbed_container);
+
 if (typeof params["save_data_provider"] !== "string") { alert("Invalid save data provider url"); throw new Error("Invalid save data provider url"); }
 const save_data_provider_url = params["save_data_provider"] as string;
 const save_data_provider_is_module = "save_data_provider_is_module" in params ? params["save_data_provider_is_module"] == "true" : false;
@@ -118,6 +122,8 @@ export function resize() {
     global.raw_scale_up = Math.max(window_size * (0.045545023696682464), 30);
     global.scale_up = global.raw_scale_up * global.zoom;
     global.scaling.scale.set(global.scale_up, global.scale_up);
+	global.grabbed_container.position.copyFrom(global.scaling.position);
+	global.grabbed_container.scale.copyFrom(global.scaling.scale);
 
 	//blueprint.tileScale.set(2 / global.scale_up);
 	global.pane_background.width = global.pane_size;
@@ -252,7 +258,10 @@ new Promise(async (resolve, _reject) => {
 			if (root === part_grabbed && root.kind != PartKind.Core) {
 				grabbed_part = root;
 				global.all_roots.splice(i,1);
-				//global.world.removeChild(grabbed_part.container);
+				global.world.removeChild(grabbed_part.container);
+				global.grabbed_container.addChild(grabbed_part.container);
+				grabbed_part.container.x -= global.world.x;
+				grabbed_part.container.y -= global.world.y;
 				break;
 			} else {
 				const transforms: PIXI.Matrix[] = [root.container.localTransform.clone()];
@@ -282,7 +291,7 @@ new Promise(async (resolve, _reject) => {
 						//my_transform.append(transform).copyTo(transform);
 					} 
 					grabbed_part.container.transform.setFromMatrix(transform);
-					global.world.parent.addChild(grabbed_part.container);
+					global.grabbed_container.addChild(grabbed_part.container);
 					break;
 				}
 			}
@@ -313,7 +322,7 @@ new Promise(async (resolve, _reject) => {
 				 && Math.abs(transformed_attach_point.y - grabbed_part.container.y) < attach_threshold
 				 && part.attachments[i] == null
 				) {
-					global.world.removeChild(grabbed_part.container);
+					global.grabbed_container.removeChild(grabbed_part.container);
 					part.attachments[i] = grabbed_part;
 					part.update_attachments();
 					grabbed_part = null
@@ -330,10 +339,16 @@ new Promise(async (resolve, _reject) => {
 		}
 		let attached = false;
 		for (const root of global.all_roots) {
-			if (recursive_attach(root, root.container.localTransform.clone())) { attached = true; break; }
+			const world_transform = root.container.localTransform.clone();
+			world_transform.append(global.world.localTransform);
+			if (recursive_attach(root, world_transform)) { attached = true; break; }
 		}
 		if (!attached) {
 			global.all_roots.push(grabbed_part);
+			global.grabbed_container.removeChild(grabbed_part.container);
+			grabbed_part.container.x += global.world.x;
+			grabbed_part.container.y += global.world.y;
+			global.world.addChild(grabbed_part.container);
 			grabbed_part = null;
 		}
 	};
