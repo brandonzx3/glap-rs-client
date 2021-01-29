@@ -12,7 +12,7 @@ export class RecursivePart {
 	connector_sprite = new PIXI.Sprite();
 	connected = false;
 
-	constructor(kind: PartKind, attachments: RecursivePart[], connected: boolean) {
+	constructor(kind: PartKind, attachments: RecursivePart[], connected: boolean)  {
 		this.kind = kind;
 		this.attachments = attachments;
 		this.connected = connected && this.kind !== PartKind.Core;

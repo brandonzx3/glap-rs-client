@@ -27,6 +27,11 @@ export interface GlobalData {
 	pane_background_separator: PIXI.Graphics;
 	pane_border: PIXI.TilingSprite;
 
+	inventory_holder: PIXI.Container;
+	inventory_holder_holder: PIXI.Container;
+	scrollbar_holder: PIXI.Container;
+	scrollbar: PIXI.Graphics;
+
 	pane_size: number;
 	zoom: number;
 	raw_scale_up: number;
@@ -51,6 +56,11 @@ export const global: GlobalData = {
 	pane_background_again: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
 	pane_background_separator: new PIXI.Graphics().beginFill(0x4c484a).drawRect(0,0,1,1).endFill(),
 	pane_border: null,
+
+	inventory_holder: new PIXI.Container(),
+	inventory_holder_holder: new PIXI.Container(),
+	scrollbar_holder: new PIXI.Container(),
+	scrollbar: new PIXI.Graphics().beginFill(0x6e6a6a).drawRect(0,0,1,1).endFill(),
 
 	pane_size: 0,
 	zoom: 1,
@@ -103,6 +113,9 @@ global.sidebar.addChild(global.pane_background);
 global.sidebar.addChild(global.pane_background_again);
 global.sidebar.addChild(global.pane_background_separator);
 
+global.sidebar.addChild(global.inventory_holder_holder);
+global.inventory_holder_holder.addChild(global.inventory_holder);
+
 app.stage.addChild(global.grabbed_container);
 
 if (typeof params["save_data_provider"] !== "string") { alert("Invalid save data provider url"); throw new Error("Invalid save data provider url"); }
@@ -110,6 +123,54 @@ const save_data_provider_url = params["save_data_provider"] as string;
 const save_data_provider_is_module = "save_data_provider_is_module" in params ? params["save_data_provider_is_module"] == "true" : false;
 if (typeof params["spritesheet"] !== "string") { alert("Invalid spritesheet url"); throw new Error("Invalid spritesheet url"); }
 const spritesheet_url_base = params["spritesheet"] as string;
+
+class PartInventoryDisplay {
+	kind: PartKind;
+	part: RecursivePart;
+	count_display: PIXI.Text = new PIXI.Text("");
+	container = new PIXI.Container();
+	constructor(kind: PartKind) {
+		this.kind = kind;
+		this.container.addChild(this.count_display);
+	}
+
+	init_part() {
+		if (this.part != null) {
+			this.container.removeChild(this.part.container);
+		}
+		this.part = new RecursivePart(this.kind, [null, null, null, null], true);
+		this.container.addChild(this.part.container);
+		this.part.container.position.set(0.5,0);
+		this.part.sprite.interactive = true;
+		this.part.sprite.once("pointerdown", (e: PIXI.InteractionEvent) => {
+			const part = this.part;
+			this.part = null;
+			global.all_roots.push(part);
+			global.on_part_grab(part, e);
+			global.grabbed_container.localTransform.applyInverse(e.data.global, part.container.position);
+		});
+	}
+}
+
+const inventoried_parts = [
+	PartKind.Hub,
+	PartKind.PowerHub,
+	PartKind.HubThruster,
+	PartKind.SolarPanel,
+	PartKind.Thruster,
+	PartKind.SuperThruster,
+	PartKind.EcoThruster,
+];
+
+let inventory_y = 0.25;
+const inventory_displayers = new Map<PartKind, PartInventoryDisplay>();
+for (const part of inventoried_parts) {
+	const display = new PartInventoryDisplay(part);
+	global.inventory_holder.addChild(display.container);			
+	display.container.y = inventory_y;
+	inventory_y += 1.25;
+	inventory_displayers.set(part, display);
+}
 
 export function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
@@ -139,6 +200,11 @@ export function resize() {
 	global.pane_border.x = global.pane_size;
 	global.pane_border.tileScale.y = 2 / pane_border_size;
 	global.pane_border.tileScale.x = global.pane_border.tileScale.y / global.pane_border.texture.height * global.pane_border.texture.width;
+
+	global.inventory_holder.width = (global.pane_size * 0.9) / 5;
+	global.inventory_holder.height = global.inventory_holder.width;
+	global.inventory_holder_holder.x = global.pane_size * 0.05;
+	global.inventory_holder_holder.y = global.pane_background_separator.height + global.pane_background_separator.y;
 }
 
 const save_data_provider = new Promise((resolve, reject) => {
@@ -189,6 +255,7 @@ new Promise(async (resolve, _reject) => {
 	reset_local_inventory();
 	inventory_take_parts(global.layout, true);
 	global.world.addChild(global.layout.container);
+	for (const display of inventory_displayers.values()) { display.init_part(); }
 
 	resize();
 	window.addEventListener("resize", resize);
@@ -224,7 +291,7 @@ new Promise(async (resolve, _reject) => {
 		global.world.worldTransform.applyInverse(origional_position, origional_position);
 
 		global.zoom -= deltaY * 0.01;
-		if (global.zoom > 1.25) global.zoom = 1.25;
+		if (global.zoom > 1.75) global.zoom = 1.75;
 		else if (global.zoom < 0.4) global.zoom = 0.4;
 		resize();
 		global.scaling.transform.updateTransform(global.scaling.parent.transform);
@@ -260,8 +327,8 @@ new Promise(async (resolve, _reject) => {
 				global.all_roots.splice(i,1);
 				global.world.removeChild(grabbed_part.container);
 				global.grabbed_container.addChild(grabbed_part.container);
-				grabbed_part.container.x -= global.world.x;
-				grabbed_part.container.y -= global.world.y;
+				grabbed_part.container.x += global.world.x;
+				grabbed_part.container.y += global.world.y;
 				break;
 			} else {
 				const transforms: PIXI.Matrix[] = [root.container.localTransform.clone()];
@@ -346,13 +413,14 @@ new Promise(async (resolve, _reject) => {
 		if (!attached) {
 			global.all_roots.push(grabbed_part);
 			global.grabbed_container.removeChild(grabbed_part.container);
-			grabbed_part.container.x += global.world.x;
-			grabbed_part.container.y += global.world.y;
+			grabbed_part.container.x -= global.world.x;
+			grabbed_part.container.y -= global.world.y;
 			global.world.addChild(grabbed_part.container);
 			grabbed_part = null;
 		}
 	};
 	window.addEventListener("mouseup", pointer_up);
+
 	
 	function render() {
 		app.render();	
@@ -405,3 +473,4 @@ export function pixi_matrix_mult(transform: PIXI.Matrix, my_transform: PIXI.Matr
 }
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
+
