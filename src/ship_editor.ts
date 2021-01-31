@@ -201,8 +201,9 @@ export function resize() {
 	global.pane_border.tileScale.y = 2 / pane_border_size;
 	global.pane_border.tileScale.x = global.pane_border.tileScale.y / global.pane_border.texture.height * global.pane_border.texture.width;
 
-	global.inventory_holder.width = (global.pane_size * 0.9) / 5;
-	global.inventory_holder.height = global.inventory_holder.width;
+	//global.inventory_holder.width = (global.pane_size * 0.9);
+	global.inventory_holder.scale.set(global.pane_size * 0.9 / 5);
+	//global.inventory_holder.height = global.inventory_holder.width;
 	global.inventory_holder_holder.x = global.pane_size * 0.05;
 	global.inventory_holder_holder.y = global.pane_background_separator.height + global.pane_background_separator.y;
 }
@@ -284,9 +285,6 @@ new Promise(async (resolve, _reject) => {
 
     app.view.addEventListener("wheel", event => {
 		const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
-		/*const cursor_at: [number, number] = [event.x, event.y];
-		const unscaled_space =  [cursor_at[0] - global.pane_size - global.world.position.x, cursor_at[1] - global.world.position.y];
-		const scaled_space = [unscaled_space[0] / global.scale_up, unscaled_space[1] / global.scale_up];*/
 	    const origional_position = new PIXI.Point(event.x, event.y);
 		global.world.worldTransform.applyInverse(origional_position, origional_position);
 
@@ -305,14 +303,6 @@ new Promise(async (resolve, _reject) => {
 		global.world.y += dy;
 		blueprint.tilePosition.x += dx;
 		blueprint.tilePosition.y += dy;
-
-		/*const new_unscaled = [scaled_space[0] * global.scale_up, scaled_space[1] * global.scale_up];
-		//global.world.x -= new_unscaled[0] - unscaled_space[0];
-		//global.world.y -= new_unscaled[1] - unscaled_space[1];
-		global.world.x = new_unscaled[0];
-		global.world.y = new_unscaled[1];
-		blueprint.tilePosition.x = global.world.x; //+ (-1.2 * global.zoom)
-		blueprint.tilePosition.y = global.world.y;*/
 	});
 
 	let grabbed_part: RecursivePart = null;
