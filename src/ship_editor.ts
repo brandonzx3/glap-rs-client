@@ -150,6 +150,12 @@ class PartInventoryDisplay {
 			global.grabbed_container.localTransform.applyInverse(e.data.global, part.container.position);
 		});
 	}
+
+	update_count() {
+		this.count_display.text = `${global.local_inventory.get(this.kind)}/${global.total_inventory.get(this.kind)}`;
+		this.count_display.updateText(false);
+		//this.count_display.width = this.
+	}
 }
 
 const inventoried_parts = [
