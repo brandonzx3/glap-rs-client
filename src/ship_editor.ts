@@ -173,7 +173,7 @@ const inventoried_parts = [
 	PartKind.EcoThruster,
 ];
 
-let inventory_y = 0.25;
+let inventory_y = 1.25;
 const inventory_displayers = new Map<PartKind, PartInventoryDisplay>();
 for (const part of inventoried_parts) {
 	const display = new PartInventoryDisplay(part);
