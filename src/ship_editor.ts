@@ -174,6 +174,7 @@ const inventoried_parts = [
 	PartKind.HubThruster,
 	PartKind.SolarPanel,
 	PartKind.Thruster,
+	PartKind.LandingThruster,
 	PartKind.SuperThruster,
 	PartKind.EcoThruster,
 ];
