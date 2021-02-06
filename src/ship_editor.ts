@@ -132,6 +132,9 @@ class PartInventoryDisplay {
 	constructor(kind: PartKind) {
 		this.kind = kind;
 		this.container.addChild(this.count_display);
+		this.count_display.position.set(2, -1);
+		this.count_display.height = 1;
+		this.update_text(10,100);
 	}
 
 	init_part() {
@@ -149,6 +152,14 @@ class PartInventoryDisplay {
 			global.on_part_grab(part, e);
 			global.grabbed_container.localTransform.applyInverse(e.data.global, part.container.position);
 		});
+	}
+
+	update_text(local_count: number, total_count: number) {
+		if (local_count < 0) this.count_display.style.fill = "red";
+		else this.count_display.style.fill = "white";
+		this.count_display.text = `${local_count}/${total_count}`;
+		this.count_display.updateText(true);
+		this.count_display.width = this.count_display.texture.width / this.count_display.texture.height * this.count_display.height;
 	}
 }
 
