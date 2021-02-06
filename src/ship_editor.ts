@@ -379,8 +379,19 @@ new Promise(async (resolve, _reject) => {
 		prev_coordinates = coords;
 	};
 	window.addEventListener("mousemove", pointer_move);
-	const pointer_up =  (_e: MouseEvent) => {
+	const pointer_up =  (e: MouseEvent) => {
 		if (grabbed_part == null) return;
+		if (e.x < global.pane_size) {
+			inventory_return_parts(grabbed_part, true);
+			global.grabbed_container.removeChild(grabbed_part.container);
+			grabbed_part = null;
+			for (const display of inventory_displayers.values()) display.update_text();
+			if (currently_grabbed_from != null) {
+				currently_grabbed_from.init_part();
+				currently_grabbed_from = null;
+			}
+			return;
+		}
 		const attach_threshold = 0.4;// * global.scale_up;
 		function recursive_attach(part: RecursivePart, transform: PIXI.Matrix): boolean {
 			const attach_info = part_kind_info.get(part.kind).attachments;
