@@ -98,7 +98,7 @@ document.body.appendChild(app.view);
 app.view.setAttribute("draggable", "false");
 
 const blueprint_texture = PIXI.Texture.from("./blueprint.png");
-//blueprint_texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+blueprint_texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
 const blueprint = new PIXI.TilingSprite(blueprint_texture, 300, 300);
 blueprint.anchor.set(0.5,0.5);
 blueprint.tileScale.set(1/80);
@@ -202,7 +202,6 @@ export function resize() {
 	global.grabbed_container.position.copyFrom(global.scaling.position);
 	global.grabbed_container.scale.copyFrom(global.scaling.scale);
 
-	//blueprint.tileScale.set(2 / global.scale_up);
 	global.pane_background.width = global.pane_size;
 	global.pane_background.height = window.innerHeight;
 	global.pane_background_again.width = global.pane_size;
@@ -217,9 +216,7 @@ export function resize() {
 	global.pane_border.tileScale.y = 2 / pane_border_size;
 	global.pane_border.tileScale.x = global.pane_border.tileScale.y / global.pane_border.texture.height * global.pane_border.texture.width;
 
-	//global.inventory_holder.width = (global.pane_size * 0.9);
 	global.inventory_holder.scale.set(global.pane_size * 0.9 / 5);
-	//global.inventory_holder.height = global.inventory_holder.width;
 	global.inventory_holder_holder.x = global.pane_size * 0.05;
 	global.inventory_holder_holder.y = global.pane_background_separator.height + global.pane_background_separator.y;
 }
@@ -364,7 +361,6 @@ new Promise(async (resolve, _reject) => {
 					while (transforms.length > 0) { 
 						const my_transform = transforms.pop();
 						transform.prepend(my_transform);
-						//my_transform.append(transform).copyTo(transform);
 					} 
 					grabbed_part.container.transform.setFromMatrix(transform);
 					global.grabbed_container.addChild(grabbed_part.container);
@@ -373,7 +369,6 @@ new Promise(async (resolve, _reject) => {
 			}
 		}
 		(window as any).grabbed_part = grabbed_part;
-		//grabbed_part.container.once("pointerup", pointer_up);
 	};
 	global.on_part_grab = on_part_grab;
 	const pointer_move = (e: MouseEvent) => {
