@@ -132,9 +132,8 @@ class PartInventoryDisplay {
 	constructor(kind: PartKind) {
 		this.kind = kind;
 		this.container.addChild(this.count_display);
-		this.count_display.position.set(2, -1);
-		this.count_display.height = 1;
-		this.update_text(10,100);
+		this.count_display.position.set(1.25, -0.8);
+		this.count_display.height = 0.6;
 	}
 
 	init_part() {
@@ -150,11 +149,16 @@ class PartInventoryDisplay {
 			this.part = null;
 			global.all_roots.push(part);
 			global.on_part_grab(part, e);
+			global.local_inventory.get(this.kind).v--;
+			this.update_text();
 			global.grabbed_container.localTransform.applyInverse(e.data.global, part.container.position);
+			currently_grabbed_from = this;
 		});
 	}
 
-	update_text(local_count: number, total_count: number) {
+	update_text() {
+		const local_count = global.local_inventory.get(this.kind).v;
+		const total_count = global.total_inventory.get(this.kind) ?? 0;
 		if (local_count < 0) this.count_display.style.fill = "red";
 		else this.count_display.style.fill = "white";
 		this.count_display.text = `${local_count}/${total_count}`;
@@ -163,6 +167,7 @@ class PartInventoryDisplay {
 	}
 }
 
+let currently_grabbed_from: PartInventoryDisplay = null;
 const inventoried_parts = [
 	PartKind.Hub,
 	PartKind.PowerHub,
@@ -267,7 +272,10 @@ new Promise(async (resolve, _reject) => {
 	reset_local_inventory();
 	inventory_take_parts(global.layout, true);
 	global.world.addChild(global.layout.container);
-	for (const display of inventory_displayers.values()) { display.init_part(); }
+	for (const display of inventory_displayers.values()) {
+		display.init_part();
+		display.update_text();
+	}
 
 	resize();
 	window.addEventListener("resize", resize);
@@ -419,6 +427,10 @@ new Promise(async (resolve, _reject) => {
 			global.world.addChild(grabbed_part.container);
 			grabbed_part = null;
 		}
+		if (currently_grabbed_from != null) {
+			currently_grabbed_from.init_part();
+			currently_grabbed_from = null;
+		}
 	};
 	window.addEventListener("mouseup", pointer_up);
 
@@ -434,6 +446,9 @@ function reset_local_inventory() {
 	global.local_inventory.clear();
 	for (const [kind, count] of global.total_inventory) {
 		global.local_inventory.set(kind, new Box(count));
+	}
+	for (const kind of inventoried_parts) {
+		if (!global.local_inventory.has(kind)) global.local_inventory.set(kind, new Box(0));
 	}
 }
 function inventory_take_parts(parts: RecursivePart, recurse: boolean) {
