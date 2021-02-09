@@ -4,9 +4,28 @@
 		<title>Ship Editor - Glap.RS</title>
 <style>
 	html, body, canvas { width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden; }
+	#sidebar_panel {
+		display: flex;
+		flex-flow: column nowrap;
+		overflow: visible;
+		position: fixed;
+		z-index: 10;
+	}
+	#back_button { height: 12%; }
+	#back_button img { width: auto; height: 100%; cursor: pointer; }
+	#title { height: 22%; }
+	#title img { width: auto; max-width: 100%; height: 100%; cursor: pointer; }
 </style>
 	</head>
 	<body>
+		<div id="sidebar_panel" style="display: none">
+			<div id="back_button">
+				<img src="./back.png" onclick="window.location = '/';"/>
+			</div>
+			<div id="title">
+				<img src="./ship_editor_title.png" />
+			</div>
+		</div>
 		<script src="./bundle_ship_editor.js"></script>
 	</body>
 </html>

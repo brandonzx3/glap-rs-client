@@ -189,6 +189,8 @@ for (const part of inventoried_parts) {
 	inventory_displayers.set(part, display);
 }
 
+const sidebar_panel: HTMLDivElement = document.querySelector("#sidebar_panel");
+
 export function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
 	app.view.width = window.innerWidth;
@@ -220,6 +222,8 @@ export function resize() {
 	global.inventory_holder.scale.set(global.pane_size * 0.9 / 5);
 	global.inventory_holder_holder.x = global.pane_size * 0.05;
 	global.inventory_holder_holder.y = global.pane_background_separator.height + global.pane_background_separator.y;
+
+	sidebar_panel.style.width = sidebar_panel.style.height = `${global.pane_size}px`;
 }
 
 const save_data_provider = new Promise((resolve, reject) => {
@@ -277,6 +281,7 @@ new Promise(async (resolve, _reject) => {
 
 	resize();
 	window.addEventListener("resize", resize);
+	sidebar_panel.style.display = "flex";
 
 	blueprint.interactive = true;
 	let blueprint_dragging = false;
