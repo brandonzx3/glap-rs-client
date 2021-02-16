@@ -31,6 +31,9 @@ export interface GlobalData {
 	inventory_holder_holder: PIXI.Container;
 	scrollbar_holder: PIXI.Container;
 	scrollbar: PIXI.Graphics;
+	scrollbar_height: number;
+	scrollbar_min: number;
+	scrollbar_max: number;
 
 	pane_size: number;
 	zoom: number;
@@ -61,6 +64,9 @@ export const global: GlobalData = {
 	inventory_holder_holder: new PIXI.Container(),
 	scrollbar_holder: new PIXI.Container(),
 	scrollbar: new PIXI.Graphics().beginFill(0x6e6a6a).drawRect(0,0,1,1).endFill(),
+	scrollbar_height: 1,
+	scrollbar_min: 0,
+	scrollbar_max: 0,
 
 	pane_size: 0,
 	zoom: 1,
@@ -115,6 +121,8 @@ global.sidebar.addChild(global.pane_background_separator);
 
 global.sidebar.addChild(global.inventory_holder_holder);
 global.inventory_holder_holder.addChild(global.inventory_holder);
+global.sidebar.addChild(global.scrollbar_holder);
+global.scrollbar_holder.addChild(global.scrollbar);
 
 app.stage.addChild(global.grabbed_container);
 
@@ -221,7 +229,20 @@ export function resize() {
 
 	global.inventory_holder.scale.set(global.pane_size * 0.9 / 5);
 	global.inventory_holder_holder.x = global.pane_size * 0.05;
-	global.inventory_holder_holder.y = global.pane_background_separator.height + global.pane_background_separator.y;
+	global.scrollbar_min = global.inventory_holder_holder.y = global.pane_background_separator.height + global.pane_background_separator.y;
+	const inventory_height = window.innerHeight - global.pane_size;
+	const inventory_needed_height = global.inventory_holder.height;
+	if (inventory_height < inventory_needed_height) {
+		global.scrollbar.height = global.scrollbar_height = inventory_height / inventory_needed_height * (inventory_height - 20);
+		global.scrollbar_min += 10;
+		global.scrollbar_holder.y = global.scrollbar_min;
+		global.scrollbar_max = window.innerHeight - 10 - global.scrollbar_height;
+		global.scrollbar_holder.x = global.pane_size * 0.9;
+		global.scrollbar.width = global.pane_size * 0.03;
+		global.scrollbar.visible = true;
+	} else {
+		global.scrollbar.visible = false;
+	}
 
 	sidebar_panel.style.width = sidebar_panel.style.height = `${global.pane_size}px`;
 }
