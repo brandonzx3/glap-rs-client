@@ -55,8 +55,8 @@ export const global: GlobalData = {
 	on_part_grab: null,
 
 	sidebar: new PIXI.Container(),
-	pane_background: new PIXI.Graphics().beginFill(0x6e6a6a).drawRect(0,0,1,1).endFill(),
-	pane_background_again: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
+	pane_background: new PIXI.Graphics().beginFill(0xaba9b7).drawRect(0,0,1,1).endFill(),
+	pane_background_again: new PIXI.Graphics().beginFill(0x6e6a6a).drawRect(0,0,1,1).endFill(),
 	pane_background_separator: new PIXI.Graphics().beginFill(0x4c484a).drawRect(0,0,1,1).endFill(),
 	pane_border: null,
 
@@ -115,14 +115,14 @@ global.scaling.addChild(blueprint);
 global.scaling.addChild(global.world);
 
 app.stage.addChild(global.sidebar);
-global.sidebar.addChild(global.pane_background_again);
+global.sidebar.addChild(global.pane_background);
 
 global.sidebar.addChild(global.inventory_holder_holder);
 global.inventory_holder_holder.addChild(global.inventory_holder);
 global.sidebar.addChild(global.scrollbar_holder);
 global.scrollbar_holder.addChild(global.scrollbar);
 
-global.sidebar.addChild(global.pane_background);
+global.sidebar.addChild(global.pane_background_again);
 global.sidebar.addChild(global.pane_background_separator);
 
 app.stage.addChild(global.grabbed_container);
@@ -198,11 +198,14 @@ for (const part of inventoried_parts) {
 	inventory_displayers.set(part, display);
 }
 
+let do_inventory_scroll = false;
 function inventory_scroll_wheel(delta_y: number) {
-	global.scrollbar.y = Math.min(Math.max(0, global.scrollbar.y -= delta_y * 1.1), global.scrollbar_max);
-	global.inventory_holder.y = (global.scrollbar.y / global.scrollbar_max) * global.inventory_height;
+	if (!do_inventory_scroll) return;
+	global.scrollbar.y = Math.min(Math.max(0, global.scrollbar.y += delta_y * 1.3), global.scrollbar_max);
+	global.inventory_holder.y = -(global.scrollbar.y / global.scrollbar_max) * global.inventory_height;
 }
 function inventory_scroll_drag(e: MouseEvent) {
+	if (!do_inventory_scroll) return;
 
 }
 
@@ -225,8 +228,7 @@ export function resize() {
 	global.pane_background.width = global.pane_size;
 	global.pane_background.height = window.innerHeight;
 	global.pane_background_again.width = global.pane_size;
-	global.pane_background_again.height = window.innerHeight - global.pane_size;
-	global.pane_background_again.y = global.pane_size;
+	global.pane_background_again.height = global.pane_size;
 	global.pane_background_separator.width = global.pane_size;
 	global.pane_background_separator.height = 8;
 	global.pane_background_separator.y = global.pane_size;
@@ -245,13 +247,15 @@ export function resize() {
 	if (inventory_height < inventory_needed_height) {
 		global.scrollbar.height = global.scrollbar_height = inventory_height / inventory_needed_height * (inventory_height - 20);
 		global.scrollbar_holder.y += 10;
-		global.scrollbar_max = inventory_height - 10 - global.scrollbar_height;
+		global.scrollbar_max = inventory_height - 20 - global.scrollbar_height;
 		global.scrollbar_holder.x = global.pane_size * 0.9;
 		global.scrollbar.width = global.pane_size * 0.03;
-		global.scrollbar.visible = true;
+		global.scrollbar.visible = do_inventory_scroll = true;
 	} else {
-		global.scrollbar.visible = false;
+		global.scrollbar.visible = do_inventory_scroll = false;
 	}
+	global.inventory_holder.y = 0;
+	global.scrollbar.y = 0;
 
 	sidebar_panel.style.width = sidebar_panel.style.height = `${global.pane_size}px`;
 }
