@@ -199,15 +199,27 @@ for (const part of inventoried_parts) {
 }
 
 let do_inventory_scroll = false;
+let scroll_y_offset = 0;
+let is_scrollbar_scrolling = false;
 function inventory_scroll_wheel(delta_y: number) {
 	if (!do_inventory_scroll) return;
 	global.scrollbar.y = Math.min(Math.max(0, global.scrollbar.y += delta_y * 1.3), global.scrollbar_max);
-	global.inventory_holder.y = -(global.scrollbar.y / global.scrollbar_max) * global.inventory_height;
+	global.inventory_holder.y = -(global.scrollbar.y / (global.scrollbar_max + global.scrollbar_height)) * global.inventory_height;
 }
 function inventory_scroll_drag(e: MouseEvent) {
-	if (!do_inventory_scroll) return;
-
+	if (!do_inventory_scroll || !is_scrollbar_scrolling) return;
+	global.scrollbar.y = Math.min(Math.max(0, e.y - scroll_y_offset), global.scrollbar_max);
+	global.inventory_holder.y = -(global.scrollbar.y / (global.scrollbar_max + global.scrollbar_height)) * global.inventory_height;
 }
+
+global.scrollbar.interactive = true;
+global.scrollbar.on("pointerdown", (e: PIXI.InteractionEvent) => {
+	if (!do_inventory_scroll) return;
+	is_scrollbar_scrolling = true;
+	scroll_y_offset = e.data.global.y - global.scrollbar.y;
+});
+app.view.addEventListener("mousemove", inventory_scroll_drag);
+window.addEventListener("mouseup", () => { is_scrollbar_scrolling = false; });
 
 const sidebar_panel: HTMLDivElement = document.querySelector("#sidebar_panel");
 
@@ -251,11 +263,14 @@ export function resize() {
 		global.scrollbar_holder.x = global.pane_size * 0.9;
 		global.scrollbar.width = global.pane_size * 0.03;
 		global.scrollbar.visible = do_inventory_scroll = true;
+		do_inventory_scroll = true;
 	} else {
 		global.scrollbar.visible = do_inventory_scroll = false;
+		do_inventory_scroll = false;
 	}
 	global.inventory_holder.y = 0;
 	global.scrollbar.y = 0;
+	is_scrollbar_scrolling = false;
 
 	sidebar_panel.style.width = sidebar_panel.style.height = `${global.pane_size}px`;
 }
