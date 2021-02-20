@@ -103,7 +103,7 @@ pixi.view.addEventListener("contextmenu", e => e.preventDefault());
 
 pixi.stage.addChild(global.scaling);
 const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 200, height: 150 }) as PIXI.TilingSprite;
-background.tileScale.set(0.1);
+background.tileScale.set(0.008);
 background.position.set(-100);
 background.zIndex = -100;
 
