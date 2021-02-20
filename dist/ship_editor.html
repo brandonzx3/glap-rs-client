@@ -37,6 +37,17 @@
 	}
 	#save { height: 100%; margin: 0; margin-right: 7px; }
 	#launch { width: auto; height: 100%; }
+	.mybutton[disabled] {text-decoration: line-through; }
+	#msg_spot {
+		height: 16.8%;
+		box-sizing: border-box;
+		overflow: hidden auto;
+		color: white;
+		text-align: center;
+		font-size: 1rem;
+		padding-top: 3.5%;
+	}
+	#msg_spot.error { color: red; }
 </style>
 	</head>
 	<body>
@@ -52,12 +63,14 @@
 			</select>
 			<select class="mybutton wide" id="load_from">
 				<option>Load From</option>
+				<option value="-1">Last Save</option>
 			</select>
 			<button class="mybutton wide" id="clear">Clear</button>
 			<div id="save_launch_thing">
 				<button class="mybutton" id="save">Save</button>
 				<img id="launch" src="./launch.png" />
 			</div>
+			<div id="msg_spot"></div>
 		</div>
 		<script src="./bundle_ship_editor.js"></script>
 	</body>

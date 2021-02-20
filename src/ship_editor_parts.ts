@@ -93,6 +93,12 @@ export class RecursivePart {
 		if (typeof source.kind !== "number") throw new Error("Invalid part kind");
 		return new RecursivePart(source.kind, attachments, true);
 	}
+	deflate(): SaveDataProviderRecursivePartDescription {
+		return {
+			kind: this.kind,
+			attachments: this.attachments.map(attachment => attachment != null ? attachment.deflate() : null),
+		};
+	}
 }
 
 export type PartKindAttachmentInfoType = [AttachmentInfo, AttachmentInfo, AttachmentInfo, AttachmentInfo];

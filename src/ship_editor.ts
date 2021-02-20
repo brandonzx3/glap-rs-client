@@ -381,6 +381,8 @@ new Promise(async (resolve, _reject) => {
 		blueprint.tilePosition.y += dy;
 	});
 
+	toggle_interface_enabled(true);
+
 	let grabbed_part: RecursivePart = null;
 	let prev_coordinates: [number, number] = [0, 0];
 	function on_part_grab(part_grabbed: RecursivePart, e: PIXI.InteractionEvent) {
@@ -561,11 +563,17 @@ const save_selection = document.querySelector("#save_to") as HTMLSelectElement;
 save_selection.selectedIndex = 0;
 const load_selection = document.querySelector("#load_from") as HTMLSelectElement;
 load_selection.selectedIndex = 0;
+const clear_button = document.querySelector("#clear") as HTMLButtonElement;
+const save_button = document.querySelector("#save") as HTMLButtonElement;
+const launch_button = document.querySelector("#launch") as HTMLImageElement;
+const msg_spot = document.querySelector("#msg_spot") as HTMLDivElement;
 
 function toggle_interface_enabled(enabled: boolean) {
 	const disabled = !enabled;
 	save_selection.disabled = disabled;
 	load_selection.disabled = disabled;
+	clear_button.disabled = disabled;
+	save_button.disabled = disabled;
 }
 toggle_interface_enabled(false);
 
@@ -580,8 +588,76 @@ save_data_provider.then(async (save_data_provider: SaveDataProvider) => {
 	}
 });
 
-function on_save_updated() {
-	if (is_save_loading) return;
+async function on_save_updated(save_to_current: boolean) {
+	if (is_save_loading || (save_selection.selectedIndex === 0 && !save_to_current)) return;
 	is_save_loading = true;
-
+	toggle_interface_enabled(false);
+	msg_spot.innerText = "Saving...";
+	msg_spot.classList.remove("error");
+	try {
+		if (save_to_current) await global.save_data_provider.set_current_layout(global.layout.deflate());
+		else await global.save_data_provider.set_slot_layout(save_selection.value, global.layout.deflate());
+		msg_spot.innerText = "Saved!";
+	} catch (e) {
+		console.error(e);
+		msg_spot.innerText = "Failed to save layout";
+		msg_spot.classList.add("error");
+	}
+	save_selection.selectedIndex = 0;
+	toggle_interface_enabled(true);
+	is_save_loading = false;
 }
+save_selection.addEventListener("change", on_save_updated.bind(null, false));
+save_button.addEventListener("click", on_save_updated.bind(null, true));
+
+async function on_load_updated() {
+	if (is_save_loading || load_selection.selectedIndex === 0) return;
+	is_save_loading = true;
+	toggle_interface_enabled(false);
+	msg_spot.innerText = "Loading...";
+	msg_spot.classList.remove("error");
+	try {
+		const new_layout = load_selection.selectedIndex > 1 ? await global.save_data_provider.get_slot_layout(load_selection.value) : await global.save_data_provider.get_current_layout();
+		inventory_return_parts(global.layout, true);
+		const old = global.layout;
+		const parent = old.container.parent;
+		parent.removeChild(old.container);
+		const layout = RecursivePart.inflate(new_layout);
+		parent.addChild(layout.container);
+		global.layout = layout;
+		global.all_roots[global.all_roots.indexOf(old)] = layout;
+		inventory_take_parts(layout, true);
+		for (const display of inventory_displayers.values()) display.update_text();
+		msg_spot.innerText = "Loaded";
+	} catch (e) {
+		console.error(e);
+		msg_spot.innerText = "Failed to load layout";
+		msg_spot.classList.add("error");
+	}
+	load_selection.selectedIndex = 0;
+	toggle_interface_enabled(true);
+	is_save_loading = false;
+}
+load_selection.addEventListener("change", on_load_updated);
+
+
+function clear_completly() {
+	if (is_save_loading) return;
+	for (const root of global.all_roots) {
+		root.container.parent.removeChild(root.container);
+	}
+	const parent = global.layout.container.parent;
+	global.all_roots.splice(0, global.all_roots.length);
+	global.layout = new RecursivePart(PartKind.Core, [null, null, null, null], true);
+	global.all_roots[0] = global.layout;
+	parent.addChild(global.layout.container);
+	reset_local_inventory();
+	for (const display of inventory_displayers.values()) display.update_text();
+}
+clear_button.addEventListener("click", clear_completly);
+
+async function commit_launch() {
+	await on_save_updated(true);
+	if (!msg_spot.classList.contains("error")) window.location = "/?commit_launch" as any;
+}
+launch_button.addEventListener("click", commit_launch);
