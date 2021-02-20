@@ -556,3 +556,32 @@ export function pixi_matrix_mult(transform: PIXI.Matrix, my_transform: PIXI.Matr
 
 export class Box<T> { v: T; constructor(v: T) { this.v = v; } }
 
+let is_save_loading = false;
+const save_selection = document.querySelector("#save_to") as HTMLSelectElement;
+save_selection.selectedIndex = 0;
+const load_selection = document.querySelector("#load_from") as HTMLSelectElement;
+load_selection.selectedIndex = 0;
+
+function toggle_interface_enabled(enabled: boolean) {
+	const disabled = !enabled;
+	save_selection.disabled = disabled;
+	load_selection.disabled = disabled;
+}
+toggle_interface_enabled(false);
+
+save_data_provider.then(async (save_data_provider: SaveDataProvider) => {
+	const slots = await save_data_provider.get_slots();
+	for (const slot of slots) {
+		const option_el = document.createElement("option");
+		option_el.innerText = slot.display_name;
+		option_el.value = slot.id;
+		save_selection.appendChild(option_el.cloneNode(true));
+		load_selection.appendChild(option_el.cloneNode(true));
+	}
+});
+
+function on_save_updated() {
+	if (is_save_loading) return;
+	is_save_loading = true;
+
+}
