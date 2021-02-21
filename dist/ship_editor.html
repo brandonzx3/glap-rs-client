@@ -4,9 +4,74 @@
 		<title>Ship Editor - Glap.RS</title>
 <style>
 	html, body, canvas { width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden; }
+	#sidebar_panel {
+		display: flex;
+		flex-flow: column nowrap;
+		overflow: visible;
+		position: fixed;
+		z-index: 10;
+		font-size: 4%;
+	}
+	#back_button { height: 12%; }
+	#back_button img { width: auto; height: 100%; cursor: pointer; }
+	#title { height: 22%; }
+	#title img { width: auto; max-width: 100%; height: 100%; cursor: pointer; }
+
+	.mybutton {
+		text-align: center;
+		color: white; background-color: #a5a2a2;
+		border: none; outline: none;
+		box-shadow: 0.5vh 0.5vh #4c484a;
+		cursor: pointer;
+		width: 87%;
+		margin-left: 4%;
+		height: 9.8%;
+		margin-bottom: 2.5%;
+	}
+	#save_launch_thing {
+		margin-left: 4%;
+		margin-right: 9.5%;
+		height: 9.8%;
+		display: flex;
+		flex-flow: row nowrap;
+	}
+	#save { height: 100%; margin: 0; margin-right: 7px; }
+	#launch { width: auto; height: 100%; }
+	.mybutton[disabled] {text-decoration: line-through; }
+	#msg_spot {
+		height: 16.8%;
+		box-sizing: border-box;
+		overflow: hidden auto;
+		color: white;
+		text-align: center;
+		font-size: 1rem;
+		padding-top: 3.5%;
+	}
+	#msg_spot.error { color: red; }
 </style>
 	</head>
 	<body>
+		<div id="sidebar_panel" style="display: none">
+			<div id="back_button">
+				<img src="./back.png" onclick="window.location = '/';"/>
+			</div>
+			<div id="title">
+				<img src="./ship_editor_title.png" />
+			</div>
+			<select class="mybutton wide" id="save_to">
+				<option>Save To</option>
+			</select>
+			<select class="mybutton wide" id="load_from">
+				<option>Load From</option>
+				<option>Last Save</option>
+			</select>
+			<button class="mybutton wide" id="clear">Clear</button>
+			<div id="save_launch_thing">
+				<button class="mybutton" id="save">Save</button>
+				<img id="launch" src="./launch.png" />
+			</div>
+			<div id="msg_spot"></div>
+		</div>
 		<script src="./bundle_ship_editor.js"></script>
 	</body>
 </html>

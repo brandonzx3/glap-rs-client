@@ -5,43 +5,32 @@ import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
+import { Chat } from './chat';
+import { BeamoutParticleConfig, ParticleManager } from "./particles";
+import PID from "node-pid-controller";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
 console.log(params);
 
-let session: string; 
-{
-	function getCookie(cname: string) {
-		  var name = cname + "=";
-		    var decodedCookie = decodeURIComponent(document.cookie);
-			  var ca = decodedCookie.split(';');
-			    for(var i = 0; i <ca.length; i++) {
-					    var c = ca[i];
-						    while (c.charAt(0) == ' ') {
-								      c = c.substring(1);
-									      }
-										      if (c.indexOf(name) == 0) {
-												        return c.substring(name.length, c.length);
-														    }
-															  }
-															    return "";
-	}
-	session = getCookie("session") as string;
-}
-const has_session = session !== "" && lib_uuid_validate(session);
+let session: string = null; 
+if ("localStorage" in window) session = window.localStorage.getItem("session");
+const has_session = session !== null && lib_uuid_validate(session);
+console.log("Has session: " + has_session);
 
 export interface GlobalData {
     pixi: PIXI.Application;
+	emitters: Set<ParticleManager>;
     scaling: PIXI.Container;
     world: PIXI.Container;
     holograms: PIXI.Container;
-    thrust_sprites: PIXI.Container;
+    thrust_particles: PIXI.Container;
     planet_sprites: PIXI.Container;
     part_sprites: PIXI.Container;
     connector_sprites: PIXI.Container;
     main_hud: MainHud;
     starguide: Starguide;
+    chat: Chat;
 	beamout_button: BeamOutButton;
     starguide_button: StarguideButton;
     screen_to_player_space: (x: number, y: number) => [number, number];
@@ -54,23 +43,27 @@ export interface GlobalData {
     scale_up: number;
     destination_hologram: PIXI.TilingSprite;
     heading_hologram: PIXI.Sprite;
-	onframe: Set<Function>;
+    onframe: Set<Function>;
 
 	socket: WebSocket;
     my_core: PartMeta;
+	my_player: PlayerMeta;
     my_id: number;
     parts: Map<number, PartMeta>;
     celestial_objects: Map<number, CelestialObjectMeta>;
     players: Map<number, PlayerMeta>;
     server_tick_times: number[];
+	server_tick_pid: PID;
+	can_beamout: boolean;
 }
 
 export const global: GlobalData = {
     pixi: null,
+	emitters: new Set(),
     scaling: new PIXI.Container(),
     world: new PIXI.Container(),
     holograms: new PIXI.Container(),
-    thrust_sprites: new PIXI.Container(),
+    thrust_particles: new PIXI.ParticleContainer(),
     planet_sprites: new PIXI.Container(),
     part_sprites: new PIXI.Container(),
     connector_sprites: new PIXI.Container(),
@@ -79,6 +72,7 @@ export const global: GlobalData = {
     screen_to_player_space: null,
     main_hud: null,
     starguide: null,
+    chat: null,
 	beamout_button: null,
     starguide_button: null,
     rendering: true,
@@ -92,26 +86,30 @@ export const global: GlobalData = {
 
 	socket: null,
     my_core: null,
+	my_player: null,
     my_id: null,
     parts: new Map(),
     celestial_objects: new Map(),
     players: new Map(),
     server_tick_times: null,
+	server_tick_pid: null,
+	can_beamout: false,
 };
 
 const pixi = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
 global.pixi = pixi;
 document.body.appendChild(pixi.view);
+pixi.view.addEventListener("contextmenu", e => e.preventDefault());
 
 pixi.stage.addChild(global.scaling);
 const background = PIXI.TilingSprite.from("./starfield.jpg", { width: 200, height: 150 }) as PIXI.TilingSprite;
-background.tileScale.set(0.1);
+background.tileScale.set(0.008);
 background.position.set(-100);
 background.zIndex = -100;
 
 global.scaling.addChild(background);
 global.world.addChild(global.holograms);
-global.world.addChild(global.thrust_sprites);
+global.world.addChild(global.thrust_particles);
 global.world.addChild(global.part_sprites);
 global.world.addChild(global.planet_sprites);
 global.world.addChild(global.connector_sprites);
@@ -143,11 +141,6 @@ global.scaling.interactive = true;
 	global.white_box.defaultAnchor.set(0.5,0.5);
 }
 
-let hh_inter_delta = 0;
-let hh_inter_positive = true;
-let hh_inter_dest = 0;
-let hh_inter_next = 0;
-
 function resize() {
     const window_size = Math.min(window.innerWidth, window.innerHeight);
     pixi.view.width = window.innerWidth;
@@ -178,25 +171,20 @@ function resize() {
 let my_core_id: number = null;
 let max_fuel = 1;
 
-const beamout_particle_config = JSON.parse("{\"alpha\":{\"start\":1,\"end\":1},\"scale\":{\"start\":2,\"end\":5,\"minimumScaleMultiplier\":1},\"color\":{\"start\":\"#ffffff\",\"end\":\"#5fcc4b\"},\"speed\":{\"start\":50,\"end\":25,\"minimumSpeedMultiplier\":3},\"acceleration\":{\"x\":-5,\"y\":-5},\"maxSpeed\":0,\"startRotation\":{\"min\":0,\"max\":360},\"noRotation\":false,\"rotationSpeed\":{\"min\":0,\"max\":0},\"lifetime\":{\"min\":1,\"max\":2},\"blendMode\":\"normal\",\"frequency\":0.001,\"emitterLifetime\":-1,\"maxParticles\":10,\"pos\":{\"x\":0,\"y\":0},\"addAtBack\":false,\"spawnType\":\"circle\",\"spawnCircle\":{\"x\":0,\"y\":0,\"r\":0}}");
-beamout_particle_config.scale.start /= 10;
-beamout_particle_config.scale.end /= 10;
-beamout_particle_config.speed.start /= 10;
-beamout_particle_config.speed.end /= 10;
-beamout_particle_config.acceleration.start /= 10;
-beamout_particle_config.acceleration.end /= 10;
-beamout_particle_config.emitterLifetime = 0.5;
-
 const PI_over_2 = Math.PI / 2;
+
+const spritesheet_url_base = "spritesheet" in params ? params["spritesheet"] : "./spritesheet_io";
+console.log("spritesheet" in params);
+console.log(params["spritesheet"]);
 
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
-        image.src = "./spritesheet.png";
+        image.src = spritesheet_url_base + ".png";
         image.onload = () => { resolve(image); }
         image.onerror = err => reject(err);
     });
-    const dat_promise: Promise<Object> = fetch("./spritesheet.json").then(res => res.json());
+    const dat_promise: Promise<Object> = fetch(spritesheet_url_base + ".json").then(res => res.json());
     const image = await image_promise;
     const dat = await dat_promise;
     const texture = PIXI.Texture.from(image);
@@ -210,6 +198,7 @@ new Promise(async (resolve, reject) => {
 	global.beamout_button = new BeamOutButton();
 	pixi.stage.addChild(global.beamout_button.container);
     global.starguide = new Starguide();
+    global.chat = new Chat();
     pixi.stage.addChild(global.starguide.container);
     global.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["destination_hologram.png"], 2, 2);
     global.destination_hologram.anchor.set(1,0.5);
@@ -238,34 +227,60 @@ new Promise(async (resolve, reject) => {
     };
     function handshake_ing(e: MessageEvent) {
         const message = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
-        if (message instanceof ToClientMsg.HandshakeAccepted) {
+        if (message instanceof ToClientMsg.HandshakeAccepted) { //Authentication completed
             console.log("Handshake Accepted");
             console.log(message);
             global.my_id = message.id;
+			global.can_beamout = message.can_beamout;
             my_core_id = message.core_id;
             socket.removeEventListener("message", handshake_ing);
-            socket.addEventListener("message", on_message);
+            socket.addEventListener("message", e => {
+				const buf = new Uint8Array(e.data);
+				const i = new Box(0);
+				const msg = ToClientMsg.deserialize(buf, i);
+				on_message(msg, buf, i);
+			});
             window.addEventListener("keydown", key_down);
-            window.addEventListener("keyup", key_up);
+            window.addEventListener("keyup", key_up);			
             global.scaling.on("mousedown", world_mouse_down);
+			global.scaling.on("rightdown", world_mouse_down);
             global.scaling.on("mousemove", world_mouse_move);
             global.scaling.on("mouseup", world_mouse_up);
-        } else throw new Error();
+			global.scaling.on("rightup", world_mouse_up);
+			socket.send(new ToServerMsg.RequestUpdate().serialize());
+        } 
+		else if (message instanceof ToClientMsg.ChatMessage) {
+            global.chat.ReceiveMessage(message.msg, message.username, message.color);
+		}
+		else {
+			console.error("Unexpected message before handshake");
+			console.error(message);
+		}
     }
     socket.addEventListener("message", handshake_ing);
+	socket.addEventListener("close", () => { alert("Disconnected"); });
     socket.onerror = err => { throw err; };
+	(window as any).request_update = () => { socket.send((new ToServerMsg.RequestUpdate()).serialize()); };
+	(window as any).redo_pid = (p: number, i: number, d: number) => { global.server_tick_pid = new PID(p, i, d); };
 
-    let prev_core_position = [0,0];
+    //let prev_core_position = [0,0];
     const server_tick_times: number[] = [];
     global.server_tick_times = server_tick_times;
     let next_server_tick_i = 0;
     let previous_server_tick = performance.now();
-    const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
+	/*let expected_server_tick = performance.now();
+	global.server_tick_pid = new PID(1.0, 0.00001, 0.0);
+	global.server_tick_pid.setTarget(0);*/
+    //const do_interpolation = "do_interpolation" in params ? params["do_interpolation"] === "true" : true;
+	const updated_players: Set<PlayerMeta> = new Set();
 
-    function on_message(e: MessageEvent) {
-        const msg = ToClientMsg.deserialize(new Uint8Array(e.data), new Box(0));
-
-        if (msg instanceof ToClientMsg.AddCelestialObject) {
+    function on_message(msg: object, buf: Uint8Array, buf_i: Box<number>) {
+		if (msg instanceof ToClientMsg.MessagePack) {
+			for (let i = 0; i < msg.count; i++) {
+				const msg = ToClientMsg.deserialize(buf, buf_i);
+				on_message(msg, buf, buf_i);
+			}
+		} else if (msg instanceof ToClientMsg.AddCelestialObject) {
             const celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
             celestial_object.width = msg.radius * 2;
             celestial_object.height = msg.radius * 2;
@@ -285,7 +300,8 @@ new Promise(async (resolve, reject) => {
 
         else if (msg instanceof ToClientMsg.AddPart) {
             const meta = new PartMeta(msg.id, msg.kind);
-            meta.sprite.on("mousedown", part_mouse_down.bind(null, msg.id));
+            meta.sprite.on("mousedown", part_mouse_down.bind(null, meta, false));
+			meta.sprite.on("rightdown", part_mouse_down.bind(null, meta, true));
             meta.sprite.interactive = true;
             global.parts.set(msg.id, meta);
             if (msg.id === my_core_id) global.my_core = meta;
@@ -294,26 +310,11 @@ new Promise(async (resolve, reject) => {
             part.x = msg.x; part.y = msg.y;
             const rotation = Math.atan2(-msg.rotation_i, -msg.rotation_n);
             part.rot = rotation;
-
-            if (msg.id === my_core_id) {
-                const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
-                global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
-                global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
-
-                const delta_pos = [prev_core_position[0] - msg.x, prev_core_position[1] - msg.y];
-		if (Math.abs(delta_pos[0]) > 0.01 || Math.abs(delta_pos[1]) > 0.01) 
-			global.heading_hologram.rotation = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
-			//hh_inter_next = Math.atan2(delta_pos[1], delta_pos[0]) - PI_over_2;
-                global.main_hud.velocity_text.text = `Vel: ${Math.round(delta_pos[0] * 20)}, ${Math.round(delta_pos[1] * 20)}`;
-                global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
-                prev_core_position = [msg.x, msg.y];
-            }
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = global.parts.get(msg.id);
             if (part !== null) {
                 global.parts.delete(msg.id);
                 global.part_sprites.removeChild(part.sprite);
-                global.thrust_sprites.removeChild(part.thrust_sprites);
                 global.connector_sprites.removeChild(part.connector_sprite);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
@@ -336,7 +337,9 @@ new Promise(async (resolve, reject) => {
         }
 
         else if (msg instanceof ToClientMsg.AddPlayer) {
-            global.players.set(msg.id, new PlayerMeta(msg.id, msg.name, msg.core_id));
+			const player = new PlayerMeta(msg.id, msg.name, msg.core_id);
+            global.players.set(msg.id, player);
+			if (msg.id == global.my_id) global.my_player = player;
         }
         else if (msg instanceof ToClientMsg.UpdatePlayerMeta) {
             const meta = global.players.get(msg.id);
@@ -353,8 +356,14 @@ new Promise(async (resolve, reject) => {
         }
         else if (msg instanceof ToClientMsg.UpdateMyMeta) {
             max_fuel = msg.max_power;
-			global.beamout_button.set_can_beamout(msg.can_beamout && has_session);
+			global.beamout_button.set_can_beamout(msg.can_beamout && global.can_beamout);
         }
+		else if (msg instanceof ToClientMsg.UpdatePlayerVelocity) {
+			const meta = global.players.get(msg.id);
+			meta.velocity[0] = msg.vel_x;
+			meta.velocity[1] = msg.vel_y;
+			updated_players.add(meta);
+		}
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);
 			if (player !== null) {
@@ -368,12 +377,11 @@ new Promise(async (resolve, reject) => {
 			if (player !== null) {
 				const opacity_aniamtion_constant = 0.001;
 				for (const part of player.parts) {
-					const my_config = Object.create(beamout_particle_config);
+					const my_config = Object.create(BeamoutParticleConfig);
 					my_config.pos.x = part.sprite.x;
 					my_config.pos.y = part.sprite.y;
 					const particles = new Particles.Emitter(global.connector_sprites, global.white_box, my_config);
 					global.parts.delete(part.id);
-					global.thrust_sprites.removeChild(part.thrust_sprites);
 					global.connector_sprites.removeChild(part.connector_sprite);
 					let onframe = (delta_ms: number) => {
 						particles.update(delta_ms * 0.001);
@@ -399,7 +407,9 @@ new Promise(async (resolve, reject) => {
 				};
 				global.onframe.add(name_onframe);
 			}
-		}
+		} else if(msg instanceof ToClientMsg.ChatMessage) {
+            global.chat.ReceiveMessage(msg.msg, msg.username, msg.color);
+        }
 
 
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
@@ -414,25 +424,45 @@ new Promise(async (resolve, reject) => {
             let average_server_tick_time = 0;
             server_tick_times.forEach(val => average_server_tick_time += val);
             average_server_tick_time /= server_tick_times.length;
-            average_server_tick_time += 100;
+
+			/*const server_tick_error = expected_server_tick - now;
+			const correction = global.server_tick_pid.update(server_tick_error);
+			//if (num7573 < 0) console.log(num7573);
+			console.log([now, expected_server_tick, server_tick_error, correction]);
+            average_server_tick_time += correction;
+			expected_server_tick = now + average_server_tick_time;*/
+		    average_server_tick_time += 200;
+
+			for (const player of global.players.values()) {
+				const was_updated = updated_players.has(player);
+				if (was_updated && !player.visible) {
+					player.visible = true;
+					player.name_sprite.visible = true;
+					for (const part of player.parts.values()) {
+						part.sprite.visible = true;
+						part.connector_sprite.visible = true;
+					}
+				} else if (!was_updated && player.visible) {
+					player.visible = false;
+					player.name_sprite.visible = false;
+					for (const part of player.parts.values()) {
+						part.sprite.visible = false;
+						part.connector_sprite.visible = false;
+					}
+				}
+			}
 		
-	    /*{
-		let sprite_rot = global.heading_hologram.rotation;
-                const dif = sprite_rot - hh_inter_next;
-                if (dif > Math.PI) sprite_rot -= PIXI.PI_2;
-                else if (dif < -Math.PI) sprite_rot += PIXI.PI_2;
-                global.heading_hologram.rotation = sprite_rot;
-		hh_inter_dest = hh_inter_next;
-                hh_inter_delta = (hh_inter_dest - sprite_rot) / average_server_tick_time;
-                hh_inter_positive = hh_inter_delta >= 0;
-	    }*/
             for (const part of global.parts.values()) {
-                part.inter_x_dest = part.x;
+				if (!part.sprite.visible) continue;
+
+				part.inter_x_dest = part.x;
                 part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
                 part.inter_x_positive = part.inter_x_delta >= 0;
+				//part.particle_speed_x = part.inter_x_delta * 1000;
                 part.inter_y_dest = part.y;
                 part.inter_y_delta = (part.inter_y_dest - part.sprite.y) / average_server_tick_time;
                 part.inter_y_positive = part.inter_y_delta >= 0;
+				//part.particle_speed_y = part.inter_y_delta * 1000;
                 part.inter_rot_dest = part.rot;
                 let sprite_rot = part.sprite.rotation;
                 const dif = part.sprite.rotation - part.rot;
@@ -441,7 +471,27 @@ new Promise(async (resolve, reject) => {
                 part.sprite.rotation = sprite_rot;
                 part.inter_rot_delta = (part.inter_rot_dest - sprite_rot) / average_server_tick_time;
                 part.inter_rot_positive = part.inter_rot_delta >= 0;             
+
+				if (part.owning_player != null) {
+					part.particle_speed_x = part.owning_player.velocity[0];
+					part.particle_speed_y = part.owning_player.velocity[1];
+				}
             }
+			updated_players.clear();
+
+			//console.log([global.my_core.particle_speed_x, global.my_core.particle_speed_y]);
+			{
+				const planetary_distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
+				global.main_hud.position_text.text = `Pos: ${Math.round(planetary_distance[0])}, ${Math.round(planetary_distance[1])}`;
+				global.main_hud.position_text.width = (global.main_hud.position_text.texture.width / global.main_hud.position_text.texture.height) * global.main_hud.position_text.height * 0.1;
+
+				if (Math.abs(global.my_player.velocity[0]) > 0.01 || Math.abs(global.my_player.velocity[1]) > 0.01) global.heading_hologram.rotation = Math.atan2(-global.my_player.velocity[1], -global.my_player.velocity[0]) - PI_over_2;
+				global.main_hud.velocity_text.text = `Vel: ${Math.round(Math.sqrt(Math.pow(global.my_player.velocity[0], 2) + Math.pow(global.my_player.velocity[1], 2)))}`;
+				global.main_hud.velocity_text.width = (global.main_hud.velocity_text.texture.width / global.main_hud.velocity_text.texture.height) * global.main_hud.velocity_text.height * 0.1;
+				//prev_core_position = [global.my_core.inter_x_dest, global.my_core.inter_y_dest];
+			}
+
+			socket.send((new ToServerMsg.RequestUpdate()).serialize());
         }
     }
 
@@ -449,48 +499,44 @@ new Promise(async (resolve, reject) => {
     function render(now_time: DOMHighResTimeStamp) {
         const delta_ms = now_time - last_time;
         last_time = now_time;
-        if (global.rendering) {
-	    //global.heading_hologram.rotation += hh_inter_delta;
-	    //if (hh_inter_positive ? global.heading_hologram.rotation > hh_inter_dest : global.heading_hologram.rotation < hh_inter_dest) global.heading_hologram.rotation = hh_inter_dest;
-            for (const part of global.parts.values()) {
-                part.sprite.x += part.inter_x_delta * delta_ms;
-                if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
-                part.sprite.y += part.inter_y_delta * delta_ms;
-                if (part.inter_y_positive ? part.sprite.y > part.inter_y_dest : part.sprite.y < part.inter_y_dest) part.sprite.y = part.inter_y_dest;
-                part.sprite.rotation += part.inter_rot_delta * delta_ms;
-                if (part.inter_rot_positive ? part.sprite.rotation > part.inter_rot_dest : part.sprite.rotation < part.inter_rot_dest) part.sprite.rotation = part.inter_rot_dest;
+		for (const part of global.parts.values()) {
+			part.sprite.x += part.inter_x_delta * delta_ms;
+			if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
+			part.sprite.y += part.inter_y_delta * delta_ms;
+			if (part.inter_y_positive ? part.sprite.y > part.inter_y_dest : part.sprite.y < part.inter_y_dest) part.sprite.y = part.inter_y_dest;
+			part.sprite.rotation += part.inter_rot_delta * delta_ms;
+			if (part.inter_rot_positive ? part.sprite.rotation > part.inter_rot_dest : part.sprite.rotation < part.inter_rot_dest) part.sprite.rotation = part.inter_rot_dest;
 
-                const x = part.sprite.x; const y = part.sprite.y; const rotation = part.sprite.rotation;
-                part.sprite.rotation = rotation;
-                part.connector_sprite.position.set(x, y);
-                part.connector_sprite.rotation = rotation;
-                part.thrust_sprites.position.set(x, y);
-                part.thrust_sprites.rotation = rotation;
-				if (part.kind === PartKind.Core && part.owning_player !== null) {
-					part.owning_player.name_sprite.position.set(x, y - 0.85);
-				}
-            }
+			const x = part.sprite.x; const y = part.sprite.y; const rotation = part.sprite.rotation;
+			part.sprite.rotation = rotation;
+			part.connector_sprite.position.set(x, y);
+			part.connector_sprite.rotation = rotation;
+			if (part.kind === PartKind.Core && part.owning_player !== null) {
+				part.owning_player.name_sprite.position.set(x, y - 0.85);
+			}
+		}
 
-            if (global.my_core != null) {
-                global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
-                background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
-                global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
+		if (global.my_core != null) {
+			global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);
+			background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
+			global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
 
-                const distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
-                global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
-                global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
-                global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
-                global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
-            }
+			const distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
+			global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
+			global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);
+			global.destination_hologram.tilePosition.x = global.destination_hologram.width * 0.2;
+			global.heading_hologram.position.copyFrom(global.my_core.sprite.position);
+		}
 
-            for (const player of global.players.values()) player.update_grabbing_sprite();
-			for (const f of global.onframe) f(delta_ms);
-            /*global.starguide_button.pre_render(delta_ms);
-            global.starguide.pre_render(delta_ms);
-			global.beamout_button.pre_render(delta_ms);*/
-            pixi.render();
-            requestAnimationFrame(render);
-        }
+		const delta_seconds = delta_ms * 0.001;
+		for (const particle of global.emitters) {
+			if (particle.update_particles(delta_seconds)) global.emitters.delete(particle);
+		}
+
+		for (const player of global.players.values()) player.update_grabbing_sprite();
+		for (const f of global.onframe) f(delta_ms);
+		pixi.render();
+		requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
 
@@ -499,28 +545,36 @@ new Promise(async (resolve, reject) => {
     function key_down(e: KeyboardEvent) {
         if (keys_down.has(e.keyCode)) return;
         keys_down.add(e.keyCode);
-        switch (e.keyCode) {
-            case 87: //w
-                my_thrusters.forward = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 83: //s
-                my_thrusters.backward = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 65: //a
-                my_thrusters.counter_clockwise = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 68: //d
-                my_thrusters.clockwise = true;
-                socket.send(my_thrusters.serialize());
-                break;
-            case 77: //m
-                if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
-                break;
-
-        };
+        let message_box = (document.querySelector("#message_box") as HTMLInputElement);
+        if(message_box != document.activeElement) {
+            switch (e.keyCode) {
+                case 87: //w
+                    my_thrusters.forward = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 83: //s
+                    my_thrusters.backward = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 65: //a
+                    my_thrusters.counter_clockwise = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 68: //d
+                    my_thrusters.clockwise = true;
+                    socket.send(my_thrusters.serialize());
+                    break;
+                case 77: //m
+                    if (global.starguide.is_open) global.starguide.close(); else global.starguide.open();
+                    break;
+                case 84: //t
+                    if(!global.chat.is_open) global.chat.Open(); else if(message_box != document.activeElement && global.chat.is_open) global.chat.Close();
+            };
+        }
+        if(e.keyCode == 27) {
+            if(global.starguide.is_open) global.starguide.close();
+            if(global.chat.is_open) global.chat.Close(); message_box.blur();
+        }
     }
     function key_up(e: KeyboardEvent) {
         if (keys_down.delete(e.keyCode)) {
@@ -546,7 +600,7 @@ new Promise(async (resolve, reject) => {
     }
 
     pixi.view.addEventListener("wheel", event => {
-	const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
+		const deltaY = Math.abs(event.deltaY) > 50 ? event.deltaY / 50 : event.deltaY
         if (global.starguide.mouseover) global.starguide.on_wheel(event, deltaY);
         else {
             global.zoom -= deltaY * 0.01;
@@ -557,6 +611,8 @@ new Promise(async (resolve, reject) => {
     });
 
     (window as any)["dev"] = global;
+	(window as any)["PIXI"] = PIXI;
+	(window as any)["resize"] = resize;
 
     let am_grabbing = false;
     function world_mouse_down(event: PIXI.InteractionEvent) {
@@ -565,12 +621,12 @@ new Promise(async (resolve, reject) => {
         // socket.send(new ToServerMsg.CommitGrab(scaled[0], scaled[1]).serialize());
         // am_grabbing = true;
     }
-    function part_mouse_down(part_id: number, event: PIXI.InteractionEvent) {
-        if (!am_grabbing) {
+    function part_mouse_down(part: PartMeta, is_right_click: boolean, event: PIXI.InteractionEvent) {
+        if (!am_grabbing && (part.owning_player === null || is_right_click)) {
             am_grabbing = true;
             const scaled = global.screen_to_player_space(event.data.global.x, event.data.global.y);
             //console.log(scaled);
-            socket.send(new ToServerMsg.CommitGrab(part_id, scaled[0], scaled[1]).serialize());
+            socket.send(new ToServerMsg.CommitGrab(part.id, scaled[0], scaled[1]).serialize());
             am_grabbing = true;
         }
     }
@@ -599,22 +655,24 @@ export class PlayerMeta {
         this.name = name;
         this.core_id = core_id;
 
-	this.name_sprite = new PIXI.Text(this.name, name_text_style);
-	this.name_sprite.updateText(true);
-	console.log(this.name_sprite.texture.height);
-	this.name_sprite.width = 0.8 / this.name_sprite.texture.height * this.name_sprite.texture.width;
-	this.name_sprite.height = 0.8;
-	this.name_sprite.anchor.set(0.5,1);
-	global.connector_sprites.addChild(this.name_sprite);
+		this.name_sprite = new PIXI.Text(this.name, name_text_style);
+		this.name_sprite.updateText(true);
+		console.log(this.name_sprite.texture.height);
+		this.name_sprite.width = 0.8 / this.name_sprite.texture.height * this.name_sprite.texture.width;
+		this.name_sprite.height = 0.8;
+		this.name_sprite.anchor.set(0.5,1);
+		global.connector_sprites.addChild(this.name_sprite);
     }
     core: PartMeta = null;
     thrust_forward = false;
     thrust_backward = false;
     thrust_clockwise = false;
+	velocity: [number, number] = [0,0];
     thrust_counter_clockwise = false;
     parts = new Set<PartMeta>();
     grabbed_part: number = null;
     holographic_grab_sprite: PIXI.Sprite = null;
+	visible = true;
 
     update_thruster_sprites() {
         for (const part of this.parts) {

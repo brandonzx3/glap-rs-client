@@ -15,8 +15,102 @@
                 top: 0;
             }
             #connecting_msg { display: flex; align-items: center; justify-content: center; }
+
+			#chat_root_root {
+                position: fixed;
+                left: 0; 
+				bottom: -17em;
+				z-index: 5;
+				display: flex;
+				flex-flow: column nowrap;
+                transition-duration: 1s;
+			}
+			.chat_toggle_button {
+				height: 2em;
+			}
+
+            #chat_root {
+                background-color: rgba(94, 0, 120, 69%);
+                height: 16em;
+                width: 25em;
+                display: flex;
+                flex-flow: column nowrap;
+                overflow: hidden auto;
+                justify-content: flex-end;
+                padding: 6px;
+                border-top-right-radius: 20px;
+                border-top: 2px solid #dd55ff;
+                border-right: 2px solid #dd55ff;
+            }
+
+            #message_button, #message_box {
+                background-color: transparent; /* #e88cff88; */
+                color: #dd55ff;
+                outline: none;
+                border-radius: 3px;
+                border: 2px solid #dd55ff;
+            }
+
+            #message_box {
+                width: 80%;
+            }
+
+            #messages {
+                overflow-y: scroll;
+                overflow-x: auto;
+                overflow-wrap: initial;
+
+                /* hide scrollbar */
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+
+             /* Hide scrollbar for Chrome, Safari and Opera */
+            #messages::-webkit-scrollbar {
+                display: none;
+            }
+
+            #notification_root{
+                position: fixed;
+                left: 0; bottom: 20;
+                z-index: 4;
+                width: 25em;
+                height: 43%;
+                display: flex;
+                flex-flow: column nowrap;
+                overflow: hidden auto;
+                padding: 6px;
+                justify-content: flex-end;
+				pointer-events: none;
+            }
+		
+	    .animation {
+		  transition: left 5s cubic-bezier(.5, -1, .5, 2);
+	    }
         </style>
         <div id="connecting_msg"><span>Connecting...</span></div>
+		<div id=chat_root_root>
+			<div><img class="chat_toggle_button" id="chat_open_button" src="./chat_button_open.png" /></div>
+			<div><img class="chat_toggle_button" id="chat_close_button" src="./chat_button_close.png" style="display: none" /></div>
+			<div id=chat_root>
+				<div id="messages">
+					<template id="message_template">
+						<p></p>
+					</template>
+				</div>
+				<span>
+					<input type="text" placeholder="message" id="message_box">
+					<input type="button" value="Send" id="message_button">
+				</span>
+			</div>
+		</div>
+        <div id="notification_root">
+            <template id="notification_template">
+                <div>
+                    <p>message</p>
+                </div>
+            </template>
+        </div>
         <script src="./bundle.js"></script>
     </body>
 </html>

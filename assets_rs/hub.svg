@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0.0 0.0 150.0 150.0"
+   fill="none"
+   stroke="none"
+   stroke-linecap="square"
+   stroke-miterlimit="10"
+   id="svg106"
+   sodipodi:docname="hub.svg"
+   inkscape:export-filename="/home/christian7573/Documents/glap/glap-rs-client/assets_rs/hub.png"
+   inkscape:export-xdpi="128"
+   inkscape:export-ydpi="128"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata112">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs110" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1536"
+     inkscape:window-height="822"
+     id="namedview108"
+     showgrid="false"
+     inkscape:zoom="4.3666667"
+     inkscape:cx="-5.7911254"
+     inkscape:cy="18.501256"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg106"
+     inkscape:document-rotation="0" />
+  <clipPath
+     id="p.0">
+    <path
+       d="m0 0l150.0 0l0 150.0l-150.0 0l0 -150.0z"
+       clip-rule="nonzero"
+       id="path2" />
+  </clipPath>
+  <g
+     clip-path="url(#p.0)"
+     id="g104">
+    <path
+       fill="#000000"
+       fill-opacity="0.0"
+       d="m0 0l150.0 0l0 150.0l-150.0 0z"
+       fill-rule="evenodd"
+       id="path5" />
+    <defs
+       id="defs12">
+      <radialGradient
+         id="p.1"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(10.297213875562717 0.0 0.0 10.297213875562717 0.0 0.0)"
+         spreadMethod="pad"
+         cx="7.278426049705644"
+         cy="7.282758898717527"
+         fx="7.278426049705644"
+         fy="7.282758898717527"
+         r="10.297213554382324">
+        <stop
+           offset="0.0"
+           stop-color="#696969"
+           id="stop7" />
+        <stop
+           offset="1.0"
+           stop-color="#1d1d1d"
+           id="stop9" />
+      </radialGradient>
+    </defs>
+    <path
+       fill="url(#p.1)"
+       d="m-0.01312021 23.886955l0 0c0 -13.192402 10.694554 -23.886955 23.886955 -23.886955l102.147354 0l0 0c6.3352127 0 12.410957 2.516654 16.890633 6.996327c4.47966 4.479673 6.9963226 10.555414 6.9963226 16.890629l0 102.21034c0 13.192406 -10.69455 23.886955 -23.886955 23.886955l-102.147354 0l0 0c-13.192401 0 -23.886955 -10.69455 -23.886955 -23.886955z"
+       fill-rule="evenodd"
+       id="path14" />
+    <path
+       stroke="#000000"
+       stroke-width="1.0"
+       stroke-linejoin="round"
+       stroke-linecap="butt"
+       d="m-0.01312021 23.886955l0 0c0 -13.192402 10.694554 -23.886955 23.886955 -23.886955l102.147354 0l0 0c6.3352127 0 12.410957 2.516654 16.890633 6.996327c4.47966 4.479673 6.9963226 10.555414 6.9963226 16.890629l0 102.21034c0 13.192406 -10.69455 23.886955 -23.886955 23.886955l-102.147354 0l0 0c-13.192401 0 -23.886955 -10.69455 -23.886955 -23.886955z"
+       fill-rule="evenodd"
+       id="path16"
+       style="stroke:none" />
+    <defs
+       id="defs23">
+      <linearGradient
+         id="p.2"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-4.108299776140616 0.0 0.0 -4.108299776140616 0.0 0.0)"
+         spreadMethod="pad"
+         x1="-28.345325639724965"
+         y1="-36.51287690037561"
+         x2="-28.3453406132545"
+         y2="-32.404577124262275">
+        <stop
+           offset="0.0"
+           stop-color="#ffc002"
+           id="stop18" />
+        <stop
+           offset="1.0"
+           stop-color="#ffff00"
+           id="stop20" />
+      </linearGradient>
+    </defs>
+    <path
+       fill="url(#p.2)"
+       d="m116.45109 150.00554l-82.872765 0l0 -16.877823l82.872765 0z"
+       fill-rule="evenodd"
+       id="path25" />
+    <path
+       stroke="#000000"
+       stroke-width="1.0"
+       stroke-linejoin="round"
+       stroke-linecap="butt"
+       d="m116.45109 150.00554l-82.872765 0l0 -16.877823l82.872765 0z"
+       fill-rule="evenodd"
+       id="path27" />
+    <path
+       fill="#232323"
+       d="m89.56152 132.75302l-15.686699 17.236237l-13.406933 0l15.686695 -17.236237z"
+       fill-rule="evenodd"
+       id="path29" />
+    <path
+       fill="#232323"
+       d="m116.45109 132.7693l-15.686699 17.236237l-13.406929 0l15.686699 -17.236237z"
+       fill-rule="evenodd"
+       id="path31" />
+    <path
+       fill="#232323"
+       d="m62.671955 132.75302l-15.686699 17.236237l-13.406933 0l15.686699 -17.236237z"
+       fill-rule="evenodd"
+       id="path33" />
+    <defs
+       id="defs40">
+      <linearGradient
+         id="p.3"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(0.0 -4.038610863503553 -4.038610863503553 0.0 0.0 0.0)"
+         spreadMethod="pad"
+         x1="-29.18902156154394"
+         y1="-37.139541741341624"
+         x2="-29.18903679345167"
+         y2="-33.100930877866794">
+        <stop
+           offset="0.0"
+           stop-color="#ffc002"
+           id="stop35" />
+        <stop
+           offset="1.0"
+           stop-color="#ffff00"
+           id="stop37" />
+      </linearGradient>
+    </defs>
+    <path
+       fill="url(#p.3)"
+       d="m149.99185 117.8831l0 -85.75761l-16.310074 0l0 85.75761z"
+       fill-rule="evenodd"
+       id="path42" />
+    <path
+       stroke="#000000"
+       stroke-width="1.0"
+       stroke-linejoin="round"
+       stroke-linecap="butt"
+       d="m149.99185 117.8831l0 -85.75761l-16.310074 0l0 85.75761z"
+       fill-rule="evenodd"
+       id="path44" />
+    <path
+       fill="#232323"
+       d="m133.31969 90.057495l16.656418 -15.159004l0 -14.947388l-16.656418 15.159004z"
+       fill-rule="evenodd"
+       id="path46" />
+    <path
+       fill="#232323"
+       d="m133.33543 117.8831l16.656418 -15.159004l0 -14.947388l-16.656418 15.159004z"
+       fill-rule="evenodd"
+       id="path48" />
+    <path
+       fill="#232323"
+       d="m133.31969 62.231888l16.656418 -15.159004l0 -14.947388l-16.656418 15.159008z"
+       fill-rule="evenodd"
+       id="path50" />
+    <defs
+       id="defs57">
+      <linearGradient
+         id="p.4"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(0.0 4.038610831893198 4.038610831893198 0.0 0.0 0.0)"
+         spreadMethod="pad"
+         x1="7.954589065411007"
+         y1="0.009225204741150454"
+         x2="7.954574468165984"
+         y2="4.0478360366079675">
+        <stop
+           offset="0.0"
+           stop-color="#ffc002"
+           id="stop52" />
+        <stop
+           offset="1.0"
+           stop-color="#ffff00"
+           id="stop54" />
+      </linearGradient>
+    </defs>
+    <path
+       fill="url(#p.4)"
+       d="m0.037567455 32.125492l0 85.7576l16.310066 0l0 -85.7576z"
+       fill-rule="evenodd"
+       id="path59" />
+    <path
+       stroke="#000000"
+       stroke-width="1.0"
+       stroke-linejoin="round"
+       stroke-linecap="butt"
+       d="m0.037567455 32.125492l0 85.7576l16.310066 0l0 -85.7576z"
+       fill-rule="evenodd"
+       id="path61" />
+    <path
+       fill="#232323"
+       d="m16.70973 59.951096l-16.65642 15.159012l0 14.94738l16.65642 -15.159004z"
+       fill-rule="evenodd"
+       id="path63" />
+    <path
+       fill="#232323"
+       d="m16.693987 32.125492l-16.65642 15.159004l0 14.947388l16.65642 -15.159008z"
+       fill-rule="evenodd"
+       id="path65" />
+    <path
+       fill="#232323"
+       d="m16.70973 87.7767l-16.65642 15.159004l0 14.947388l16.65642 -15.159004z"
+       fill-rule="evenodd"
+       id="path67" />
+    <defs
+       id="defs74">
+      <radialGradient
+         id="p.5"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(9.058626649856812 0.0 0.0 9.058626649856812 0.0 0.0)"
+         spreadMethod="pad"
+         cx="8.28008665634537"
+         cy="8.279707730701956"
+         fx="8.28008665634537"
+         fy="8.279707730701956"
+         r="9.058626174926758">
+        <stop
+           offset="0.0"
+           stop-color="#8c8c8c"
+           id="stop69" />
+        <stop
+           offset="1.0"
+           stop-color="#404040"
+           id="stop71" />
+      </radialGradient>
+    </defs>
+    <path
+       fill="url(#p.5)"
+       d="m16.707 35.65674l0 0c0 -10.163137 8.238852 -18.401989 18.401989 -18.401989l79.79445 0c4.880516 0 9.561134 1.938776 13.0121765 5.389818c3.4510422 3.4510422 5.3898087 8.131659 5.3898087 13.012171l0 78.692085c0 10.163139 -8.238846 18.401985 -18.401985 18.401985l-79.79445 0c-10.163137 0 -18.401989 -8.238846 -18.401989 -18.401985z"
+       fill-rule="evenodd"
+       id="path76" />
+    <defs
+       id="defs83">
+      <radialGradient
+         id="p.6"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(5.652245640670645 0.0 0.0 5.652245640670645 0.0 0.0)"
+         spreadMethod="pad"
+         cx="13.271731563977072"
+         cy="13.269777262106992"
+         fx="13.271731563977072"
+         fy="13.269777262106992"
+         r="5.65224552154541">
+        <stop
+           offset="0.0"
+           stop-color="#ffffff"
+           id="stop78" />
+        <stop
+           offset="1.0"
+           stop-color="#b3b3b3"
+           id="stop80" />
+      </radialGradient>
+    </defs>
+    <path
+       fill="url(#p.6)"
+       d="m52.400913 75.00404l0 0c0 -12.463375 10.12471 -22.566933 22.61417 -22.566933l0 0c5.997658 0 11.749657 2.3775826 15.990639 6.609703c4.240982 4.2321167 6.623535 9.972107 6.623535 15.95723l0 0c0 12.463371 -10.12471 22.566925 -22.614174 22.566925l0 0c-12.48946 0 -22.61417 -10.103554 -22.61417 -22.566925z"
+       fill-rule="evenodd"
+       id="path85" />
+    <defs
+       id="defs92">
+      <linearGradient
+         id="p.7"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(4.108299779225068 0.0 0.0 4.108299779225068 0.0 0.0)"
+         spreadMethod="pad"
+         x1="8.173289235810994"
+         y1="6.678756375056576E-4"
+         x2="8.173274262281472"
+         y2="4.108967654835287">
+        <stop
+           offset="0.0"
+           stop-color="#ffc002"
+           id="stop87" />
+        <stop
+           offset="1.0"
+           stop-color="#ffff00"
+           id="stop89" />
+      </linearGradient>
+    </defs>
+    <path
+       fill="url(#p.7)"
+       d="m33.578323 0.003043832l82.872765 0l0 16.877827l-82.872765 0z"
+       fill-rule="evenodd"
+       id="path94" />
+    <path
+       stroke="#000000"
+       stroke-width="1.0"
+       stroke-linejoin="round"
+       stroke-linecap="butt"
+       d="m33.578323 0.003043832l82.872765 0l0 16.877827l-82.872765 0z"
+       fill-rule="evenodd"
+       id="path96" />
+    <path
+       fill="#232323"
+       d="m60.46789 17.255571l15.686695 -17.236237l13.406937 0l-15.686699 17.236237z"
+       fill-rule="evenodd"
+       id="path98" />
+    <path
+       fill="#232323"
+       d="m33.578323 17.23928l15.686699 -17.236237l13.406933 0l-15.686699 17.236237z"
+       fill-rule="evenodd"
+       id="path100" />
+    <path
+       fill="#232323"
+       d="m87.35746 17.255571l15.686699 -17.236237l13.406929 0l-15.686699 17.236237z"
+       fill-rule="evenodd"
+       id="path102" />
+  </g>
+</svg>

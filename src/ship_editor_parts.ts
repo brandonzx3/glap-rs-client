@@ -1,59 +1,106 @@
 import * as PIXI from "pixi.js";
-import { global } from "./ship_editor";
+import { global, SaveDataProviderRecursivePartDescription } from "./ship_editor";
 import { PartKind } from "./codec";
 
-export class Part {
+export class RecursivePart {
 	kind: PartKind;
+	attachments: RecursivePart[];
+	private attachments_inner: PIXI.DisplayObject[] = [];
+	
+	container = new PIXI.Container();
 	sprite = new PIXI.Sprite();
 	connector_sprite = new PIXI.Sprite();
 	connected = false;
 
-	constructor(kind: PartKind, connected: boolean) {
+	constructor(kind: PartKind, attachments: RecursivePart[], connected: boolean)  {
 		this.kind = kind;
+		this.attachments = attachments;
+		this.connected = connected && this.kind !== PartKind.Core;
+
 		this.sprite.width = 1; this.sprite.height = 1;
 		if (kind === PartKind.Core) this.sprite.anchor.set(0.5, 0.5);
-		else this.sprite.anchor.set(0.5,1);
-		this.connected = connected;
-        this.connector_sprite = new PIXI.Sprite(global.spritesheet.textures["connector.png"]);
+		else this.sprite.anchor.set(0.5, 1);
+		this.sprite.interactive = true;
+		this.sprite.on("pointerdown", (e: PIXI.InteractionEvent) => global.on_part_grab(this, e));
+		this.container.addChild(this.sprite);
+
+		this.connector_sprite.texture = global.spritesheet.textures["connector.png"];
         this.connector_sprite.width = 0.333; this.connector_sprite.height = 0.15;
-        this.connector_sprite.anchor.set(0.5,0);
-		global.part_sprites.addChild(this.sprite);
+		this.connector_sprite.anchor.set(0.5,0);
+		this.connector_sprite.position.set(0,0);
+		//this.connector_sprite.rotation = Math.PI;
+		this.container.addChild(this.connector_sprite);
+
 		this.update_sprites();
+		this.update_attachments();
 	}
 
-    update_sprites() {
-        switch (this.kind) {
-            case PartKind.Core: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
-            case PartKind.Cargo: this.sprite.texture = global.spritesheet.textures[this.connected ? "cargo.png" : "cargo_off.png"]; break;
-            case PartKind.LandingThruster: this.sprite.texture = global.spritesheet.textures[this.connected ? "landing_thruster.png" : "landing_thruster_off.png"]; break;
-            case PartKind.Hub: this.sprite.texture = global.spritesheet.textures[this.connected ? "hub.png" : "hub_off.png"]; break;
-            case PartKind.SolarPanel: this.sprite.texture = global.spritesheet.textures[this.connected ? "solar_panel.png" : "solar_panel_off.png"]; break;
-            default: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
-        }
-        global.connector_sprites.removeChild(this.connector_sprite);
-        if (this.connected && this.kind !== PartKind.Core) global.connector_sprites.addChild(this.connector_sprite);
-    }
+	static sprites = new Map([
+		[PartKind.Core, "core.png"],
+		[PartKind.Cargo, "cargo.png"],
+		[PartKind.LandingThruster, "landing_thruster.png"],
+		[PartKind.Hub, "hub.png"],
+		[PartKind.SolarPanel, "solar_panel.png"],
+		[PartKind.PowerHub, "power_hub.png"],
+		[PartKind.EcoThruster, "eco_thruster.png"],
+		[PartKind.SuperThruster, "super_thruster.png"],
+		[PartKind.Thruster, "thruster.png"],
+		[PartKind.HubThruster, "hub_thruster.png"],
+	]);
 
-	x = 0;
-	y = 0;
-	set_position(x: number, y: number) {
-		this.x = x; this.y = y;
-		this.sprite.position.set(x,y);
-		this.connector_sprite.position.copyFrom(this.sprite);
+	update_sprites() {
+		switch (this.kind) {
+			default:
+				this.sprite.texture = global.spritesheet.textures[RecursivePart.sprites.get(this.kind)]; break;
+		}
+		this.connector_sprite.visible = this.connected;
+		//this.connector_sprite.visible = false;
 	}
-	set_rotation(rot: number) {
-		const actual_rot = rot + Math.PI;
-		this.sprite.rotation = actual_rot;
-		this.connector_sprite.rotation = actual_rot;
+	update_attachments() {
+		for (let i = 0; i < this.attachments.length; i++) {
+			if (this.attachments[i] == null && this.attachments_inner[i] != null) {
+				this.container.removeChild(this.attachments_inner[i]);
+				this.attachments_inner[i] = null;
+			} else if (this.attachments[i] != null && this.attachments_inner[i] == null) {
+				this.attachments_inner[i] = this.attachments[i].container;
+				const kind_info = part_kind_info.get(this.kind);
+				this.attachments_inner[i].position.set(kind_info.attachments[i].dx, kind_info.attachments[i].dy);
+				this.attachments_inner[i].rotation = AttachedPartFacing_PartRotation(kind_info.attachments[i].facing) - Math.PI;
+				this.container.addChild(this.attachments_inner[i]);
+			}
+		}
+	}
+
+	update_position(x: number, y: number) {
+		this.container.position.set(x, y);
+	}
+	update_rotation(rads: number) {
+		this.container.rotation = rads;
 	}
 
 	depower() {
-		global.part_sprites.removeChild(this.sprite);
-		global.connector_sprites.removeChild(this.connector_sprite);
+
+	}
+
+
+	static inflate(source: SaveDataProviderRecursivePartDescription): RecursivePart {
+		if (!Array.isArray(source.attachments)) throw new Error("Attachments was not an array");
+		const attachments = source.attachments.map(attachment => {
+			if (typeof attachment !== "object") throw new Error("Attachment wasn't an object");
+			if (attachment === null) return null;
+			else return RecursivePart.inflate(attachment);
+		});
+		if (typeof source.kind !== "number") throw new Error("Invalid part kind");
+		return new RecursivePart(source.kind, attachments, true);
+	}
+	deflate(): SaveDataProviderRecursivePartDescription {
+		return {
+			kind: this.kind,
+			attachments: this.attachments.map(attachment => attachment != null ? attachment.deflate() : null),
+		};
 	}
 }
 
-export const part_kind_info: Map<PartKind, PartKindInfo> = new Map();
 export type PartKindAttachmentInfoType = [AttachmentInfo, AttachmentInfo, AttachmentInfo, AttachmentInfo];
 export class PartKindInfo {
 	power_storage: number;
@@ -70,16 +117,17 @@ export class AttachmentInfo {
 	dy: number;
 	facing: AttachedPartFacing;
 	constructor(dx: number, dy: number, facing: AttachedPartFacing) {
-		this.dx = dx; this.dy = dy; this.facing = facing;
+		this.dx = dx; this.dy = -dy; this.facing = facing;
 	}
 }
+
 export enum AttachedPartFacing { Up, Right, Down, Left }
 export function AttachedPartFacing_PartRotation(facing: AttachedPartFacing): number {
 	switch (facing) {
-		case AttachedPartFacing.Up: return 0;
-		case AttachedPartFacing.Right: return PIXI.PI_2;
-		case AttachedPartFacing.Down: return Math.PI;
-		case AttachedPartFacing.Left: return -PIXI.PI_2;
+		case AttachedPartFacing.Up: return Math.PI;
+		case AttachedPartFacing.Right: return 0.5 * Math.PI;
+		case AttachedPartFacing.Down: return 0;
+		case AttachedPartFacing.Left: return -0.5 * Math.PI;
 	}
 }
 export function AttachedPartFacing_GetActualRotation(my_attached_as: AttachedPartFacing, parent_actual_rotation: AttachedPartFacing): AttachedPartFacing {
@@ -90,16 +138,30 @@ export function AttachedPartFacing_GetActualRotation(my_attached_as: AttachedPar
 	else return num as AttachedPartFacing;
 }
 
-export class RecursivePartDescription {
-	kind: PartKind;
-	attachments: RecursivePartDescription[];
+export const part_kind_info: Map<PartKind, PartKindInfo> = new Map();
+{
+	const no_attachments: PartKindAttachmentInfoType = [null, null, null, null];
+	part_kind_info.set(PartKind.Core, new PartKindInfo(2000, 0, [
+		new AttachmentInfo(0.0, 0.6, AttachedPartFacing.Up),
+		new AttachmentInfo(-0.6, 0.0, AttachedPartFacing.Right),
+		new AttachmentInfo(0.0, -0.6, AttachedPartFacing.Down),
+		new AttachmentInfo(0.6, 0.0, AttachedPartFacing.Left),
+	]));
 
-	constructor(kind: PartKind, attachments: RecursivePartDescription[]) {
-		this.kind = kind;
-		this.attachments = attachments;
-	}
-	static upgrade(source: any): RecursivePartDescription {
-		const attachments = (source.attachments as object[]).map(obj => obj === null ? null : RecursivePartDescription.upgrade(obj));
-		return new RecursivePartDescription(source.kind, source.dx);
-	}
+	part_kind_info.set(PartKind.Cargo, new PartKindInfo(200, 0, no_attachments));
+	part_kind_info.set(PartKind.LandingThruster, new PartKindInfo(400, 0, no_attachments));
+
+	const hub_attachments: PartKindAttachmentInfoType = [
+		null,
+		new AttachmentInfo(0.6, 0.5, AttachedPartFacing.Left),
+		new AttachmentInfo(0.0, 1.1, AttachedPartFacing.Up),
+		new AttachmentInfo(-0.6, 0.5, AttachedPartFacing.Right),
+	];
+	part_kind_info.set(PartKind.Hub, new PartKindInfo(666, 0, hub_attachments));
+
+	part_kind_info.set(PartKind.SolarPanel, new PartKindInfo(0, 2, no_attachments));
+	part_kind_info.set(PartKind.Thruster, new PartKindInfo(500, 0, no_attachments));
+	part_kind_info.set(PartKind.SuperThruster, new PartKindInfo(500, 0, no_attachments));
+	part_kind_info.set(PartKind.EcoThruster, new PartKindInfo(0, 0, no_attachments));
+	part_kind_info.set(PartKind.PowerHub, new PartKindInfo(1332, 0, hub_attachments));
 }
