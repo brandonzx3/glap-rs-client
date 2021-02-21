@@ -2,7 +2,7 @@ import { PartKind } from "./codec";
 import { PlayerMeta, global } from "./index";
 import * as PIXI from 'pixi.js';
 import * as Particles from 'pixi-particles';
-import { ParticleManager, ParticleHookFactory, ThrusterEmitter, ThrusterParticleConfig, SuperThrusterParticleConfig, CoreParticleConfig } from "./particles";
+import { ParticleManager, ParticleHookFactory, ThrusterEmitter, ThrusterParticleConfig, SuperThrusterParticleConfig, EcoThrusterParticleConfig, CoreParticleConfig } from "./particles";
 import { Box } from "./codec";
 
 export class PartMeta {
@@ -189,12 +189,9 @@ class ThrustParticleManager implements ParticleManager {
 
 		let config;
 		switch (parent.kind) {
-			case PartKind.SuperThruster:
-				config = SuperThrusterParticleConfig;
-				break;
-
-			default:
-				config = ThrusterParticleConfig;
+			case PartKind.SuperThruster: config = SuperThrusterParticleConfig; break;
+			case PartKind.EcoThruster: config = EcoThrusterParticleConfig; break;
+			default: config = ThrusterParticleConfig;
 		}
 		this.emitter = new ThrusterEmitter(this.parent, offset, vel, global.thrust_particles, global.white_box, config);
 	}

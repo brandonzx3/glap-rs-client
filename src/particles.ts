@@ -85,6 +85,17 @@ SuperThrusterParticleConfig["color"] = { list: [
 		{ time: 1.0, value: "#333333" }
 ] };
 
+export const EcoThrusterParticleConfig: Particles.EmitterConfig = Object.create(ThrusterParticleConfig);
+EcoThrusterParticleConfig["color"] = { list: [
+	{ time: 0.0, value: "#ffff79" },
+	{ time: 0.8, value: "#b1b1b1" },
+	{ time: 1.0, value: "#474747" },
+] };
+EcoThrusterParticleConfig["scale"] = { list: [
+	{ time: 0, value: 0.2 },
+	{ time: 1, value: 0.7 },
+] };
+
 export class ThrusterEmitter extends Particles.Emitter {
 	offset: PIXI.Point;
 	vel: PIXI.Point;
