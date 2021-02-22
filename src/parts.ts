@@ -66,6 +66,7 @@ export class PartMeta {
 			case PartKind.EcoThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "eco_thruster.png" : "eco_thruster_off.png"]; break;
 			case PartKind.SuperThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "super_thruster.png" : "super_thruster_off.png"]; break;
 			case PartKind.PowerHub: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "power_hub.png" : "power_hub_off.png"]; break;
+			case PartKind.HubThruster: this.sprite.texture = global.spritesheet.textures[this.owning_player !== null ? "hub_thruster.png" : "hub_thruster_off.png"]; break;
 			
             default: this.sprite.texture = global.spritesheet.textures["core.png"]; break;
         }
