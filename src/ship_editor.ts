@@ -643,10 +643,10 @@ load_selection.addEventListener("change", on_load_updated);
 
 function clear_completly() {
 	if (is_save_loading) return;
+	const parent = global.layout.container.parent;
 	for (const root of global.all_roots) {
 		root.container.parent.removeChild(root.container);
 	}
-	const parent = global.layout.container.parent;
 	global.all_roots.splice(0, global.all_roots.length);
 	global.layout = new RecursivePart(PartKind.Core, [null, null, null, null], true);
 	global.all_roots[0] = global.layout;
