@@ -281,11 +281,16 @@ new Promise(async (resolve, reject) => {
 				on_message(msg, buf, buf_i);
 			}
 		} else if (msg instanceof ToClientMsg.AddCelestialObject) {
-            const celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
-            celestial_object.width = msg.radius * 2;
-            celestial_object.height = msg.radius * 2;
-            celestial_object.anchor.set(0.5,0.5);
-            celestial_object.position.set(msg.position[0], msg.position[1]);
+            let celestial_object;
+			if (msg.name === "sun") {
+				celestial_object = new PIXI.Graphics().beginFill(0xffffff).drawCircle(0,0,msg.radius).endFill();
+			} else {
+				celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
+				celestial_object.width = msg.radius * 2;
+				celestial_object.height = msg.radius * 2;
+				celestial_object.anchor.set(0.5,0.5);
+				celestial_object.position.set(msg.position[0], msg.position[1]);
+			};
             global.planet_sprites.addChild(celestial_object);
             const meta = new CelestialObjectMeta(msg.id, msg.name, msg.display_name, celestial_object, msg.radius);
             global.celestial_objects.set(msg.id, meta);
@@ -700,11 +705,11 @@ export class PlayerMeta {
 export class CelestialObjectMeta {
     id: number;
     display_name: string;
-    sprite: PIXI.Sprite;
+    sprite: PIXI.DisplayObject;
     radius: number;
     name: string;
     icon_mask: PIXI.Texture;
-    constructor(id: number, name: string, display_name: string, sprite: PIXI.Sprite, radius: number) {
+    constructor(id: number, name: string, display_name: string, sprite: PIXI.DisplayObject, radius: number) {
         this.id = id; this.display_name = display_name; this.sprite = sprite; this.name = name;
         this.radius = radius;
         this.icon_mask = create_planet_icon_mask(global.spritesheet.textures["symbol_" + this.name + ".png"])
