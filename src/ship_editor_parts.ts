@@ -164,4 +164,6 @@ export const part_kind_info: Map<PartKind, PartKindInfo> = new Map();
 	part_kind_info.set(PartKind.SuperThruster, new PartKindInfo(500, 0, no_attachments));
 	part_kind_info.set(PartKind.EcoThruster, new PartKindInfo(0, 0, no_attachments));
 	part_kind_info.set(PartKind.PowerHub, new PartKindInfo(1332, 0, hub_attachments));
+
+	part_kind_info.set(PartKind.HubThruster, new PartKindInfo(400, 0, [null, hub_attachments[1], null, hub_attachments[3]]));
 }
