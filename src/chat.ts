@@ -71,7 +71,7 @@ export class Chat {
         let temp = (document.querySelector("#message_template") as HTMLTemplateElement);
         let clone = (temp.content.cloneNode(true) as HTMLDivElement);
         let message = (clone.firstElementChild as HTMLParagraphElement);
-        message.innerHTML = `${username}: ${content}`;
+        message.innerText = `${username}: ${content}`;
         message.style.color = color;
         message_root.appendChild(clone);
         message_root.scrollTop = message_root.offsetTop + message_root.scrollHeight;
@@ -88,7 +88,7 @@ export class Chat {
             notification.style.margin = "10px";
             notification.style.borderRadius = "15px";
 	        setTimeout(() => notification.style.opacity = "100%", 50); //wait for transitionDuration because its bad
-            message.innerHTML = `${username}: ${content}`;
+            message.innerText = `${username}: ${content}`;
             message.style.color = color;
             notification_root.appendChild(clone);
             if(this.notification_count > 3) {
