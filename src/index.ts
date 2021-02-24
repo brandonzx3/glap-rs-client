@@ -377,10 +377,11 @@ new Promise(async (resolve, reject) => {
 			}
 	    
         }
-		else if (msg instanceof ToClientMsg.BeamOutAnimation) {
+		else if (msg instanceof ToClientMsg.BeamOutAnimation || msg instanceof ToClientMsg.IncinerationAnimation) {
 			const player = global.players.get(msg.player_id);
 			if (player !== null) {
 				const opacity_aniamtion_constant = 0.001;
+				const config_source = msg instanceof ToClientMsg.BeamOutAnimation ? BeamoutParticleConfig : IncinerationParticleConfig;
 				for (const part of player.parts) {
 					const my_config = Object.create(BeamoutParticleConfig);
 					my_config.pos.x = part.sprite.x;

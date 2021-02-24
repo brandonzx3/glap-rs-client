@@ -419,14 +419,26 @@ class ToClientMsg_BeamOutAnimation {
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_ChatMessage {
+class ToClientMsg_IncinerationAnimation {
 	static readonly id = 14;
+	player_id: number;
+	constructor(player_id: number,) {
+		this.player_id = player_id;
+	}
+	serialize(): Uint8Array
+		{let out = [14];
+		type_ushort_serialize(out, this.player_id);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_ChatMessage {
+	static readonly id = 15;
 	username: string; msg: string; color: string;
 	constructor(username: string, msg: string, color: string,) {
 		this.username = username; this.msg = msg; this.color = color;
 	}
 	serialize(): Uint8Array
-		{let out = [14];
+		{let out = [15];
 		type_string_serialize(out, this.username);
 		type_string_serialize(out, this.msg);
 		type_string_serialize(out, this.color);
@@ -515,6 +527,10 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			player_id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_BeamOutAnimation(player_id);
 		}; break;		case 14: {
+			let player_id: number;
+			player_id = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_IncinerationAnimation(player_id);
+		}; break;		case 15: {
 			let username: string; let msg: string; let color: string;
 			username = type_string_deserialize(buf, index);
 			msg = type_string_deserialize(buf, index);
@@ -525,6 +541,6 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, ChatMessage: ToClientMsg_ChatMessage
+	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, IncinerationAnimation: ToClientMsg_IncinerationAnimation, ChatMessage: ToClientMsg_ChatMessage
 };
 
