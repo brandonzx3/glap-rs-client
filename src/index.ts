@@ -6,7 +6,7 @@ import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
 import { Chat } from './chat';
-import { BeamoutParticleConfig, ParticleManager } from "./particles";
+import { BeamoutParticleConfig, ParticleManager, IncinerationParticleConfig } from "./particles";
 import PID from "node-pid-controller";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
@@ -383,7 +383,7 @@ new Promise(async (resolve, reject) => {
 				const opacity_aniamtion_constant = 0.001;
 				const config_source = msg instanceof ToClientMsg.BeamOutAnimation ? BeamoutParticleConfig : IncinerationParticleConfig;
 				for (const part of player.parts) {
-					const my_config = Object.create(BeamoutParticleConfig);
+					const my_config = Object.create(config_source);
 					my_config.pos.x = part.sprite.x;
 					my_config.pos.y = part.sprite.y;
 					const particles = new Particles.Emitter(global.connector_sprites, global.white_box, my_config);
