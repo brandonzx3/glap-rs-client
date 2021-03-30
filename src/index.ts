@@ -15,7 +15,7 @@ console.log(params);
 
 let session: string = null; 
 if ("localStorage" in window) session = window.localStorage.getItem("session");
-const has_session = session !== null && lib_uuid_validate(session);
+const has_session = session != null && lib_uuid_validate(session);
 console.log("Has session: " + has_session);
 
 export interface GlobalData {
@@ -317,15 +317,15 @@ new Promise(async (resolve, reject) => {
             part.rot = rotation;
         } else if (msg instanceof ToClientMsg.RemovePart) {
             const part = global.parts.get(msg.id);
-            if (part !== null) {
+            if (part != null) {
                 global.parts.delete(msg.id);
                 global.part_sprites.removeChild(part.sprite);
                 global.connector_sprites.removeChild(part.connector_sprite);
             }
         } else if (msg instanceof ToClientMsg.UpdatePartMeta) {
             const meta = global.parts.get(msg.id);
-            if (meta.owning_player !== null) meta.owning_player.parts.delete(meta);
-            if (msg.owning_player !== null) {
+            if (meta.owning_player != null) meta.owning_player.parts.delete(meta);
+            if (msg.owning_player != null) {
                 meta.owning_player = global.players.get(msg.owning_player);
                 meta.owning_player.parts.add(meta);
                 meta.update_thruster_sprites(meta.owning_player.thrust_forward, meta.owning_player.thrust_backward, meta.owning_player.thrust_clockwise, meta.owning_player.thrust_counter_clockwise);
@@ -354,7 +354,7 @@ new Promise(async (resolve, reject) => {
             meta.thrust_counter_clockwise = msg.thrust_counter_clockwise;
             meta.update_thruster_sprites();
             meta.grabbed_part = msg.grabed_part;
-            if (meta.grabbed_part === null && meta.holographic_grab_sprite !== null) {
+            if (meta.grabbed_part === null && meta.holographic_grab_sprite != null) {
                 global.holograms.removeChild(meta.holographic_grab_sprite);
                 meta.holographic_grab_sprite = null;
             }
@@ -371,7 +371,7 @@ new Promise(async (resolve, reject) => {
 		}
         else if (msg instanceof ToClientMsg.RemovePlayer) {
 			const player = global.players.get(msg.id);
-			if (player !== null) {
+			if (player != null) {
 				global.connector_sprites.removeChild(player.name_sprite);
 				global.players.delete(msg.id);
 			}
@@ -379,7 +379,7 @@ new Promise(async (resolve, reject) => {
         }
 		else if (msg instanceof ToClientMsg.BeamOutAnimation || msg instanceof ToClientMsg.IncinerationAnimation) {
 			const player = global.players.get(msg.player_id);
-			if (player !== null) {
+			if (player != null) {
 				const opacity_aniamtion_constant = 0.001;
 				const config_source = msg instanceof ToClientMsg.BeamOutAnimation ? BeamoutParticleConfig : IncinerationParticleConfig;
 				for (const part of player.parts) {
@@ -517,7 +517,7 @@ new Promise(async (resolve, reject) => {
 			part.sprite.rotation = rotation;
 			part.connector_sprite.position.set(x, y);
 			part.connector_sprite.rotation = rotation;
-			if (part.kind === PartKind.Core && part.owning_player !== null) {
+			if (part.kind === PartKind.Core && part.owning_player != null) {
 				part.owning_player.name_sprite.position.set(x, y - 0.85);
 			}
 		}
@@ -686,7 +686,7 @@ export class PlayerMeta {
         }
     }
     update_grabbing_sprite() {
-        if (this.grabbed_part !== null) {
+        if (this.grabbed_part != null) {
             if (this.holographic_grab_sprite === null) {
                 this.holographic_grab_sprite = new PIXI.Sprite(global.holographic_grab);
                 this.holographic_grab_sprite.height = 0.25;
