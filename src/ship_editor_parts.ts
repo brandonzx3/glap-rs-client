@@ -117,7 +117,7 @@ export class AttachmentInfo {
 	dy: number;
 	facing: AttachedPartFacing;
 	constructor(dx: number, dy: number, facing: AttachedPartFacing) {
-		this.dx = dx; this.dy = -dy; this.facing = facing;
+		this.dx = -dx; this.dy = -dy; this.facing = facing;
 	}
 }
 
@@ -125,9 +125,9 @@ export enum AttachedPartFacing { Up, Right, Down, Left }
 export function AttachedPartFacing_PartRotation(facing: AttachedPartFacing): number {
 	switch (facing) {
 		case AttachedPartFacing.Up: return Math.PI;
-		case AttachedPartFacing.Right: return 0.5 * Math.PI;
+		case AttachedPartFacing.Right: return -0.5 * Math.PI;
 		case AttachedPartFacing.Down: return 0;
-		case AttachedPartFacing.Left: return -0.5 * Math.PI;
+		case AttachedPartFacing.Left: return 0.5 * Math.PI;
 	}
 }
 export function AttachedPartFacing_GetActualRotation(my_attached_as: AttachedPartFacing, parent_actual_rotation: AttachedPartFacing): AttachedPartFacing {
