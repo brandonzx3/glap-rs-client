@@ -8,6 +8,7 @@ import { validate as lib_uuid_validate } from "uuid";
 import { Chat } from './chat';
 import { BeamoutParticleConfig, ParticleManager, IncinerationParticleConfig } from "./particles";
 import PID from "node-pid-controller";
+import { RuntimeGui, load_fonts, load as gui_load, Clamp } from "./gui/base";
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");
@@ -44,6 +45,8 @@ export interface GlobalData {
     destination_hologram: PIXI.TilingSprite;
     heading_hologram: PIXI.Sprite;
     onframe: Set<Function>;
+
+	gui: RuntimeGui;
 
 	socket: WebSocket;
     my_core: PartMeta;
@@ -83,6 +86,8 @@ export const global: GlobalData = {
     destination_hologram: null,
     heading_hologram: new PIXI.Sprite(),
 	onframe: new Set(),
+
+	gui: null,
 
 	socket: null,
     my_core: null,
@@ -190,6 +195,16 @@ new Promise(async (resolve, reject) => {
     const texture = PIXI.Texture.from(image);
     global.spritesheet = new PIXI.Spritesheet(texture, dat);
     global.spritesheet.parse(resolve);
+}).then(() => load_fonts()).then(async () => {
+	if (!("localStorage" in window)) throw new Error("No localstorage");
+	global.gui = gui_load([
+		{ 
+			kind: "fuel_gague",
+			clamp: Clamp.Bottom,
+			is_vertical: false,
+			offset: 0,
+		}
+	], 1);
 }).then(() => {
     global.main_hud = new MainHud();
     pixi.stage.addChild(global.main_hud.container);
@@ -420,6 +435,7 @@ new Promise(async (resolve, reject) => {
 
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
             global.main_hud.set_fuel(msg.your_power, max_fuel);
+			if (global.gui.fuel_gague != null) global.gui.fuel_gague.update(msg.your_power, max_fuel);
 
             const now = performance.now();
             const delta_server_tick = now - previous_server_tick;
@@ -616,7 +632,7 @@ new Promise(async (resolve, reject) => {
         }
     });
 
-    (window as any)["dev"] = global;
+    (window as any)["global"] = global;
 	(window as any)["PIXI"] = PIXI;
 	(window as any)["resize"] = resize;
 
