@@ -182,6 +182,9 @@ const spritesheet_url_base = "spritesheet" in params ? params["spritesheet"] : "
 console.log("spritesheet" in params);
 console.log(params["spritesheet"]);
 
+(window as any)["global"] = global;
+(window as any)["PIXI"] = PIXI;
+
 new Promise(async (resolve, reject) => {
     const image_promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
         const image = document.createElement("img");
@@ -228,6 +231,8 @@ new Promise(async (resolve, reject) => {
     global.heading_hologram.anchor.set(0.5);
     global.heading_hologram.alpha = 0.5;
     global.holograms.addChild(global.heading_hologram);
+
+	pixi.stage.addChild(global.gui.container);
 
     resize();
     window.addEventListener("resize", resize);
@@ -632,8 +637,6 @@ new Promise(async (resolve, reject) => {
         }
     });
 
-    (window as any)["global"] = global;
-	(window as any)["PIXI"] = PIXI;
 	(window as any)["resize"] = resize;
 
     let am_grabbing = false;
