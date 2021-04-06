@@ -29,6 +29,7 @@ export function load_fonts(): Promise<void> {
 	fonts_loader = new Promise((resolve, reject) => {
 		const loader = new Loader();
 		loader.add("Hack53", "./Hack-Regular-53.fnt");
+		loader.onComplete.add(function () { console.log(arguments); });
 		loader.onComplete.add(resolve);
 		loader.onError.add(reject);
 		loader.load();
