@@ -12,6 +12,8 @@ export default class Fuel extends BlurBase {
 	no_fuel_backplate: Graphics;
 	fuel: Graphics;
 	text: BitmapText;
+	footprint_x: number;
+	footprint_y: number;
 
 	constructor(clamp: Clamp, is_vertical: boolean, gui_scale: number) {
 		super();
@@ -45,13 +47,13 @@ export default class Fuel extends BlurBase {
 				case Clamp.TopRight:
 				case Clamp.TopLeft:
 					bar_y = paddingx2;
-					text_cy = paddingx2 * 1.75;
+					text_cy = paddingx2 * 2.25;
 					break;
 				case Clamp.Bottom:
 				case Clamp.BottomRight:
 				case Clamp.BottomLeft:
 					bar_y = paddingx2 * 1.75;
-					text_cy = paddingx2;
+					text_cy = paddingx2 * 1.25;
 					break;
 				default:
 					throw new Error("`clamp` and `is_vertical` don't match");
@@ -83,6 +85,8 @@ export default class Fuel extends BlurBase {
 			}
 		}
 
+		this.footprint_x = width;
+		this.footprint_y = height;
 		this.hue = new Graphics()
 			.beginFill(0x001a86, 0.71)
 			.drawRect(padding, padding, width - paddingx2, height - paddingx2)
@@ -102,15 +106,24 @@ export default class Fuel extends BlurBase {
 			.endFill();
 		this.no_fuel_backplate.visible = false;
 
-		this.text = new BitmapText(is_vertical ? "F u e l" : "Fuel", { fontName: "Hack-Regular", fontSize: 42, maxWidth: is_vertical ? 10 : undefined, align: "center", });
+		this.text = new BitmapText(is_vertical ? "E\nn\ne\nr\ng\ny" : "Energy", { fontName: "Hack", fontSize: 42, align: "center",  });
 		this.text.position.set(text_cx, text_cy);
 		(this.text.anchor as Point).set(0.5);
+		this.text.updateText();
+		if (is_vertical) this.text.scale.set(padding / this.text.textWidth);
+		else this.text.scale.set(paddingx2 / this.text.textHeight);
 
 		this.fuel = new PIXI.Graphics()
 			.beginFill(0xffffff, 1)
 			.drawRect(0, 0, 1, 1)
 			.endFill();
-		this.fuel.position.set(bar_x, bar_y);
+		if (is_vertical) {
+			this.fuel.scale.x = bar_width;
+			this.fuel.position.set(bar_x, bar_y + bar_height);
+		} else {
+			this.fuel.scale.y = bar_height;
+			this.fuel.position.set(bar_x, bar_y);
+		};
 
 		this.background.addChild(this.hue);
 		this.foreground.addChild(outline);
@@ -126,10 +139,10 @@ export default class Fuel extends BlurBase {
 		if (fuel === this.last_fuel && max_fuel === this.last_max_fuel) return;
 		this.last_fuel = fuel; this.last_max_fuel = max_fuel;
 		const size = fuel / max_fuel * this.bar_size;
-		if (this.is_vertical) this.fuel.scale.y = size;
+		if (this.is_vertical) this.fuel.scale.y = -size;
 		else this.fuel.scale.x = size;
-		let text =`Fuel: ${fuel}/${max_fuel}`;
-		if (this.is_vertical) text = text.split("").join(" ");
+		let text =`Energy: ${fuel}/${max_fuel} kW`;
+		if (this.is_vertical) text = text.split("").join("\n");
 		this.text.text = text;
 	}
 }

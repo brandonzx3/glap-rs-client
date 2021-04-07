@@ -49,6 +49,13 @@ interface GuiComponent {
 export class RuntimeGui {
 	container = new Container();
 	fuel_gague: FuelGague = null;
+	on_resize: Set<Function> = new Set();
+
+	it_resized() {
+		for (const handler of this.on_resize) {
+			handler();
+		}
+	}
 }
 
 export function load(components: GuiComponent[], gui_scale: number): RuntimeGui {
@@ -60,11 +67,35 @@ export function load(components: GuiComponent[], gui_scale: number): RuntimeGui 
 				gui.container.addChild(gui.fuel_gague.root);
 				if (component.is_vertical) gui.fuel_gague.root.position.y = component.offset;
 				else gui.fuel_gague.root.position.x = component.offset;
+				switch (component.clamp) {
+					case Clamp.Bottom:
+					case Clamp.BottomLeft:
+					case Clamp.BottomRight:
+						gui.on_resize.add(function() {
+							gui.fuel_gague.root.position.y = window.innerHeight - gui.fuel_gague.footprint_y;
+						});
+						break;
+
+					case Clamp.Right:
+						gui.on_resize.add(function() {
+							gui.fuel_gague.root.position.x = window.innerWidth - gui.fuel_gague.footprint_x;
+						});
+						break;
+
+					case Clamp.Top:
+					case Clamp.TopLeft:
+					case Clamp.TopRight:
+					case Clamp.Left:
+						break;
+
+					default: throw new Error("Invalid clamp");
+				}
 				break;
 
 			default:
 				throw new Error("Unknown component type");
 		}
 	}
+	gui.it_resized();
 	return gui;
 }

@@ -203,9 +203,9 @@ new Promise(async (resolve, reject) => {
 	global.gui = gui_load([
 		{ 
 			kind: "fuel_gague",
-			clamp: Clamp.Bottom,
-			is_vertical: false,
-			offset: 0,
+			clamp: Clamp.Right,
+			is_vertical: true,
+			offset: 200,
 		}
 	], 1);
 }).then(() => {
