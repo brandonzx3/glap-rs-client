@@ -102,19 +102,22 @@ export default class Fuel extends BlurBase {
 			.endFill();
 		this.no_fuel_backplate.visible = false;
 
-		this.text = new BitmapText(is_vertical ? "F u e l" : "Fuel", { fontName: "Hack53", fontSize: 53, maxWidth: is_vertical ? 10 : undefined, align: "center", });
+		this.text = new BitmapText(is_vertical ? "F u e l" : "Fuel", { fontName: "Hack-Regular", fontSize: 42, maxWidth: is_vertical ? 10 : undefined, align: "center", });
 		this.text.position.set(text_cx, text_cy);
 		(this.text.anchor as Point).set(0.5);
 
-		this.background.addChild(this.hue);
-		this.foreground.addChild(outline);
-		this.foreground.addChild(gague_backplate);
-		this.foreground.addChild(this.no_fuel_backplate);
 		this.fuel = new PIXI.Graphics()
 			.beginFill(0xffffff, 1)
 			.drawRect(0, 0, 1, 1)
 			.endFill();
 		this.fuel.position.set(bar_x, bar_y);
+
+		this.background.addChild(this.hue);
+		this.foreground.addChild(outline);
+		this.foreground.addChild(gague_backplate);
+		this.foreground.addChild(this.no_fuel_backplate);
+		this.foreground.addChild(this.fuel);
+		this.foreground.addChild(this.text);
 	}
 
 	last_fuel: number = null;
