@@ -9,6 +9,9 @@ import { Chat } from './chat';
 import { BeamoutParticleConfig, ParticleManager, IncinerationParticleConfig } from "./particles";
 import PID from "node-pid-controller";
 import { RuntimeGui, load_fonts, load as gui_load, Clamp } from "./gui/base";
+import { instantiate_planet } from "./planets";
+
+export const TICKS_PER_SECOND = 20;
 
 export const params = window.location.href.indexOf("?") > -1 ? qs_parse(window.location.href.substr(window.location.href.indexOf("?") + 1)) : {};
 console.log("RE");

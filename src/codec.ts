@@ -79,6 +79,14 @@ function enum_PartKind_serialize(buf: number[], val: PartKind) { buf.push(val as
 	if (me < 11) return me as PartKind;
 	else throw new Error('Bad PartKind deserialize');
 }
+export enum PlanetKind {
+	Earth, Venus, Mars, Moon, Sun, Mercury, Neptune, Uranus, Jupiter, Saturn, Pluto, Trade
+}
+function enum_PlanetKind_serialize(buf: number[], val: PlanetKind) { buf.push(val as number); }function enum_PlanetKind_deserialize(buf: Uint8Array, index: Box<number>): PlanetKind {
+	const me = buf[index.v++];
+	if (me < 12) return me as PlanetKind;
+	else throw new Error('Bad PlanetKind deserialize');
+}
 
 class ToServerMsg_Handshake {
 	static readonly id = 0;
@@ -256,41 +264,69 @@ class ToClientMsg_HandshakeAccepted {
 }
 class ToClientMsg_AddCelestialObject {
 	static readonly id = 2;
-	name: string; display_name: string; radius: number; id: number; position: [number, number];
-	constructor(name: string, display_name: string, radius: number, id: number, position: [number, number],) {
-		this.name = name; this.display_name = display_name; this.radius = radius; this.id = id; this.position = position;
+	id: number; kind: PlanetKind; radius: number; position: [number, number];
+	constructor(id: number, kind: PlanetKind, radius: number, position: [number, number],) {
+		this.id = id; this.kind = kind; this.radius = radius; this.position = position;
 	}
 	serialize(): Uint8Array
 		{let out = [2];
-		type_string_serialize(out, this.name);
-		type_string_serialize(out, this.display_name);
+		type_ubyte_serialize(out, this.id);
+		enum_PlanetKind_serialize(out, this.kind);
 		type_float_serialize(out, this.radius);
-		type_ushort_serialize(out, this.id);
 		type_float_pair_serialize(out, this.position);
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_AddPart {
+class ToClientMsg_InitCelestialOrbit {
 	static readonly id = 3;
+	id: number; orbit_around_body: number; orbit_radius: [number, number]; orbit_rotation: number; orbit_total_ticks: number;
+	constructor(id: number, orbit_around_body: number, orbit_radius: [number, number], orbit_rotation: number, orbit_total_ticks: number,) {
+		this.id = id; this.orbit_around_body = orbit_around_body; this.orbit_radius = orbit_radius; this.orbit_rotation = orbit_rotation; this.orbit_total_ticks = orbit_total_ticks;
+	}
+	serialize(): Uint8Array
+		{let out = [3];
+		type_ubyte_serialize(out, this.id);
+		type_float_serialize(out, this.orbit_around_body);
+		type_float_pair_serialize(out, this.orbit_radius);
+		type_float_serialize(out, this.orbit_rotation);
+		type_uint_serialize(out, this.orbit_total_ticks);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_UpdateCelestialOrbit {
+	static readonly id = 4;
+	id: number; orbit_ticks_ellapsed: number;
+	constructor(id: number, orbit_ticks_ellapsed: number,) {
+		this.id = id; this.orbit_ticks_ellapsed = orbit_ticks_ellapsed;
+	}
+	serialize(): Uint8Array
+		{let out = [4];
+		type_ubyte_serialize(out, this.id);
+		type_uint_serialize(out, this.orbit_ticks_ellapsed);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_AddPart {
+	static readonly id = 5;
 	id: number; kind: PartKind;
 	constructor(id: number, kind: PartKind,) {
 		this.id = id; this.kind = kind;
 	}
 	serialize(): Uint8Array
-		{let out = [3];
+		{let out = [5];
 		type_ushort_serialize(out, this.id);
 		enum_PartKind_serialize(out, this.kind);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_MovePart {
-	static readonly id = 4;
+	static readonly id = 6;
 	id: number; x: number; y: number; rotation_n: number; rotation_i: number;
 	constructor(id: number, x: number, y: number, rotation_n: number, rotation_i: number,) {
 		this.id = id; this.x = x; this.y = y; this.rotation_n = rotation_n; this.rotation_i = rotation_i;
 	}
 	serialize(): Uint8Array
-		{let out = [4];
+		{let out = [6];
 		type_ushort_serialize(out, this.id);
 		type_float_serialize(out, this.x);
 		type_float_serialize(out, this.y);
@@ -300,13 +336,13 @@ class ToClientMsg_MovePart {
 	}
 }
 class ToClientMsg_UpdatePartMeta {
-	static readonly id = 5;
+	static readonly id = 7;
 	id: number; owning_player: number|null; thrust_mode: number;
 	constructor(id: number, owning_player: number|null, thrust_mode: number,) {
 		this.id = id; this.owning_player = owning_player; this.thrust_mode = thrust_mode;
 	}
 	serialize(): Uint8Array
-		{let out = [5];
+		{let out = [7];
 		type_ushort_serialize(out, this.id);
 		if (this.owning_player === null) out.push(0); else {out.push(1); type_ushort_serialize(out, this.owning_player);};
 		type_ubyte_serialize(out, this.thrust_mode);
@@ -314,25 +350,25 @@ class ToClientMsg_UpdatePartMeta {
 	}
 }
 class ToClientMsg_RemovePart {
-	static readonly id = 6;
+	static readonly id = 8;
 	id: number;
 	constructor(id: number,) {
 		this.id = id;
 	}
 	serialize(): Uint8Array
-		{let out = [6];
+		{let out = [8];
 		type_ushort_serialize(out, this.id);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_AddPlayer {
-	static readonly id = 7;
+	static readonly id = 9;
 	id: number; core_id: number; name: string;
 	constructor(id: number, core_id: number, name: string,) {
 		this.id = id; this.core_id = core_id; this.name = name;
 	}
 	serialize(): Uint8Array
-		{let out = [7];
+		{let out = [9];
 		type_ushort_serialize(out, this.id);
 		type_ushort_serialize(out, this.core_id);
 		type_string_serialize(out, this.name);
@@ -340,13 +376,13 @@ class ToClientMsg_AddPlayer {
 	}
 }
 class ToClientMsg_UpdatePlayerMeta {
-	static readonly id = 8;
+	static readonly id = 10;
 	id: number; thrust_forward: boolean; thrust_backward: boolean; thrust_clockwise: boolean; thrust_counter_clockwise: boolean; grabed_part: number|null;
 	constructor(id: number, thrust_forward: boolean, thrust_backward: boolean, thrust_clockwise: boolean, thrust_counter_clockwise: boolean, grabed_part: number|null,) {
 		this.id = id; this.thrust_forward = thrust_forward; this.thrust_backward = thrust_backward; this.thrust_clockwise = thrust_clockwise; this.thrust_counter_clockwise = thrust_counter_clockwise; this.grabed_part = grabed_part;
 	}
 	serialize(): Uint8Array
-		{let out = [8];
+		{let out = [10];
 		type_ushort_serialize(out, this.id);
 		type_boolean_serialize(out, this.thrust_forward);
 		type_boolean_serialize(out, this.thrust_backward);
@@ -357,13 +393,13 @@ class ToClientMsg_UpdatePlayerMeta {
 	}
 }
 class ToClientMsg_UpdatePlayerVelocity {
-	static readonly id = 9;
+	static readonly id = 11;
 	id: number; vel_x: number; vel_y: number;
 	constructor(id: number, vel_x: number, vel_y: number,) {
 		this.id = id; this.vel_x = vel_x; this.vel_y = vel_y;
 	}
 	serialize(): Uint8Array
-		{let out = [9];
+		{let out = [11];
 		type_ushort_serialize(out, this.id);
 		type_float_serialize(out, this.vel_x);
 		type_float_serialize(out, this.vel_y);
@@ -371,74 +407,74 @@ class ToClientMsg_UpdatePlayerVelocity {
 	}
 }
 class ToClientMsg_RemovePlayer {
-	static readonly id = 10;
+	static readonly id = 12;
 	id: number;
 	constructor(id: number,) {
 		this.id = id;
 	}
 	serialize(): Uint8Array
-		{let out = [10];
+		{let out = [12];
 		type_ushort_serialize(out, this.id);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_PostSimulationTick {
-	static readonly id = 11;
+	static readonly id = 13;
 	your_power: number;
 	constructor(your_power: number,) {
 		this.your_power = your_power;
 	}
 	serialize(): Uint8Array
-		{let out = [11];
+		{let out = [13];
 		type_uint_serialize(out, this.your_power);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_UpdateMyMeta {
-	static readonly id = 12;
+	static readonly id = 14;
 	max_power: number; can_beamout: boolean;
 	constructor(max_power: number, can_beamout: boolean,) {
 		this.max_power = max_power; this.can_beamout = can_beamout;
 	}
 	serialize(): Uint8Array
-		{let out = [12];
+		{let out = [14];
 		type_uint_serialize(out, this.max_power);
 		type_boolean_serialize(out, this.can_beamout);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_BeamOutAnimation {
-	static readonly id = 13;
+	static readonly id = 15;
 	player_id: number;
 	constructor(player_id: number,) {
 		this.player_id = player_id;
 	}
 	serialize(): Uint8Array
-		{let out = [13];
+		{let out = [15];
 		type_ushort_serialize(out, this.player_id);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_IncinerationAnimation {
-	static readonly id = 14;
+	static readonly id = 16;
 	player_id: number;
 	constructor(player_id: number,) {
 		this.player_id = player_id;
 	}
 	serialize(): Uint8Array
-		{let out = [14];
+		{let out = [16];
 		type_ushort_serialize(out, this.player_id);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_ChatMessage {
-	static readonly id = 15;
+	static readonly id = 17;
 	username: string; msg: string; color: string;
 	constructor(username: string, msg: string, color: string,) {
 		this.username = username; this.msg = msg; this.color = color;
 	}
 	serialize(): Uint8Array
-		{let out = [15];
+		{let out = [17];
 		type_string_serialize(out, this.username);
 		type_string_serialize(out, this.msg);
 		type_string_serialize(out, this.color);
@@ -458,19 +494,31 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			can_beamout = type_boolean_deserialize(buf, index);
 			return new ToClientMsg_HandshakeAccepted(id, core_id, can_beamout);
 		}; break;		case 2: {
-			let name: string; let display_name: string; let radius: number; let id: number; let position: [number, number];
-			name = type_string_deserialize(buf, index);
-			display_name = type_string_deserialize(buf, index);
+			let id: number; let kind: PlanetKind; let radius: number; let position: [number, number];
+			id = type_ubyte_deserialize(buf, index);
+			kind = enum_PlanetKind_deserialize(buf, index);
 			radius = type_float_deserialize(buf, index);
-			id = type_ushort_deserialize(buf, index);
 			position = type_float_pair_deserialize(buf, index);
-			return new ToClientMsg_AddCelestialObject(name, display_name, radius, id, position);
+			return new ToClientMsg_AddCelestialObject(id, kind, radius, position);
 		}; break;		case 3: {
+			let id: number; let orbit_around_body: number; let orbit_radius: [number, number]; let orbit_rotation: number; let orbit_total_ticks: number;
+			id = type_ubyte_deserialize(buf, index);
+			orbit_around_body = type_float_deserialize(buf, index);
+			orbit_radius = type_float_pair_deserialize(buf, index);
+			orbit_rotation = type_float_deserialize(buf, index);
+			orbit_total_ticks = type_uint_deserialize(buf, index);
+			return new ToClientMsg_InitCelestialOrbit(id, orbit_around_body, orbit_radius, orbit_rotation, orbit_total_ticks);
+		}; break;		case 4: {
+			let id: number; let orbit_ticks_ellapsed: number;
+			id = type_ubyte_deserialize(buf, index);
+			orbit_ticks_ellapsed = type_uint_deserialize(buf, index);
+			return new ToClientMsg_UpdateCelestialOrbit(id, orbit_ticks_ellapsed);
+		}; break;		case 5: {
 			let id: number; let kind: PartKind;
 			id = type_ushort_deserialize(buf, index);
 			kind = enum_PartKind_deserialize(buf, index);
 			return new ToClientMsg_AddPart(id, kind);
-		}; break;		case 4: {
+		}; break;		case 6: {
 			let id: number; let x: number; let y: number; let rotation_n: number; let rotation_i: number;
 			id = type_ushort_deserialize(buf, index);
 			x = type_float_deserialize(buf, index);
@@ -478,23 +526,23 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			rotation_n = type_float_deserialize(buf, index);
 			rotation_i = type_float_deserialize(buf, index);
 			return new ToClientMsg_MovePart(id, x, y, rotation_n, rotation_i);
-		}; break;		case 5: {
+		}; break;		case 7: {
 			let id: number; let owning_player: number|null; let thrust_mode: number;
 			id = type_ushort_deserialize(buf, index);
 			if (buf[index.v++] > 0) {owning_player = type_ushort_deserialize(buf, index);} else {owning_player = null;}
 			thrust_mode = type_ubyte_deserialize(buf, index);
 			return new ToClientMsg_UpdatePartMeta(id, owning_player, thrust_mode);
-		}; break;		case 6: {
+		}; break;		case 8: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePart(id);
-		}; break;		case 7: {
+		}; break;		case 9: {
 			let id: number; let core_id: number; let name: string;
 			id = type_ushort_deserialize(buf, index);
 			core_id = type_ushort_deserialize(buf, index);
 			name = type_string_deserialize(buf, index);
 			return new ToClientMsg_AddPlayer(id, core_id, name);
-		}; break;		case 8: {
+		}; break;		case 10: {
 			let id: number; let thrust_forward: boolean; let thrust_backward: boolean; let thrust_clockwise: boolean; let thrust_counter_clockwise: boolean; let grabed_part: number|null;
 			id = type_ushort_deserialize(buf, index);
 			thrust_forward = type_boolean_deserialize(buf, index);
@@ -503,34 +551,34 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			thrust_counter_clockwise = type_boolean_deserialize(buf, index);
 			if (buf[index.v++] > 0) {grabed_part = type_ushort_deserialize(buf, index);} else {grabed_part = null;}
 			return new ToClientMsg_UpdatePlayerMeta(id, thrust_forward, thrust_backward, thrust_clockwise, thrust_counter_clockwise, grabed_part);
-		}; break;		case 9: {
+		}; break;		case 11: {
 			let id: number; let vel_x: number; let vel_y: number;
 			id = type_ushort_deserialize(buf, index);
 			vel_x = type_float_deserialize(buf, index);
 			vel_y = type_float_deserialize(buf, index);
 			return new ToClientMsg_UpdatePlayerVelocity(id, vel_x, vel_y);
-		}; break;		case 10: {
+		}; break;		case 12: {
 			let id: number;
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePlayer(id);
-		}; break;		case 11: {
+		}; break;		case 13: {
 			let your_power: number;
 			your_power = type_uint_deserialize(buf, index);
 			return new ToClientMsg_PostSimulationTick(your_power);
-		}; break;		case 12: {
+		}; break;		case 14: {
 			let max_power: number; let can_beamout: boolean;
 			max_power = type_uint_deserialize(buf, index);
 			can_beamout = type_boolean_deserialize(buf, index);
 			return new ToClientMsg_UpdateMyMeta(max_power, can_beamout);
-		}; break;		case 13: {
+		}; break;		case 15: {
 			let player_id: number;
 			player_id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_BeamOutAnimation(player_id);
-		}; break;		case 14: {
+		}; break;		case 16: {
 			let player_id: number;
 			player_id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_IncinerationAnimation(player_id);
-		}; break;		case 15: {
+		}; break;		case 17: {
 			let username: string; let msg: string; let color: string;
 			username = type_string_deserialize(buf, index);
 			msg = type_string_deserialize(buf, index);
@@ -541,6 +589,6 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, IncinerationAnimation: ToClientMsg_IncinerationAnimation, ChatMessage: ToClientMsg_ChatMessage
+	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, InitCelestialOrbit: ToClientMsg_InitCelestialOrbit, UpdateCelestialOrbit: ToClientMsg_UpdateCelestialOrbit, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, IncinerationAnimation: ToClientMsg_IncinerationAnimation, ChatMessage: ToClientMsg_ChatMessage
 };
 
