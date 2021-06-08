@@ -515,7 +515,11 @@ new Promise(async (resolve, reject) => {
 			}
 
 			for (const planet of global.celestial_objects.values()) {
-				if (planet.orbit != null) planet.orbit.advance();
+				if (planet.orbit != null) {
+					let [pos, vel] = planet.orbit.advance();
+					planet.position.copyFrom(pos);
+					planet.velocity.copyFrom(vel);
+				}
 				if (Math.abs(planet.position.x - global.my_core.inter_x_dest) <= planet.render_distance && Math.abs(planet.position.y - global.my_core.inter_y_dest) <= planet.render_distance && !inflated_planets.has(planet)) {
 					planet.inflate_graphics();
 					inflated_planets.add(planet);
@@ -538,8 +542,9 @@ new Promise(async (resolve, reject) => {
         last_time = now_time;
 
 		for (const planet of global.celestial_objects.values()) {
-			planet.position.x += planet.velocity.x;
-			planet.position.y += planet.velocity.y;
+			planet.position.x += planet.velocity.x * delta_ms;
+			planet.position.y += planet.velocity.y * delta_ms;
+			global.starguide.planets;
 			//TODO update starguide
 		}
 		for (const planet of inflated_planets) planet.update_graphics();

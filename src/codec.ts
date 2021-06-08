@@ -286,7 +286,7 @@ class ToClientMsg_InitCelestialOrbit {
 	serialize(): Uint8Array
 		{let out = [3];
 		type_ubyte_serialize(out, this.id);
-		type_float_serialize(out, this.orbit_around_body);
+		type_ubyte_serialize(out, this.orbit_around_body);
 		type_float_pair_serialize(out, this.orbit_radius);
 		type_float_serialize(out, this.orbit_rotation);
 		type_uint_serialize(out, this.orbit_total_ticks);
@@ -503,7 +503,7 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 		}; break;		case 3: {
 			let id: number; let orbit_around_body: number; let orbit_radius: [number, number]; let orbit_rotation: number; let orbit_total_ticks: number;
 			id = type_ubyte_deserialize(buf, index);
-			orbit_around_body = type_float_deserialize(buf, index);
+			orbit_around_body = type_ubyte_deserialize(buf, index);
 			orbit_radius = type_float_pair_deserialize(buf, index);
 			orbit_rotation = type_float_deserialize(buf, index);
 			orbit_total_ticks = type_uint_deserialize(buf, index);
