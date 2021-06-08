@@ -31,7 +31,7 @@ export class Starguide {
     destination_hologram_mask = new PIXI.Container();
     destination_hologram_rectangle = new PIXI.Graphics().beginFill(0xffffff).drawRect(-1,-0.5,1,1).endFill();
     current_destination: Planet = null;
-    planets: Set<Planet> = new Set();
+    planets: Map<Planet, PIXI.Container> = new Map();
     map_lines = new PIXI.Graphics();
 	static_effect = new PIXI.Container();
 	static_effect_onframe: Function = null;
@@ -230,6 +230,7 @@ export class Starguide {
     }
     add_celestial_object(celestial_object: Planet) {
         console.log(celestial_object);
+
         const circle = new PIXI.Graphics();
         circle.beginFill(0xdd55ff);
         circle.drawCircle(0, 0, celestial_object.radius);
@@ -240,11 +241,11 @@ export class Starguide {
         mask.width = celestial_object.radius * 2;
         mask.height = mask.width;
         circle.mask = mask;
-        circle.x = celestial_object.position.x;
-        circle.y = celestial_object.position.y;
+        //circle.x = celestial_object.position.x;
+        //circle.y = celestial_object.position.y;
         mask.position.copyFrom(circle.position);
-        this.map_items.addChild(circle);
-        this.map_items.addChild(mask);
+        //this.map_items.addChild(circle);
+        //this.map_items.addChild(mask);
 
         let text = new PIXI.Text(celestial_object.display_name.toUpperCase(), {fontSize: 60, fill : 0xdd55ff, stroke: 'black', strokeThickness: 1});
         text.height = 25 / this.map_zoom_factor;
@@ -261,9 +262,15 @@ export class Starguide {
             this.retarget_destination_hologram();
         });
 
-        this.planets.add(celestial_object);
         this.interplanetary_lines();
-        this.map_items.addChild(text);
+        //this.map_items.addChild(text);
+
+		const container = new PIXI.Container();
+		container.addChild(circle);
+		container.addChild(mask);
+		container.addChild(text);
+		this.map_items.addChild(container);
+		this.planets.set(celestial_object, container);
     }
 
     on_wheel(event: WheelEvent, deltaY: number) {

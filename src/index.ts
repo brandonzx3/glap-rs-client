@@ -544,8 +544,7 @@ new Promise(async (resolve, reject) => {
 		for (const planet of global.celestial_objects.values()) {
 			planet.position.x += planet.velocity.x * delta_ms;
 			planet.position.y += planet.velocity.y * delta_ms;
-			global.starguide.planets;
-			//TODO update starguide
+			global.starguide.planets.get(planet).position.copyFrom(planet.position);
 		}
 		for (const planet of inflated_planets) planet.update_graphics();
 
