@@ -1,5 +1,5 @@
-import { CelestialObjectMeta, global } from ".";
-import { ToServerMsg } from "./codec";
+import { global } from "./index";
+import { ToServerMsg, PlanetKind } from "./codec";
 import * as PIXI from 'pixi.js';
 import { Planet } from "./planets";
 
@@ -313,20 +313,20 @@ export class Starguide {
     }
 
     interplanetary_lines() {
+		/*
         this.map_lines.clear();
         this.map_lines.lineStyle(7.5, 0xdd55ff);
-        const pairs: [CelestialObjectMeta, CelestialObjectMeta][] = [];
+        const pairs: [Planet, Planet][] = [];
         for (const obj of this.planets) {
-            if(obj.name === "moon") continue;
-            if(obj.name === "sun") continue;
-            let first: [number, CelestialObjectMeta] = [1000000000000, null];
-            let second: [number, CelestialObjectMeta] = [1000000000000, null];
+            if (obj.kind === PlanetKind.Moon || obj.kind === PlanetKind.Sun) continue;
+            let first: [number, Planet] = [1000000000000, null];
+            let second: [number, Planet] = [1000000000000, null];
             //let third: [number, CelestialObjectMeta] = [1000000000000, null];
             for (const obj2 of this.planets) {
                 if (obj2 === obj) continue;
-                if(obj2.name === "moon" && obj.name != "earth") continue;
-                if(obj2.name == "sun") continue;
-                const distance = Math.sqrt(Math.pow(obj.sprite.x - obj2.sprite.x, 2) + Math.pow(obj.sprite.y - obj2.sprite.y, 2));
+                if (obj2.kind === PlanetKind.Moon && obj.kind !== PlanetKind.Earth) continue;
+				if (obj2.kind === PlanetKind.Sun) continue;
+                const distance = Math.sqrt(Math.pow(obj.position.x - obj2.position.x, 2) + Math.pow(obj.position.y - obj2.position.y, 2));
                 if (distance <= first[0]) {
                     //third = second;
                     second = first;
@@ -338,7 +338,7 @@ export class Starguide {
                     //third = [distance, obj2];
                 //}
             }
-            for (const [distance, obj2] of [first, second]) {
+            for (const [_distance, obj2] of [first, second]) {
                 if (obj2 === null) continue;
                 let has_existed = false;
                 for (const pair of pairs) {
@@ -347,18 +347,18 @@ export class Starguide {
                 if (!has_existed) {
                     //console.log([obj, obj2]);
                     //console.log([obj.sprite.position.x, obj.sprite.position.y, obj2.sprite.position.x, obj2.sprite.position.y]);
-                    const distance = [obj2.sprite.x - obj.sprite.x, obj2.sprite.y - obj.sprite.y];
+                    const distance = [obj2.position.x - obj.position.x, obj2.position.y - obj.position.y];
                     const larger = Math.max(Math.abs(distance[0]), Math.abs(distance[1]));
                     distance[0] /= larger; distance[1] /= larger;
                     const point_1 = rotate_vector(obj.radius + 5, 0, distance[1], distance[0]);
                     const point_2 = rotate_vector(obj2.radius + 5, 0, -distance[1], -distance[0]);
                     //console.log([...point_1, ...point_2]);
-                    this.map_lines.moveTo(obj.sprite.x + point_1[0], obj.sprite.y + point_1[1]);
-                    this.map_lines.lineTo(obj2.sprite.x + point_2[0], obj2.sprite.y + point_2[1]);
+                    this.map_lines.moveTo(obj.position.x + point_1[0], obj.position.y + point_1[1]);
+                    this.map_lines.lineTo(obj2.position.x + point_2[0], obj2.position.y + point_2[1]);
                     pairs.push([obj, obj2]);
                 }
             }
-        }
+        }*/
     }
 
 	static_effect_on() {

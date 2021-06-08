@@ -4,7 +4,9 @@
   "description": "A spin off of glap.io",
   "main": "src/index.ts",
   "scripts": {
-    "build": "webpack --config webpack.config.js && webpack --config ship_editor.webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+	"build_editor": "webpack --config ship_editor.webpack.config.js",
+	"build_all": "webpack --config webpack.config.js && webpack --config ship_editor.webpack.config.js"
   },
   "author": "Christian7573",
   "dependencies": {
