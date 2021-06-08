@@ -1,6 +1,7 @@
 import { CelestialObjectMeta, global } from ".";
 import { ToServerMsg } from "./codec";
 import * as PIXI from 'pixi.js';
+import { Planet } from "./planets";
 
 export class Starguide {
     background: PIXI.Graphics;
@@ -29,8 +30,8 @@ export class Starguide {
     destination_hologram_margin_core: number;
     destination_hologram_mask = new PIXI.Container();
     destination_hologram_rectangle = new PIXI.Graphics().beginFill(0xffffff).drawRect(-1,-0.5,1,1).endFill();
-    current_destination: CelestialObjectMeta = null;
-    planets: Set<CelestialObjectMeta> = new Set();
+    current_destination: Planet = null;
+    planets: Set<Planet> = new Set();
     map_lines = new PIXI.Graphics();
 	static_effect = new PIXI.Container();
 	static_effect_onframe: Function = null;
@@ -227,7 +228,7 @@ export class Starguide {
     center_around_core() {
         this.map_coordinate_space.position.set(this.width / 2 - this.core_sprite.position.x, this.height / 2 - this.core_sprite.position.y);
     }
-    add_celestial_object(celestial_object: CelestialObjectMeta) {
+    add_celestial_object(celestial_object: Planet) {
         console.log(celestial_object);
         const circle = new PIXI.Graphics();
         circle.beginFill(0xdd55ff);
@@ -239,8 +240,8 @@ export class Starguide {
         mask.width = celestial_object.radius * 2;
         mask.height = mask.width;
         circle.mask = mask;
-        circle.x = celestial_object.sprite.position.x;
-        circle.y = celestial_object.sprite.position.y;
+        circle.x = celestial_object.position.x;
+        circle.y = celestial_object.position.y;
         mask.position.copyFrom(circle.position);
         this.map_items.addChild(circle);
         this.map_items.addChild(mask);
@@ -248,7 +249,7 @@ export class Starguide {
         let text = new PIXI.Text(celestial_object.display_name.toUpperCase(), {fontSize: 60, fill : 0xdd55ff, stroke: 'black', strokeThickness: 1});
         text.height = 25 / this.map_zoom_factor;
         text.width = (text.texture.width / text.texture.height) * text.height * 0.75;
-        text.position.copyFrom(celestial_object.sprite.position);
+        text.position.copyFrom(celestial_object.position);
         text.anchor.set(0.5, 1);
         text.position.y -= (celestial_object.radius + 15);
         this.planet_names.push(text);
@@ -301,8 +302,8 @@ export class Starguide {
     }
     retarget_destination_hologram() {
         const meta = this.current_destination;
-        global.destination_hologram.position.copyFrom(meta.sprite.position);
-        this.destination_hologram.position.set(meta.sprite.x * this.map_zoom_factor, meta.sprite.y * this.map_zoom_factor);
+        global.destination_hologram.position.copyFrom(meta.position);
+        this.destination_hologram.position.set(meta.position.x * this.map_zoom_factor, meta.position.y * this.map_zoom_factor);
         this.destination_hologram_rectangle.position.x = -meta.radius * this.map_zoom_factor;
         this.destination_hologram_mask.position.copyFrom(this.destination_hologram);
 

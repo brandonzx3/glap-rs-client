@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import * as Particles from 'pixi-particles';
-import { ToClientMsg, ToServerMsg, Box, PartKind } from "./codec";
+import { ToClientMsg, ToServerMsg, Box, PartKind, PlanetKind } from "./codec";
 import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_mask } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
@@ -9,7 +9,7 @@ import { Chat } from './chat';
 import { BeamoutParticleConfig, ParticleManager, IncinerationParticleConfig } from "./particles";
 import PID from "node-pid-controller";
 import { RuntimeGui, load_fonts, load as gui_load, Clamp } from "./gui/base";
-import { instantiate_planet } from "./planets";
+import { instantiate_planet, Planet } from "./planets";
 
 export const TICKS_PER_SECOND = 20;
 
@@ -56,7 +56,7 @@ export interface GlobalData {
 	my_player: PlayerMeta;
     my_id: number;
     parts: Map<number, PartMeta>;
-    celestial_objects: Map<number, CelestialObjectMeta>;
+    celestial_objects: Map<number, Planet>;
     players: Map<number, PlayerMeta>;
     server_tick_times: number[];
 	server_tick_pid: PID;
@@ -240,6 +240,8 @@ new Promise(async (resolve, reject) => {
     resize();
     window.addEventListener("resize", resize);
 
+	const inflated_planets: Set<Planet> = new Set();
+
     //ws%3A%2F%2Flocalhost%3A8081 for localhost 8081
     if (typeof params["server"] !== "string") throw new Error("No server address provided");
     const socket = new WebSocket(params["server"] as string);
@@ -304,27 +306,18 @@ new Promise(async (resolve, reject) => {
 				on_message(msg, buf, buf_i);
 			}
 		} else if (msg instanceof ToClientMsg.AddCelestialObject) {
-            let celestial_object;
-			if (msg.name === "sun") {
-				celestial_object = new PIXI.Graphics().beginFill(0xffffff).drawCircle(0,0,msg.radius).endFill();
-			} else {
-				celestial_object = new PIXI.Sprite(global.spritesheet.textures[msg.name + ".png"]);
-				celestial_object.width = msg.radius * 2;
-				celestial_object.height = msg.radius * 2;
-				celestial_object.anchor.set(0.5,0.5);
-				celestial_object.position.set(msg.position[0], msg.position[1]);
-			};
-            global.planet_sprites.addChild(celestial_object);
-            const meta = new CelestialObjectMeta(msg.id, msg.name, msg.display_name, celestial_object, msg.radius);
-            global.celestial_objects.set(msg.id, meta);
-            global.starguide.add_celestial_object(meta);
+			const planet = instantiate_planet(msg);
+            global.celestial_objects.set(msg.id, planet);
+            global.starguide.add_celestial_object(planet);
 
-            if (msg.name === "moon") {
+			if (msg.kind === PlanetKind.Moon) {
                 global.destination_hologram.visible = true;
-                global.starguide.current_destination = meta;
+                global.starguide.current_destination = planet;
                 global.starguide.retarget_destination_hologram();
             }
-        }
+        } else if (msg instanceof ToClientMsg.InitCelestialOrbit) {
+			global.celestial_objects.get(msg.id).init_celestial_orbit(msg);
+		}
 
         else if (msg instanceof ToClientMsg.AddPart) {
             const meta = new PartMeta(msg.id, msg.kind);
@@ -521,6 +514,20 @@ new Promise(async (resolve, reject) => {
 				//prev_core_position = [global.my_core.inter_x_dest, global.my_core.inter_y_dest];
 			}
 
+			for (const planet of global.celestial_objects.values()) {
+				if (planet.orbit != null) planet.orbit.advance();
+				if (Math.abs(planet.position.x - global.my_core.inter_x_dest) <= planet.render_distance && Math.abs(planet.position.y - global.my_core.inter_y_dest) <= planet.render_distance && !inflated_planets.has(planet)) {
+					planet.inflate_graphics();
+					inflated_planets.add(planet);
+				}
+			}
+			for (const planet of inflated_planets) {
+				if (Math.abs(planet.position.x - global.my_core.inter_x_dest) > planet.render_distance || Math.abs(planet.position.y - global.my_core.inter_y_dest) > planet.render_distance) {
+					inflated_planets.delete(planet);
+					planet.deflate_graphics();
+				}
+			}
+
 			socket.send((new ToServerMsg.RequestUpdate()).serialize());
         }
     }
@@ -529,6 +536,14 @@ new Promise(async (resolve, reject) => {
     function render(now_time: DOMHighResTimeStamp) {
         const delta_ms = now_time - last_time;
         last_time = now_time;
+
+		for (const planet of global.celestial_objects.values()) {
+			planet.position.x += planet.velocity.x;
+			planet.position.y += planet.velocity.y;
+			//TODO update starguide
+		}
+		for (const planet of inflated_planets) planet.update_graphics();
+
 		for (const part of global.parts.values()) {
 			part.sprite.x += part.inter_x_delta * delta_ms;
 			if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
