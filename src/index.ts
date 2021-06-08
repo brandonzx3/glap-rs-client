@@ -317,6 +317,8 @@ new Promise(async (resolve, reject) => {
             }
         } else if (msg instanceof ToClientMsg.InitCelestialOrbit) {
 			global.celestial_objects.get(msg.id).init_celestial_orbit(msg);
+		} else if (msg instanceof ToClientMsg.UpdateCelestialOrbit) {
+			global.celestial_objects.get(msg.id).update_celestial_orbit(msg);
 		}
 
         else if (msg instanceof ToClientMsg.AddPart) {

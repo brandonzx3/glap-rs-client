@@ -241,6 +241,7 @@ export class Starguide {
         mask.width = celestial_object.radius * 2;
         mask.height = mask.width;
         circle.mask = mask;
+		circle.position.set(0,0);
         //circle.x = celestial_object.position.x;
         //circle.y = celestial_object.position.y;
         mask.position.copyFrom(circle.position);
@@ -250,7 +251,8 @@ export class Starguide {
         let text = new PIXI.Text(celestial_object.display_name.toUpperCase(), {fontSize: 60, fill : 0xdd55ff, stroke: 'black', strokeThickness: 1});
         text.height = 25 / this.map_zoom_factor;
         text.width = (text.texture.width / text.texture.height) * text.height * 0.75;
-        text.position.copyFrom(celestial_object.position);
+        //text.position.copyFrom(celestial_object.position);
+		text.position.copyFrom(circle.position);
         text.anchor.set(0.5, 1);
         text.position.y -= (celestial_object.radius + 15);
         this.planet_names.push(text);

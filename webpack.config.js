@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: './src/index.ts',
@@ -19,4 +20,12 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  optimization: "NO_MANGLE" in process.env ? {
+    minimize: true,
+    minimizer: [new TerserPlugin({
+		terserOptions: {
+			mangle: false,
+		}
+	})],
+  } : undefined,
 };
