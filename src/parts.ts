@@ -4,8 +4,11 @@ import * as PIXI from 'pixi.js';
 import * as Particles from 'pixi-particles';
 import { ParticleManager, ParticleHookFactory, ThrusterEmitter, ThrusterParticleConfig, SuperThrusterParticleConfig, EcoThrusterParticleConfig, CoreParticleConfig } from "./particles";
 import { Box } from "./codec";
+import { Interpolation, HasInterpolation } from "./interpolation";
 
-export class PartMeta {
+const HALF_PI = Math.PI / 2;
+
+export class PartMeta implements HasInterpolation {
     id: number;
     sprite: PIXI.Sprite;
     connector_sprite: PIXI.Sprite = null;
@@ -43,17 +46,32 @@ export class PartMeta {
     x = 0;
     y = 0;
     rot = 0;
-    inter_x_delta = 0;
-    inter_x_positive = true;
-    inter_x_dest = 0;
 	particle_speed_x = 0;
-    inter_y_delta = 0;
-    inter_y_positive = true;
-    inter_y_dest = 0;
 	particle_speed_y = 0;
-    inter_rot_delta = 0;
-    inter_rot_positive = true;
-    inter_rot_dest = 0;
+
+	inter_x = new Interpolation();
+	inter_y = new Interpolation();
+	inter_rot = new Interpolation();
+	interpolations = [ this.inter_x, this.inter_y, this.inter_rot ];
+	inter_set_next_dest() {
+		this.inter_x.dest = this.x;
+		this.inter_y.dest = this.y;
+		this.inter_rot.dest = this.rot;
+		if (Math.abs(this.rot) >= PIXI.PI_2) console.warn(this.rot);
+		const diff = this.inter_rot.dest - this.inter_rot.now;
+		if (diff > HALF_PI) this.inter_rot.now += PIXI.PI_2;
+		else if (diff < -HALF_PI) this.inter_rot.now -= PIXI.PI_2;
+	}
+	after_update(_delta_ms: number) {
+		this.sprite.x = this.inter_x.now;
+		this.sprite.y = this.inter_y.now;
+		this.sprite.rotation = this.inter_rot.now;
+		this.connector_sprite.position.copyFrom(this.sprite.position);
+		this.connector_sprite.rotation = this.sprite.rotation;
+		if (this.kind === PartKind.Core && this.owning_player != null) {
+			this.owning_player.name_sprite.position.set(this.inter_x.now, this.inter_y.now - 0.85);
+		}
+	}
 
     update_sprites() {
         switch (this.kind) {

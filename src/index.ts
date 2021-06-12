@@ -10,6 +10,7 @@ import { BeamoutParticleConfig, ParticleManager, IncinerationParticleConfig } fr
 import PID from "node-pid-controller";
 import { RuntimeGui, load_fonts, load as gui_load, Clamp } from "./gui/base";
 import { instantiate_planet, Planet } from "./planets";
+import { advance_interpolation, set_next_interpolation } from "./interpolation";
 
 export const TICKS_PER_SECOND = 20;
 
@@ -436,6 +437,17 @@ new Promise(async (resolve, reject) => {
         }
 
 
+		else if (msg instanceof ToClientMsg.OrbitAdvanceTick) {
+			for (const planet of global.celestial_objects.values()) {
+				if (planet.orbit != null) {
+					/*let [pos, vel] = planet.orbit.advance();
+					planet.position.copyFrom(pos);
+					planet.velocity.copyFrom(vel);*/
+					planet.position.copyFrom(planet.orbit.advance());
+					global.starguide.planets.get(planet).position.copyFrom(planet.position);
+				}
+			}
+		}
         else if (msg instanceof ToClientMsg.PostSimulationTick) {
             global.main_hud.set_fuel(msg.your_power, max_fuel);
 			if (global.gui.fuel_gague != null) global.gui.fuel_gague.update(msg.your_power, max_fuel);
@@ -479,24 +491,7 @@ new Promise(async (resolve, reject) => {
 		
             for (const part of global.parts.values()) {
 				if (!part.sprite.visible) continue;
-
-				part.inter_x_dest = part.x;
-                part.inter_x_delta = (part.inter_x_dest - part.sprite.x) / average_server_tick_time;
-                part.inter_x_positive = part.inter_x_delta >= 0;
-				//part.particle_speed_x = part.inter_x_delta * 1000;
-                part.inter_y_dest = part.y;
-                part.inter_y_delta = (part.inter_y_dest - part.sprite.y) / average_server_tick_time;
-                part.inter_y_positive = part.inter_y_delta >= 0;
-				//part.particle_speed_y = part.inter_y_delta * 1000;
-                part.inter_rot_dest = part.rot;
-                let sprite_rot = part.sprite.rotation;
-                const dif = part.sprite.rotation - part.rot;
-                if (dif > Math.PI) sprite_rot -= PIXI.PI_2;
-                else if (dif < -Math.PI) sprite_rot += PIXI.PI_2;
-                part.sprite.rotation = sprite_rot;
-                part.inter_rot_delta = (part.inter_rot_dest - sprite_rot) / average_server_tick_time;
-                part.inter_rot_positive = part.inter_rot_delta >= 0;             
-
+				set_next_interpolation(part, average_server_tick_time);			
 				if (part.owning_player != null) {
 					part.particle_speed_x = part.owning_player.velocity[0];
 					part.particle_speed_y = part.owning_player.velocity[1];
@@ -517,18 +512,13 @@ new Promise(async (resolve, reject) => {
 			}
 
 			for (const planet of global.celestial_objects.values()) {
-				if (planet.orbit != null) {
-					let [pos, vel] = planet.orbit.advance();
-					planet.position.copyFrom(pos);
-					planet.velocity.copyFrom(vel);
-				}
-				if (Math.abs(planet.position.x - global.my_core.inter_x_dest) <= planet.render_distance && Math.abs(planet.position.y - global.my_core.inter_y_dest) <= planet.render_distance && !inflated_planets.has(planet)) {
+				if (Math.abs(planet.position.x - global.my_core.x) <= planet.render_distance && Math.abs(planet.position.y - global.my_core.y) <= planet.render_distance && !inflated_planets.has(planet)) {
 					planet.inflate_graphics();
 					inflated_planets.add(planet);
 				}
 			}
 			for (const planet of inflated_planets) {
-				if (Math.abs(planet.position.x - global.my_core.inter_x_dest) > planet.render_distance || Math.abs(planet.position.y - global.my_core.inter_y_dest) > planet.render_distance) {
+				if (Math.abs(planet.position.x - global.my_core.x) > planet.render_distance || Math.abs(planet.position.y - global.my_core.y) > planet.render_distance) {
 					inflated_planets.delete(planet);
 					planet.deflate_graphics();
 				}
@@ -543,29 +533,8 @@ new Promise(async (resolve, reject) => {
         const delta_ms = now_time - last_time;
         last_time = now_time;
 
-		for (const planet of global.celestial_objects.values()) {
-			planet.position.x += planet.velocity.x * delta_ms;
-			planet.position.y += planet.velocity.y * delta_ms;
-			global.starguide.planets.get(planet).position.copyFrom(planet.position);
-		}
-		for (const planet of inflated_planets) planet.update_graphics();
-
-		for (const part of global.parts.values()) {
-			part.sprite.x += part.inter_x_delta * delta_ms;
-			if (part.inter_x_positive ? part.sprite.x > part.inter_x_dest : part.sprite.x < part.inter_x_dest) part.sprite.x = part.inter_x_dest;
-			part.sprite.y += part.inter_y_delta * delta_ms;
-			if (part.inter_y_positive ? part.sprite.y > part.inter_y_dest : part.sprite.y < part.inter_y_dest) part.sprite.y = part.inter_y_dest;
-			part.sprite.rotation += part.inter_rot_delta * delta_ms;
-			if (part.inter_rot_positive ? part.sprite.rotation > part.inter_rot_dest : part.sprite.rotation < part.inter_rot_dest) part.sprite.rotation = part.inter_rot_dest;
-
-			const x = part.sprite.x; const y = part.sprite.y; const rotation = part.sprite.rotation;
-			part.sprite.rotation = rotation;
-			part.connector_sprite.position.set(x, y);
-			part.connector_sprite.rotation = rotation;
-			if (part.kind === PartKind.Core && part.owning_player != null) {
-				part.owning_player.name_sprite.position.set(x, y - 0.85);
-			}
-		}
+		for (const planet of inflated_planets) advance_interpolation(planet, delta_ms);
+		for (const part of global.parts.values()) advance_interpolation(part, delta_ms);
 
 		if (global.my_core != null) {
 			global.world.position.set(-global.my_core.sprite.position.x, -global.my_core.sprite.position.y);

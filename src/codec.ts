@@ -418,44 +418,43 @@ class ToClientMsg_RemovePlayer {
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_PostSimulationTick {
+class ToClientMsg_OrbitAdvanceTick {
 	static readonly id = 13;
+	
+	constructor() {
+		
+	}
+	serialize(): Uint8Array
+		{let out = [13];
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_PostSimulationTick {
+	static readonly id = 14;
 	your_power: number;
 	constructor(your_power: number,) {
 		this.your_power = your_power;
 	}
 	serialize(): Uint8Array
-		{let out = [13];
+		{let out = [14];
 		type_uint_serialize(out, this.your_power);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_UpdateMyMeta {
-	static readonly id = 14;
+	static readonly id = 15;
 	max_power: number; can_beamout: boolean;
 	constructor(max_power: number, can_beamout: boolean,) {
 		this.max_power = max_power; this.can_beamout = can_beamout;
 	}
 	serialize(): Uint8Array
-		{let out = [14];
+		{let out = [15];
 		type_uint_serialize(out, this.max_power);
 		type_boolean_serialize(out, this.can_beamout);
 		return new Uint8Array(out);
 	}
 }
 class ToClientMsg_BeamOutAnimation {
-	static readonly id = 15;
-	player_id: number;
-	constructor(player_id: number,) {
-		this.player_id = player_id;
-	}
-	serialize(): Uint8Array
-		{let out = [15];
-		type_ushort_serialize(out, this.player_id);
-		return new Uint8Array(out);
-	}
-}
-class ToClientMsg_IncinerationAnimation {
 	static readonly id = 16;
 	player_id: number;
 	constructor(player_id: number,) {
@@ -467,14 +466,26 @@ class ToClientMsg_IncinerationAnimation {
 		return new Uint8Array(out);
 	}
 }
-class ToClientMsg_ChatMessage {
+class ToClientMsg_IncinerationAnimation {
 	static readonly id = 17;
+	player_id: number;
+	constructor(player_id: number,) {
+		this.player_id = player_id;
+	}
+	serialize(): Uint8Array
+		{let out = [17];
+		type_ushort_serialize(out, this.player_id);
+		return new Uint8Array(out);
+	}
+}
+class ToClientMsg_ChatMessage {
+	static readonly id = 18;
 	username: string; msg: string; color: string;
 	constructor(username: string, msg: string, color: string,) {
 		this.username = username; this.msg = msg; this.color = color;
 	}
 	serialize(): Uint8Array
-		{let out = [17];
+		{let out = [18];
 		type_string_serialize(out, this.username);
 		type_string_serialize(out, this.msg);
 		type_string_serialize(out, this.color);
@@ -562,23 +573,26 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 			id = type_ushort_deserialize(buf, index);
 			return new ToClientMsg_RemovePlayer(id);
 		}; break;		case 13: {
+			
+			return new ToClientMsg_OrbitAdvanceTick();
+		}; break;		case 14: {
 			let your_power: number;
 			your_power = type_uint_deserialize(buf, index);
 			return new ToClientMsg_PostSimulationTick(your_power);
-		}; break;		case 14: {
+		}; break;		case 15: {
 			let max_power: number; let can_beamout: boolean;
 			max_power = type_uint_deserialize(buf, index);
 			can_beamout = type_boolean_deserialize(buf, index);
 			return new ToClientMsg_UpdateMyMeta(max_power, can_beamout);
-		}; break;		case 15: {
-			let player_id: number;
-			player_id = type_ushort_deserialize(buf, index);
-			return new ToClientMsg_BeamOutAnimation(player_id);
 		}; break;		case 16: {
 			let player_id: number;
 			player_id = type_ushort_deserialize(buf, index);
-			return new ToClientMsg_IncinerationAnimation(player_id);
+			return new ToClientMsg_BeamOutAnimation(player_id);
 		}; break;		case 17: {
+			let player_id: number;
+			player_id = type_ushort_deserialize(buf, index);
+			return new ToClientMsg_IncinerationAnimation(player_id);
+		}; break;		case 18: {
 			let username: string; let msg: string; let color: string;
 			username = type_string_deserialize(buf, index);
 			msg = type_string_deserialize(buf, index);
@@ -589,6 +603,6 @@ function deserialize_ToClientMsg(buf: Uint8Array, index: Box<number>) {
 }
 export const ToClientMsg = {
 	deserialize: deserialize_ToClientMsg,
-	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, InitCelestialOrbit: ToClientMsg_InitCelestialOrbit, UpdateCelestialOrbit: ToClientMsg_UpdateCelestialOrbit, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, IncinerationAnimation: ToClientMsg_IncinerationAnimation, ChatMessage: ToClientMsg_ChatMessage
+	MessagePack: ToClientMsg_MessagePack, HandshakeAccepted: ToClientMsg_HandshakeAccepted, AddCelestialObject: ToClientMsg_AddCelestialObject, InitCelestialOrbit: ToClientMsg_InitCelestialOrbit, UpdateCelestialOrbit: ToClientMsg_UpdateCelestialOrbit, AddPart: ToClientMsg_AddPart, MovePart: ToClientMsg_MovePart, UpdatePartMeta: ToClientMsg_UpdatePartMeta, RemovePart: ToClientMsg_RemovePart, AddPlayer: ToClientMsg_AddPlayer, UpdatePlayerMeta: ToClientMsg_UpdatePlayerMeta, UpdatePlayerVelocity: ToClientMsg_UpdatePlayerVelocity, RemovePlayer: ToClientMsg_RemovePlayer, OrbitAdvanceTick: ToClientMsg_OrbitAdvanceTick, PostSimulationTick: ToClientMsg_PostSimulationTick, UpdateMyMeta: ToClientMsg_UpdateMyMeta, BeamOutAnimation: ToClientMsg_BeamOutAnimation, IncinerationAnimation: ToClientMsg_IncinerationAnimation, ChatMessage: ToClientMsg_ChatMessage
 };
 
