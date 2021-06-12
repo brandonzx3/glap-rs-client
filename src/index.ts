@@ -440,10 +440,9 @@ new Promise(async (resolve, reject) => {
 		else if (msg instanceof ToClientMsg.OrbitAdvanceTick) {
 			for (const planet of global.celestial_objects.values()) {
 				if (planet.orbit != null) {
-					/*let [pos, vel] = planet.orbit.advance();
-					planet.position.copyFrom(pos);
-					planet.velocity.copyFrom(vel);*/
-					planet.position.copyFrom(planet.orbit.advance());
+					let [_pos, next_pos] = planet.orbit.advance();
+					planet.position.copyFrom(next_pos);
+					//planet.position.copyFrom(planet.orbit.advance());
 					global.starguide.planets.get(planet).position.copyFrom(planet.position);
 				}
 			}
@@ -513,6 +512,8 @@ new Promise(async (resolve, reject) => {
 
 			for (const planet of global.celestial_objects.values()) {
 				if (Math.abs(planet.position.x - global.my_core.x) <= planet.render_distance && Math.abs(planet.position.y - global.my_core.y) <= planet.render_distance && !inflated_planets.has(planet)) {
+					planet.inter_x.now = planet.position.x;
+					planet.inter_y.now = planet.position.y;
 					planet.inflate_graphics();
 					inflated_planets.add(planet);
 				}
@@ -521,6 +522,8 @@ new Promise(async (resolve, reject) => {
 				if (Math.abs(planet.position.x - global.my_core.x) > planet.render_distance || Math.abs(planet.position.y - global.my_core.y) > planet.render_distance) {
 					inflated_planets.delete(planet);
 					planet.deflate_graphics();
+				} else {
+					set_next_interpolation(planet, average_server_tick_time);
 				}
 			}
 
