@@ -544,6 +544,7 @@ new Promise(async (resolve, reject) => {
 			background.tilePosition.set(-global.my_core.sprite.position.x / 50, -global.my_core.sprite.position.y / 50);
 			global.starguide.update_core_position(global.my_core.sprite.position.x, global.my_core.sprite.position.y, global.my_core.sprite.rotation);
 
+			global.starguide.retarget_destination_hologram();
 			const distance = [global.my_core.sprite.x - global.destination_hologram.x, global.my_core.sprite.y - global.destination_hologram.y];
 			global.destination_hologram.width = Math.sqrt(Math.pow(distance[0], 2) + Math.pow(distance[1], 2));
 			global.destination_hologram.rotation = Math.atan2(-distance[1], -distance[0]);

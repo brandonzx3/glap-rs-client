@@ -32,6 +32,7 @@ export class Starguide {
     destination_hologram_rectangle = new PIXI.Graphics().beginFill(0xffffff).drawRect(-1,-0.5,1,1).endFill();
     current_destination: Planet = null;
     planets: Map<Planet, PIXI.Container> = new Map();
+	orbit_rings: Map<Planet, PIXI.Graphics> = new Map();
     map_lines = new PIXI.Graphics();
 	static_effect = new PIXI.Container();
 	static_effect_onframe: Function = null;
@@ -264,7 +265,6 @@ export class Starguide {
             this.retarget_destination_hologram();
         });
 
-        this.interplanetary_lines();
         //this.map_items.addChild(text);
 
 		const container = new PIXI.Container();
@@ -311,6 +311,7 @@ export class Starguide {
     }
     retarget_destination_hologram() {
         const meta = this.current_destination;
+		if (meta == null) return;
         global.destination_hologram.position.copyFrom(meta.position);
         this.destination_hologram.position.set(meta.position.x * this.map_zoom_factor, meta.position.y * this.map_zoom_factor);
         this.destination_hologram_rectangle.position.x = -meta.radius * this.map_zoom_factor;
@@ -319,55 +320,6 @@ export class Starguide {
         global.main_hud.target_text.text = `Relative to ${meta.display_name}:`;
         global.main_hud.target_text.width = (global.main_hud.target_text.texture.width / global.main_hud.target_text.texture.height) * global.main_hud.target_text.height * 0.1;
         global.main_hud.target_graphic_mask.texture = meta.icon_mask;
-    }
-
-    interplanetary_lines() {
-		/*
-        this.map_lines.clear();
-        this.map_lines.lineStyle(7.5, 0xdd55ff);
-        const pairs: [Planet, Planet][] = [];
-        for (const obj of this.planets) {
-            if (obj.kind === PlanetKind.Moon || obj.kind === PlanetKind.Sun) continue;
-            let first: [number, Planet] = [1000000000000, null];
-            let second: [number, Planet] = [1000000000000, null];
-            //let third: [number, CelestialObjectMeta] = [1000000000000, null];
-            for (const obj2 of this.planets) {
-                if (obj2 === obj) continue;
-                if (obj2.kind === PlanetKind.Moon && obj.kind !== PlanetKind.Earth) continue;
-				if (obj2.kind === PlanetKind.Sun) continue;
-                const distance = Math.sqrt(Math.pow(obj.position.x - obj2.position.x, 2) + Math.pow(obj.position.y - obj2.position.y, 2));
-                if (distance <= first[0]) {
-                    //third = second;
-                    second = first;
-                    first = [distance, obj2];
-                } else if (distance <= second[0]) {
-                    //third = second;
-                    second = [distance, obj2];
-                } //else if (distance <= third[0]) {
-                    //third = [distance, obj2];
-                //}
-            }
-            for (const [_distance, obj2] of [first, second]) {
-                if (obj2 === null) continue;
-                let has_existed = false;
-                for (const pair of pairs) {
-                    if ((pair[0] === obj && pair[1] === obj2) || (pair[0] === obj2 && pair[1] === obj)) { has_existed = true; break;}
-                }
-                if (!has_existed) {
-                    //console.log([obj, obj2]);
-                    //console.log([obj.sprite.position.x, obj.sprite.position.y, obj2.sprite.position.x, obj2.sprite.position.y]);
-                    const distance = [obj2.position.x - obj.position.x, obj2.position.y - obj.position.y];
-                    const larger = Math.max(Math.abs(distance[0]), Math.abs(distance[1]));
-                    distance[0] /= larger; distance[1] /= larger;
-                    const point_1 = rotate_vector(obj.radius + 5, 0, distance[1], distance[0]);
-                    const point_2 = rotate_vector(obj2.radius + 5, 0, -distance[1], -distance[0]);
-                    //console.log([...point_1, ...point_2]);
-                    this.map_lines.moveTo(obj.position.x + point_1[0], obj.position.y + point_1[1]);
-                    this.map_lines.lineTo(obj2.position.x + point_2[0], obj2.position.y + point_2[1]);
-                    pairs.push([obj, obj2]);
-                }
-            }
-        }*/
     }
 
 	static_effect_on() {
