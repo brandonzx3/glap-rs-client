@@ -535,3 +535,45 @@ export class BeamOutButton {
 		global.socket.send((new ToServerMsg.BeamOut()).serialize());
 	}
 }
+
+export class PizzaQuestGui {
+    isopen: boolean;
+    container: PIXI.Container;
+
+    constructor() {
+        this.isopen = false;
+        this.container = new PIXI.Container();
+
+        this.container.visible = false;
+
+        const background = new PIXI.Graphics();
+        const width = 700;
+        const height = 500;
+        background.beginFill(0xffffff);
+        background.drawRect((screen.width / 2) - (width / 2), (screen.height / 2) - (height / 2), width, height);
+        background.endFill();
+        this.container.addChild(background);
+
+        const thing = new PIXI.Graphics()
+        thing.beginFill(0xff0000)
+        thing.drawRect(0, 0, 100, 100)
+        thing.endFill()
+        this.container.addChild(thing)
+    }
+
+    open() {
+        this.container.visible = true;
+        this.isopen = true;
+        console.log("open");
+    }
+
+    close() {
+        this.container.visible = false;
+        this.isopen = false;
+        console.log("close");
+    }
+}
+
+export class PizzaQuestTimer {
+
+}

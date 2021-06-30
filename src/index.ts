@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import * as Particles from 'pixi-particles';
 import { ToClientMsg, ToServerMsg, Box, PartKind, PlanetKind } from "./codec";
-import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_mask } from './gui';
+import { Starguide, MainHud, BeamOutButton, StarguideButton, create_planet_icon_mask, PizzaQuestGui } from './gui';
 import { PartMeta, CompactThrustMode } from "./parts";
 import { parse as qs_parse } from "query-string";
 import { validate as lib_uuid_validate } from "uuid";
@@ -62,6 +62,7 @@ export interface GlobalData {
     server_tick_times: number[];
 	server_tick_pid: PID;
 	can_beamout: boolean;
+    pizza_quest_gui: PizzaQuestGui;
 }
 
 export const global: GlobalData = {
@@ -103,6 +104,7 @@ export const global: GlobalData = {
     server_tick_times: null,
 	server_tick_pid: null,
 	can_beamout: false,
+    pizza_quest_gui: null
 };
 
 const pixi = new PIXI.Application({ autoStart: false, width: window.innerWidth, height: window.innerHeight, antialias: true, transparent: false, backgroundColor: 0 });
@@ -222,6 +224,8 @@ new Promise(async (resolve, reject) => {
     global.starguide = new Starguide();
     global.chat = new Chat();
     pixi.stage.addChild(global.starguide.container);
+    global.pizza_quest_gui = new PizzaQuestGui();
+    pixi.stage.addChild(global.pizza_quest_gui.container);
     global.destination_hologram = new PIXI.TilingSprite(global.spritesheet.textures["destination_hologram.png"], 2, 2);
     global.destination_hologram.anchor.set(1,0.5);
     global.destination_hologram.height = 0.35;
@@ -593,6 +597,9 @@ new Promise(async (resolve, reject) => {
                     break;
                 case 84: //t
                     if(!global.chat.is_open) global.chat.Open(); else if(message_box != document.activeElement && global.chat.is_open) global.chat.Close();
+                    break;
+                case 89: //dev stuff
+                    if(!global.pizza_quest_gui.isopen) global.pizza_quest_gui.open(); else global.pizza_quest_gui.close();
             };
         }
         if(e.keyCode == 27) {
