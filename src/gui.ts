@@ -539,6 +539,7 @@ export class BeamOutButton {
 export class PizzaQuestGui {
     isopen: boolean;
     container: PIXI.Container;
+    quests: PizzaQuest[] = [];
 
     constructor() {
         this.isopen = false;
@@ -547,18 +548,19 @@ export class PizzaQuestGui {
         this.container.visible = false;
 
         const background = new PIXI.Graphics();
-        const width = 700;
-        const height = 500;
+        const width = 1000;
+        const height = 700;
+        const x = (window.innerWidth / 2) - (width / 2);
+        const y = (window.innerHeight / 2) - (height / 2);
         background.beginFill(0xffffff);
-        background.drawRect((screen.width / 2) - (width / 2), (screen.height / 2) - (height / 2), width, height);
+        background.drawRect(x, y, width, height);
         background.endFill();
         this.container.addChild(background);
+        
+        //this.container.addChild(...(this.quests.map(quest => quest.root)));
 
-        const thing = new PIXI.Graphics()
-        thing.beginFill(0xff0000)
-        thing.drawRect(0, 0, 100, 100)
-        thing.endFill()
-        this.container.addChild(thing)
+        const acceptButton = new win95Button(150, 100, "not implemented yet lol", 0xff0000);
+        this.container.addChild(acceptButton.root);
     }
 
     open() {
@@ -574,6 +576,30 @@ export class PizzaQuestGui {
     }
 }
 
+class PizzaQuest {
+    root: PIXI.Container = new PIXI.Container();   
+    constructor() {
+
+    }
+}
+
 export class PizzaQuestTimer {
 
+}
+
+class win95Button {
+    root: PIXI.Container = new PIXI.Container();
+    button: PIXI.Graphics;
+    constructor(width: number, height: number, text: string, color: number) {
+        this.button = new PIXI.Graphics();
+        this.button.beginFill(color);
+        this.button.drawRect(0, 0, width, height);
+        this.button.endFill();
+
+        this.root.addChild(this.button);
+
+        this.button.interactive = true;
+        this.button.addListener("mouseover", () => { global.pixi.view.style.cursor = "pointer"; });
+        this.button.addListener("mouseout", () => { global.pixi.view.style.cursor = "default"; });
+    }
 }

@@ -10,6 +10,7 @@ const root_root = document.querySelector("#chat_root_root") as HTMLDivElement;
 let notification_root = (document.querySelector("#notification_root") as HTMLDivElement);
 let warning = (document.querySelector("#warning") as HTMLParagraphElement);
 let animation_time = 500;
+let should_auto_scroll = true;
 //notification_root.style.visibility = "hidden";
 
 const button_to_open = document.querySelector("#chat_open_button") as HTMLImageElement;
@@ -74,7 +75,7 @@ export class Chat {
         message.innerText = `${username}: ${content}`;
         message.style.color = color;
         message_root.appendChild(clone);
-        message_root.scrollTop = message_root.offsetTop + message_root.scrollHeight;
+        if(should_auto_scroll) message_root.scrollTop = message_root.offsetTop + message_root.scrollHeight;
         if(!this.is_open) {
             this.notification_count += 1;
             let temp = (document.querySelector("#notification_template") as HTMLTemplateElement);
