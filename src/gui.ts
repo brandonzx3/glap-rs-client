@@ -542,6 +542,10 @@ export class PizzaQuestGui {
     quests: PizzaQuest[] = [];
 
     constructor() {
+        //for testing duh
+        const testquest = new PizzaQuest();
+        this.quests.push(testquest);
+
         this.isopen = false;
         this.container = new PIXI.Container();
 
@@ -557,7 +561,7 @@ export class PizzaQuestGui {
         background.endFill();
         this.container.addChild(background);
         
-        //this.container.addChild(...(this.quests.map(quest => quest.root)));
+        this.container.addChild(...(this.quests.map(quest => quest.root)));
 
         const acceptButton = new win95Button(150, 100, "not implemented yet lol", 0xff0000);
         this.container.addChild(acceptButton.root);
@@ -579,7 +583,16 @@ export class PizzaQuestGui {
 class PizzaQuest {
     root: PIXI.Container = new PIXI.Container();   
     constructor() {
+        const background = new PIXI.Graphics();
+        background.beginFill(0xffff00);
+        background.drawRect(0, 0, 500, 300);
+        background.endFill();
 
+        this.root.addChild(background);
+
+        background.interactive = true;
+        background.addListener("mouseover", () => { global.pixi.view.style.cursor = "pointer"; });
+        background.addListener("mouseout", () => { global.pixi.view.style.cursor = "default"; });
     }
 }
 
