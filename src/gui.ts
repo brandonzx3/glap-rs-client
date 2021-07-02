@@ -544,7 +544,9 @@ export class PizzaQuestGui {
     constructor() {
         //for testing duh
         const testquest = new PizzaQuest();
-        this.quests.push(testquest);
+        const testquest2 = new PizzaQuest();
+        const testquest3 = new PizzaQuest();
+        this.quests.push(testquest, testquest2, testquest3);
 
         this.isopen = false;
         this.container = new PIXI.Container();
@@ -560,10 +562,19 @@ export class PizzaQuestGui {
         background.drawRect(x, y, width, height);
         background.endFill();
         this.container.addChild(background);
-        
-        this.container.addChild(...(this.quests.map(quest => quest.root)));
 
+        let questPos = 10;
+        for(let i = 0; i < this.quests.length; i++) {
+            this.quests[i].root.y = y + questPos;
+            this.quests[i].root.x = x +10;
+            questPos += 230;
+            console.log(questPos);
+        }
+
+        this.container.addChild(...(this.quests.map(quest => quest.root)));
         const acceptButton = new win95Button(150, 100, "not implemented yet lol", 0xff0000);
+        acceptButton.root.x = background.width;
+        acceptButton.root.y = background.height;
         this.container.addChild(acceptButton.root);
     }
 
@@ -585,7 +596,7 @@ class PizzaQuest {
     constructor() {
         const background = new PIXI.Graphics();
         background.beginFill(0xffff00);
-        background.drawRect(0, 0, 500, 300);
+        background.drawRect(0, 0, 490, 220);
         background.endFill();
 
         this.root.addChild(background);
@@ -603,13 +614,18 @@ export class PizzaQuestTimer {
 class win95Button {
     root: PIXI.Container = new PIXI.Container();
     button: PIXI.Graphics;
+    text: PIXI.Text;
     constructor(width: number, height: number, text: string, color: number) {
         this.button = new PIXI.Graphics();
+        this.text = new PIXI.Text(text);
         this.button.beginFill(color);
         this.button.drawRect(0, 0, width, height);
         this.button.endFill();
-
         this.root.addChild(this.button);
+        
+        this.text.x = (this.root.width / 2) - (this.text.width / 2);
+        this.text.y = (this.root.height / 2) - (this.text.height / 2);
+        this.root.addChild(this.text);
 
         this.button.interactive = true;
         this.button.addListener("mouseover", () => { global.pixi.view.style.cursor = "pointer"; });
